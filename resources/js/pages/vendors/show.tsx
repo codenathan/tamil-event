@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { MapPin, Phone, Mail, Globe, Instagram, Facebook, ArrowLeft, Send } from 'lucide-react';
 
 interface Category {
@@ -48,30 +48,28 @@ interface Props {
 export default function VendorShow({ vendor }: Props) {
     const [showEnquiry, setShowEnquiry] = useState(false);
 
-    // JSON-LD structured data
-    useEffect(() => {
-        const script = document.createElement('script');
-        script.type = 'application/ld+json';
-        script.text = JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'LocalBusiness',
-            name: vendor.name,
-            description: vendor.description,
-            address: {
-                '@type': 'PostalAddress',
-                addressLocality: vendor.city?.name,
-                addressCountry: vendor.country?.name,
-            },
-            telephone: vendor.phone,
-            email: vendor.email,
-            url: vendor.website,
-        });
-        document.head.appendChild(script);
-        return () => { document.head.removeChild(script); };
-    }, [vendor]);
-
     const location = [vendor.city?.name, vendor.country?.name].filter(Boolean).join(', ');
     const galleryImages = vendor.images.slice(0, 3);
+
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'LocalBusiness',
+        name: vendor.name,
+        description: vendor.description ?? undefined,
+        image: vendor.featured_image ?? undefined,
+        telephone: vendor.phone ?? undefined,
+        email: vendor.email ?? undefined,
+        url: vendor.website ?? undefined,
+        address: {
+            '@type': 'PostalAddress',
+            addressLocality: vendor.city?.name ?? undefined,
+            addressCountry: vendor.country?.name ?? undefined,
+        },
+        sameAs: [
+            vendor.social_instagram ? `https://instagram.com/${vendor.social_instagram}` : null,
+            vendor.social_facebook ? `https://facebook.com/${vendor.social_facebook}` : null,
+        ].filter(Boolean),
+    };
 
     return (
         <>
@@ -81,6 +79,9 @@ export default function VendorShow({ vendor }: Props) {
                     name="description"
                     content={`${vendor.description ?? ''} Contact ${vendor.name} for your Tamil event in ${location}.`}
                 />
+                <script type="application/ld+json">
+                    {JSON.stringify(jsonLd)}
+                </script>
             </Head>
 
             <div className="container py-8">
