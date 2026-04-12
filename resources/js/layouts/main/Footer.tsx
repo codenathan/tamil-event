@@ -5,6 +5,7 @@ export default function Footer() {
     const { categories, locationsByCountry } = usePage<{
         categories: Category[];
         locationsByCountry: LocationsByCountry;
+        [key: string]: unknown;
     }>().props;
     const popularLocations = Object.values(locationsByCountry)
         .flat()

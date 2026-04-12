@@ -22,6 +22,7 @@ const LocationDropdown = ({
     const inputRef = useRef<HTMLInputElement>(null);
     const { locationsByCountry } = usePage<{
         locationsByCountry: LocationsByCountry;
+        [key: string]: unknown;
     }>().props;
 
     useEffect(() => {

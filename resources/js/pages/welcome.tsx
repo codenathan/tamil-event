@@ -5,6 +5,7 @@ import type { Category } from '@/data/categories';
 
 interface PageProps {
     categories: Category[];
+    [key: string]: unknown;
 }
 
 export default function Welcome() {

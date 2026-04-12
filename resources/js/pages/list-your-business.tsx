@@ -30,6 +30,7 @@ interface Props {
 interface PageProps {
     categories: Category[];
     locationsByCountry: LocationsByCountry;
+    [key: string]: unknown;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
