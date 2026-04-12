@@ -6,6 +6,7 @@ use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\Vendor;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -17,13 +18,18 @@ class DatabaseSeeder extends Seeder
         $this->call(CategorySeeder::class);
         $this->call(CountrySeeder::class);
         $this->call(CitySeeder::class);
+        $this->call(RolesAndPermissionsSeeder::class);
 
         Vendor::factory(50)->create();
         // User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        $user = User::factory()->create([
+            'name' => 'Admin User',
+            'email' => 'sakees@codenathan.com',
+            'password' => Hash::make('THE59dhYu2ye'),
         ]);
+
+        $user->assignRole('admin');
+
     }
 }
