@@ -1,6 +1,15 @@
-import { Link } from '@inertiajs/react';
-import { categories } from '@/data/categories';
+import { Link, usePage } from '@inertiajs/react';
+import type { Category, LocationsByCountry } from '@/data/categories';
+
 export default function Footer() {
+    const { categories, locationsByCountry } = usePage<{
+        categories: Category[];
+        locationsByCountry: LocationsByCountry;
+    }>().props;
+    const popularLocations = Object.values(locationsByCountry)
+        .flat()
+        .slice(0, 6);
+
     return (
         <footer className="mt-20 border-t border-border bg-muted/30">
             <div className="container grid grid-cols-1 gap-8 py-12 sm:grid-cols-2 lg:grid-cols-4">
@@ -36,16 +45,12 @@ export default function Footer() {
                         Locations
                     </h4>
                     <ul className="space-y-2">
-                        {[
-                            'London',
-                            'Toronto',
-                            'Sydney',
-                            'Paris',
-                            'Dubai',
-                            'Chennai',
-                        ].map((loc) => (
+                        {popularLocations.map((loc) => (
                             <li key={loc}>
-                                <Link href={`/location/${loc.toLowerCase().replace(' ', '-')}`} className="text-sm text-muted-foreground">
+                                <Link
+                                    href={`/location/${loc.toLowerCase().replace(' ', '-')}`}
+                                    className="text-sm text-muted-foreground"
+                                >
                                     {loc}
                                 </Link>
                             </li>

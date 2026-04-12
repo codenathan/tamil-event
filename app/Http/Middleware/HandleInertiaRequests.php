@@ -2,7 +2,11 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Category;
+use App\Models\City;
+use App\Models\Country;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -46,6 +50,30 @@ class HandleInertiaRequests extends Middleware
                 'success' => $request->session()->get('success'),
                 'error'   => $request->session()->get('error'),
             ],
+            'categories' => $this->sharedCategories(),
+            'locationsByCountry' => $this->sharedLocationsByCountry(),
         ];
+    }
+
+    protected function sharedCategories(): array
+    {
+        return Cache::rememberForever('inertia.categories', function () {
+            return Category::orderBy('name')
+                ->get(['id', 'name', 'slug', 'icon', 'description'])
+                ->toArray();
+        });
+    }
+
+    protected function sharedLocationsByCountry(): array
+    {
+        return Cache::rememberForever('inertia.locations_by_country', function () {
+            return Country::with(['cities' => fn ($query) => $query->orderBy('name')])
+                ->orderBy('name')
+                ->get(['id', 'name', 'slug'])
+                ->mapWithKeys(fn ($country) => [
+                    $country->name => $country->cities->pluck('name')->all(),
+                ])
+                ->toArray();
+        });
     }
 }

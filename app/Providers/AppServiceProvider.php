@@ -2,7 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\Category;
+use App\Models\City;
+use App\Models\Country;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
@@ -24,6 +28,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+        $this->configureCacheInvalidation();
     }
 
     /**
@@ -46,5 +51,17 @@ class AppServiceProvider extends ServiceProvider
                 ->uncompromised()
             : null,
         );
+    }
+
+    protected function configureCacheInvalidation(): void
+    {
+        Category::saved(fn () => Cache::forget('inertia.categories'));
+        Category::deleted(fn () => Cache::forget('inertia.categories'));
+
+        Country::saved(fn () => Cache::forget('inertia.locations_by_country'));
+        Country::deleted(fn () => Cache::forget('inertia.locations_by_country'));
+
+        City::saved(fn () => Cache::forget('inertia.locations_by_country'));
+        City::deleted(fn () => Cache::forget('inertia.locations_by_country'));
     }
 }

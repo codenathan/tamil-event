@@ -1,8 +1,8 @@
-import { Head, useForm } from "@inertiajs/react";
-import { X } from "lucide-react";
-import type { FormEvent } from "react";
-import { useState, useRef } from "react";
-import { categories, locationsByCountry } from '@/data/categories';
+import { Head, useForm, usePage } from '@inertiajs/react';
+import { X } from 'lucide-react';
+import type { FormEvent } from 'react';
+import { useState, useRef } from 'react';
+import type { Category, LocationsByCountry } from '@/data/categories';
 import { store } from '@/routes/list-your-business';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -27,28 +27,37 @@ interface Props {
     flash?: { success?: string; error?: string };
 }
 
+interface PageProps {
+    categories: Category[];
+    locationsByCountry: LocationsByCountry;
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function ListYourBusiness({ flash }: Props) {
+    const { categories, locationsByCountry } = usePage<PageProps>().props;
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [previews, setPreviews] = useState<{ file: File; preview: string }[]>([]);
+    const [previews, setPreviews] = useState<{ file: File; preview: string }[]>(
+        [],
+    );
 
-    const { data, setData, post, processing, errors, reset } = useForm<FormFields>({
-        businessName: "",
-        category: "",
-        country: "",
-        city: "",
-        description: "",
-        phone: "",
-        email: "",
-        website: "",
-        instagram: "",
-        facebook: "",
-        agreeTerms: false,
-        images: [],
-    });
+    const { data, setData, post, processing, errors, reset } =
+        useForm<FormFields>({
+            businessName: '',
+            category: '',
+            country: '',
+            city: '',
+            description: '',
+            phone: '',
+            email: '',
+            website: '',
+            instagram: '',
+            facebook: '',
+            agreeTerms: false,
+            images: [],
+        });
 
-    const cities = data.country ? locationsByCountry[data.country] ?? [] : [];
+    const cities = data.country ? (locationsByCountry[data.country] ?? []) : [];
 
     // ── Image handling ──────────────────────────────────────────────────────────
 
@@ -58,20 +67,31 @@ export default function ListYourBusiness({ flash }: Props) {
         }
 
         const valid = Array.from(files)
-            .filter((f) => f.type.startsWith("image/") && f.size <= 5 * 1024 * 1024)
+            .filter(
+                (f) => f.type.startsWith('image/') && f.size <= 5 * 1024 * 1024,
+            )
             .slice(0, 6 - previews.length);
 
-        const newPreviews = valid.map((file) => ({ file, preview: URL.createObjectURL(file) }));
+        const newPreviews = valid.map((file) => ({
+            file,
+            preview: URL.createObjectURL(file),
+        }));
         const merged = [...previews, ...newPreviews].slice(0, 6);
         setPreviews(merged);
-        setData("images", merged.map((p) => p.file));
+        setData(
+            'images',
+            merged.map((p) => p.file),
+        );
     };
 
     const removeImage = (index: number) => {
         setPreviews((prev) => {
             URL.revokeObjectURL(prev[index].preview);
             const next = prev.filter((_, i) => i !== index);
-            setData("images", next.map((p) => p.file));
+            setData(
+                'images',
+                next.map((p) => p.file),
+            );
 
             return next;
         });
@@ -100,7 +120,7 @@ export default function ListYourBusiness({ flash }: Props) {
     const inputClass =
         'w-full rounded-xl border border-input bg-card px-4 h-11 text-sm font-body placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring';
     const labelClass = 'block text-sm font-semibold mb-1.5';
-    const errorClass = "text-xs text-red-500 mt-1";
+    const errorClass = 'text-xs text-red-500 mt-1';
 
     return (
         <>

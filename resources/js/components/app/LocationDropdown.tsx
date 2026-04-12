@@ -1,6 +1,7 @@
 import { MapPin, ChevronDown, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { locationsByCountry, allLocations } from '@/data/categories';
+import { usePage } from '@inertiajs/react';
+import type { LocationsByCountry } from '@/data/categories';
 
 interface LocationDropdownProps {
     value: string;
@@ -19,6 +20,9 @@ const LocationDropdown = ({
     const [search, setSearch] = useState('');
     const containerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+    const { locationsByCountry } = usePage<{
+        locationsByCountry: LocationsByCountry;
+    }>().props;
 
     useEffect(() => {
         const handler = (e: MouseEvent) => {
@@ -48,7 +52,7 @@ const LocationDropdown = ({
             }
         }
         return result;
-    }, [search]);
+    }, [search, locationsByCountry]);
 
     const handleSelectCity = (city: string, country: string) => {
         onChange(`${city}, ${country}`);
@@ -115,7 +119,7 @@ const LocationDropdown = ({
                                 <button
                                     type="button"
                                     onClick={() => handleSelectCountry(country)}
-                                    className="w-full px-4 pt-3 pb-1 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase hover:text-primary transition-colors"
+                                    className="w-full px-4 pt-3 pb-1 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase transition-colors hover:text-primary"
                                 >
                                     {country}
                                 </button>
@@ -123,7 +127,9 @@ const LocationDropdown = ({
                                     <button
                                         key={`${city}-${country}`}
                                         type="button"
-                                        onClick={() => handleSelectCity(city, country)}
+                                        onClick={() =>
+                                            handleSelectCity(city, country)
+                                        }
                                         className="w-full px-4 py-2 text-left font-body text-sm transition-colors hover:bg-accent/10"
                                     >
                                         {city}

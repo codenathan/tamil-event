@@ -1,10 +1,15 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import CategoryCard from '@/components/app/CategoryCard';
 import SearchBar from '@/components/app/SearchBar';
-import { categories } from '@/data/categories';
+import type { Category } from '@/data/categories';
 
+interface PageProps {
+    categories: Category[];
+}
 
 export default function Welcome() {
+    const { categories } = usePage<PageProps>().props;
+
     return (
         <>
             <Head>
