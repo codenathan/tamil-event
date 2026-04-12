@@ -26,21 +26,6 @@ export default function Header() {
                     </span>
                 </Link>
 
-                <form
-                    onSubmit={handleSearch}
-                    className="mx-4 hidden max-w-md flex-1 md:flex"
-                >
-                    <div className="relative w-full">
-                        <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                        <input
-                            type="text"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Search services..."
-                            className="h-9 w-full rounded-lg border border-input bg-muted/50 pr-4 pl-9 font-body text-sm placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:outline-none"
-                        />
-                    </div>
-                </form>
 
                 <nav className="hidden items-center gap-4 md:flex">
                     <Link

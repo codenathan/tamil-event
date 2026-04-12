@@ -1,51 +1,9 @@
-/**
- * resources/js/Pages/ListYourBusiness.tsx
- *
- * Laravel 13 + Inertia.js + React conversion of ListYourBusiness.
- *
- * Drop into: resources/js/Pages/ListYourBusiness.tsx
- *
- * Requirements:
- *   npm install @inertiajs/react
- *   (shadcn/ui Checkbox is replaced with a plain accessible checkbox below)
- */
-
-import { useState, useRef, FormEvent } from "react";
 import { Head, useForm } from "@inertiajs/react";
 import { X } from "lucide-react";
+import type { FormEvent } from "react";
+import { useState, useRef } from "react";
+import { categories, locationsByCountry } from '@/data/categories';
 import { store } from '@/routes/list-your-business';
-
-// ─── Static data (move to a shared file or pass via Inertia props) ────────────
-
-export const CATEGORIES = [
-    { slug: "photography", name: "Photography" },
-    { slug: "videography", name: "Videography" },
-    { slug: "catering", name: "Catering" },
-    { slug: "mehendi", name: "Mehendi / Henna" },
-    { slug: "makeup", name: "Makeup & Hair" },
-    { slug: "venue", name: "Venue Hire" },
-    { slug: "music-dj", name: "Music & DJ" },
-    { slug: "florist", name: "Florist" },
-    { slug: "decor", name: "Decoration" },
-    { slug: "invitation", name: "Invitations & Stationery" },
-    { slug: "mc-compere", name: "MC / Compere" },
-    { slug: "travel", name: "Travel & Accommodation" },
-    { slug: "other", name: "Other" },
-];
-
-export const LOCATIONS_BY_COUNTRY: Record<string, string[]> = {
-    "United Kingdom": ["London", "Manchester", "Birmingham", "Leicester", "Leeds", "Glasgow", "Bristol", "Sheffield"],
-    "Canada": ["Toronto", "Vancouver", "Montreal", "Calgary", "Ottawa", "Edmonton"],
-    "Australia": ["Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide"],
-    "United States": ["New York", "Los Angeles", "Chicago", "Houston", "San Francisco", "Dallas"],
-    "Germany": ["Berlin", "Frankfurt", "Munich", "Hamburg", "Cologne"],
-    "France": ["Paris", "Lyon", "Marseille", "Bordeaux"],
-    "Switzerland": ["Zurich", "Geneva", "Basel", "Bern"],
-    "UAE": ["Dubai", "Abu Dhabi", "Sharjah"],
-    "Singapore": ["Singapore"],
-    "India": ["Chennai", "Mumbai", "Delhi", "Bangalore", "Hyderabad"],
-    "Sri Lanka": ["Colombo", "Jaffna", "Kandy"],
-};
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -90,7 +48,7 @@ export default function ListYourBusiness({ flash }: Props) {
         images: [],
     });
 
-    const cities = data.country ? LOCATIONS_BY_COUNTRY[data.country] ?? [] : [];
+    const cities = data.country ? locationsByCountry[data.country] ?? [] : [];
 
     // ── Image handling ──────────────────────────────────────────────────────────
 
@@ -210,7 +168,7 @@ export default function ListYourBusiness({ flash }: Props) {
                             className={`${inputClass} appearance-none`}
                         >
                             <option value="">Select a category</option>
-                            {CATEGORIES.map((c) => (
+                            {categories.map((c) => (
                                 <option key={c.slug} value={c.slug}>
                                     {c.name}
                                 </option>
@@ -235,7 +193,7 @@ export default function ListYourBusiness({ flash }: Props) {
                                 className={`${inputClass} appearance-none`}
                             >
                                 <option value="">Select country</option>
-                                {Object.keys(LOCATIONS_BY_COUNTRY).map((c) => (
+                                {Object.keys(locationsByCountry).map((c) => (
                                     <option key={c} value={c}>
                                         {c}
                                     </option>
