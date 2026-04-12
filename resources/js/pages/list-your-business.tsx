@@ -1,0 +1,485 @@
+/**
+ * resources/js/Pages/ListYourBusiness.tsx
+ *
+ * Laravel 13 + Inertia.js + React conversion of ListYourBusiness.
+ *
+ * Drop into: resources/js/Pages/ListYourBusiness.tsx
+ *
+ * Requirements:
+ *   npm install @inertiajs/react
+ *   (shadcn/ui Checkbox is replaced with a plain accessible checkbox below)
+ */
+
+import { useState, useRef, FormEvent } from "react";
+import { Head, useForm } from "@inertiajs/react";
+import { X } from "lucide-react";
+import { store } from '@/routes/list-your-business';
+
+// ─── Static data (move to a shared file or pass via Inertia props) ────────────
+
+export const CATEGORIES = [
+    { slug: "photography", name: "Photography" },
+    { slug: "videography", name: "Videography" },
+    { slug: "catering", name: "Catering" },
+    { slug: "mehendi", name: "Mehendi / Henna" },
+    { slug: "makeup", name: "Makeup & Hair" },
+    { slug: "venue", name: "Venue Hire" },
+    { slug: "music-dj", name: "Music & DJ" },
+    { slug: "florist", name: "Florist" },
+    { slug: "decor", name: "Decoration" },
+    { slug: "invitation", name: "Invitations & Stationery" },
+    { slug: "mc-compere", name: "MC / Compere" },
+    { slug: "travel", name: "Travel & Accommodation" },
+    { slug: "other", name: "Other" },
+];
+
+export const LOCATIONS_BY_COUNTRY: Record<string, string[]> = {
+    "United Kingdom": ["London", "Manchester", "Birmingham", "Leicester", "Leeds", "Glasgow", "Bristol", "Sheffield"],
+    "Canada": ["Toronto", "Vancouver", "Montreal", "Calgary", "Ottawa", "Edmonton"],
+    "Australia": ["Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide"],
+    "United States": ["New York", "Los Angeles", "Chicago", "Houston", "San Francisco", "Dallas"],
+    "Germany": ["Berlin", "Frankfurt", "Munich", "Hamburg", "Cologne"],
+    "France": ["Paris", "Lyon", "Marseille", "Bordeaux"],
+    "Switzerland": ["Zurich", "Geneva", "Basel", "Bern"],
+    "UAE": ["Dubai", "Abu Dhabi", "Sharjah"],
+    "Singapore": ["Singapore"],
+    "India": ["Chennai", "Mumbai", "Delhi", "Bangalore", "Hyderabad"],
+    "Sri Lanka": ["Colombo", "Jaffna", "Kandy"],
+};
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface FormFields {
+    businessName: string;
+    category: string;
+    country: string;
+    city: string;
+    description: string;
+    phone: string;
+    email: string;
+    website: string;
+    instagram: string;
+    facebook: string;
+    agreeTerms: boolean;
+    images: File[];
+    [key: string]: string | boolean | File[];
+}
+
+interface Props {
+    flash?: { success?: string; error?: string };
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
+export default function ListYourBusiness({ flash }: Props) {
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [previews, setPreviews] = useState<{ file: File; preview: string }[]>([]);
+
+    const { data, setData, post, processing, errors, reset } = useForm<FormFields>({
+        businessName: "",
+        category: "",
+        country: "",
+        city: "",
+        description: "",
+        phone: "",
+        email: "",
+        website: "",
+        instagram: "",
+        facebook: "",
+        agreeTerms: false,
+        images: [],
+    });
+
+    const cities = data.country ? LOCATIONS_BY_COUNTRY[data.country] ?? [] : [];
+
+    // ── Image handling ──────────────────────────────────────────────────────────
+
+    const handleFiles = (files: FileList | null) => {
+        if (!files) {
+            return;
+        }
+
+        const valid = Array.from(files)
+            .filter((f) => f.type.startsWith("image/") && f.size <= 5 * 1024 * 1024)
+            .slice(0, 6 - previews.length);
+
+        const newPreviews = valid.map((file) => ({ file, preview: URL.createObjectURL(file) }));
+        const merged = [...previews, ...newPreviews].slice(0, 6);
+        setPreviews(merged);
+        setData("images", merged.map((p) => p.file));
+    };
+
+    const removeImage = (index: number) => {
+        setPreviews((prev) => {
+            URL.revokeObjectURL(prev[index].preview);
+            const next = prev.filter((_, i) => i !== index);
+            setData("images", next.map((p) => p.file));
+
+            return next;
+        });
+    };
+
+    // ── Submit ──────────────────────────────────────────────────────────────────
+
+    const handleSubmit = (e: FormEvent) => {
+        e.preventDefault();
+
+        if (!data.agreeTerms) {
+            return;
+        } // HTML5 validation also guards this
+
+        post(store().url, {
+            forceFormData: true, // required for file uploads with Inertia
+            onSuccess: () => {
+                reset();
+                setPreviews([]);
+            },
+        });
+    };
+
+    // ── Styles (Tailwind — mirrors your existing token names) ───────────────────
+
+    const inputClass =
+        'w-full rounded-xl border border-input bg-card px-4 h-11 text-sm font-body placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring';
+    const labelClass = 'block text-sm font-semibold mb-1.5';
+    const errorClass = "text-xs text-red-500 mt-1";
+
+    return (
+        <>
+            <Head title="List Your Business | Global Tamil Event Directory" />
+
+            {/* ── Flash messages ── */}
+            {flash?.success && (
+                <div className="mx-auto mt-6 mb-4 max-w-2xl rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+                    {flash.success}
+                </div>
+            )}
+            {flash?.error && (
+                <div className="mx-auto mt-6 mb-4 max-w-2xl rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    {flash.error}
+                </div>
+            )}
+
+            {/* ── Hero ── */}
+            <section className="gradient-hero py-16 md:py-20">
+                <div className="animate-fade-in-up container text-center">
+                    <h1 className="mb-4 font-display text-3xl font-bold text-primary-foreground md:text-5xl">
+                        Join Our Global Tamil Event Directory
+                    </h1>
+                    <p className="mx-auto max-w-xl font-body text-lg text-primary-foreground/80">
+                        List your business to connect with the global Tamil
+                        community looking for event services.
+                    </p>
+                </div>
+            </section>
+
+            {/* ── Form ── */}
+            <section className="mx-auto max-w-2xl px-4 py-12">
+                <form
+                    onSubmit={handleSubmit}
+                    className="space-y-6"
+                    encType="multipart/form-data"
+                >
+                    {/* Business Name */}
+                    <div>
+                        <label className={labelClass}>Business Name *</label>
+                        <input
+                            required
+                            type="text"
+                            value={data.businessName}
+                            onChange={(e) =>
+                                setData('businessName', e.target.value)
+                            }
+                            placeholder="e.g. Radiance Studios"
+                            className={inputClass}
+                        />
+                        {errors.businessName && (
+                            <p className={errorClass}>{errors.businessName}</p>
+                        )}
+                    </div>
+
+                    {/* Category */}
+                    <div>
+                        <label className={labelClass}>Category *</label>
+                        <select
+                            required
+                            value={data.category}
+                            onChange={(e) =>
+                                setData('category', e.target.value)
+                            }
+                            className={`${inputClass} appearance-none`}
+                        >
+                            <option value="">Select a category</option>
+                            {CATEGORIES.map((c) => (
+                                <option key={c.slug} value={c.slug}>
+                                    {c.name}
+                                </option>
+                            ))}
+                        </select>
+                        {errors.category && (
+                            <p className={errorClass}>{errors.category}</p>
+                        )}
+                    </div>
+
+                    {/* Location */}
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div>
+                            <label className={labelClass}>Country *</label>
+                            <select
+                                required
+                                value={data.country}
+                                onChange={(e) => {
+                                    setData('country', e.target.value);
+                                    setData('city', '');
+                                }}
+                                className={`${inputClass} appearance-none`}
+                            >
+                                <option value="">Select country</option>
+                                {Object.keys(LOCATIONS_BY_COUNTRY).map((c) => (
+                                    <option key={c} value={c}>
+                                        {c}
+                                    </option>
+                                ))}
+                            </select>
+                            {errors.country && (
+                                <p className={errorClass}>{errors.country}</p>
+                            )}
+                        </div>
+                        <div>
+                            <label className={labelClass}>City *</label>
+                            <select
+                                required
+                                value={data.city}
+                                onChange={(e) =>
+                                    setData('city', e.target.value)
+                                }
+                                className={`${inputClass} appearance-none`}
+                                disabled={!data.country}
+                            >
+                                <option value="">Select city</option>
+                                {cities.map((c) => (
+                                    <option key={c} value={c}>
+                                        {c}
+                                    </option>
+                                ))}
+                            </select>
+                            {errors.city && (
+                                <p className={errorClass}>{errors.city}</p>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Description */}
+                    <div>
+                        <label className={labelClass}>
+                            Short Description *
+                        </label>
+                        <textarea
+                            required
+                            value={data.description}
+                            onChange={(e) =>
+                                setData('description', e.target.value)
+                            }
+                            placeholder="Tell potential clients about your services..."
+                            rows={4}
+                            maxLength={500}
+                            className="w-full resize-none rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-rose-500 focus:outline-none"
+                        />
+                        <p className="mt-1 text-xs text-gray-400">
+                            {data.description.length}/500
+                        </p>
+                        {errors.description && (
+                            <p className={errorClass}>{errors.description}</p>
+                        )}
+                    </div>
+
+                    {/* Portfolio Images */}
+                    <div>
+                        <label className={labelClass}>
+                            Logo / Portfolio Images (up to 6)
+                        </label>
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp"
+                            multiple
+                            className="hidden"
+                            onChange={(e) => handleFiles(e.target.files)}
+                        />
+                        <div
+                            className="cursor-pointer rounded-xl border-2 border-dashed border-input bg-card p-6 text-center transition-colors hover:border-primary/50"
+                            onClick={() => fileInputRef.current?.click()}
+                            onDragOver={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                            }}
+                            onDrop={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleFiles(e.dataTransfer.files);
+                            }}
+                        >
+                            <p className="text-sm text-gray-500">
+                                Drag & drop images here, or{' '}
+                                <span className="font-medium text-primary">
+                                    browse
+                                </span>
+                            </p>
+                            <p className="mt-1 text-xs text-gray-400">
+                                PNG, JPG, WebP up to 5MB each
+                            </p>
+                        </div>
+
+                        {previews.length > 0 && (
+                            <div className="mt-3 grid grid-cols-3 gap-3">
+                                {previews.map((img, i) => (
+                                    <div
+                                        key={i}
+                                        className="group relative aspect-square overflow-hidden rounded-lg"
+                                    >
+                                        <img
+                                            src={img.preview}
+                                            alt={`Upload ${i + 1}`}
+                                            className="h-full w-full object-cover"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => removeImage(i)}
+                                            className="absolute top-1 right-1 rounded-full bg-red-600 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                                        >
+                                            <X className="h-3 w-3" />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        {errors.images && (
+                            <p className={errorClass}>{errors.images}</p>
+                        )}
+                    </div>
+
+                    {/* Contact */}
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div>
+                            <label className={labelClass}>Phone *</label>
+                            <input
+                                required
+                                type="tel"
+                                value={data.phone}
+                                onChange={(e) =>
+                                    setData('phone', e.target.value)
+                                }
+                                placeholder="+44 20 7123 4567"
+                                className={inputClass}
+                            />
+                            {errors.phone && (
+                                <p className={errorClass}>{errors.phone}</p>
+                            )}
+                        </div>
+                        <div>
+                            <label className={labelClass}>Email *</label>
+                            <input
+                                required
+                                type="email"
+                                value={data.email}
+                                onChange={(e) =>
+                                    setData('email', e.target.value)
+                                }
+                                placeholder="hello@business.com"
+                                className={inputClass}
+                            />
+                            {errors.email && (
+                                <p className={errorClass}>{errors.email}</p>
+                            )}
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className={labelClass}>Website</label>
+                        <input
+                            type="url"
+                            value={data.website}
+                            onChange={(e) => setData('website', e.target.value)}
+                            placeholder="https://yourbusiness.com"
+                            className={inputClass}
+                        />
+                        {errors.website && (
+                            <p className={errorClass}>{errors.website}</p>
+                        )}
+                    </div>
+
+                    {/* Social */}
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div>
+                            <label className={labelClass}>
+                                Instagram (optional)
+                            </label>
+                            <input
+                                type="text"
+                                value={data.instagram}
+                                onChange={(e) =>
+                                    setData('instagram', e.target.value)
+                                }
+                                placeholder="@yourbusiness"
+                                className={inputClass}
+                            />
+                        </div>
+                        <div>
+                            <label className={labelClass}>
+                                Facebook (optional)
+                            </label>
+                            <input
+                                type="text"
+                                value={data.facebook}
+                                onChange={(e) =>
+                                    setData('facebook', e.target.value)
+                                }
+                                placeholder="YourBusinessPage"
+                                className={inputClass}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Terms */}
+                    <div className="flex items-start gap-3">
+                        <input
+                            id="terms"
+                            type="checkbox"
+                            required
+                            checked={data.agreeTerms}
+                            onChange={(e) =>
+                                setData('agreeTerms', e.target.checked)
+                            }
+                            className="mt-0.5 h-4 w-4 cursor-pointer rounded border-gray-300 text-rose-600 focus:ring-rose-500"
+                        />
+                        <label
+                            htmlFor="terms"
+                            className="cursor-pointer font-body text-sm leading-snug"
+                        >
+                            I agree to the{' '}
+                            <span className="font-medium text-primary">
+                                Terms & Conditions
+                            </span>{' '}
+                            and confirm that all information provided is
+                            accurate.
+                        </label>
+                    </div>
+
+                    {/* Submit */}
+                    <button
+                        type="submit"
+                        disabled={processing}
+                        className="h-12 w-full rounded-xl bg-primary text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
+                    >
+                        {processing ? 'Submitting…' : 'Submit for Review'}
+                    </button>
+
+                    <p className="text-center text-xs text-gray-400">
+                        All submissions are reviewed by our team before being
+                        listed in the directory.
+                    </p>
+                </form>
+            </section>
+        </>
+    );
+}
