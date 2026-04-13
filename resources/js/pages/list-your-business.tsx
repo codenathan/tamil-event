@@ -19,8 +19,9 @@ interface FormFields {
     instagram: string;
     facebook: string;
     agreeTerms: boolean;
+    featuredImage: File | null;
     images: File[];
-    [key: string]: string | boolean | File[];
+    [key: string]: string | boolean | File | File[] | null;
 }
 
 interface Props {
@@ -38,9 +39,14 @@ interface PageProps {
 export default function ListYourBusiness({ flash }: Props) {
     const { categories, locationsByCountry } = usePage<PageProps>().props;
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const featuredImageInputRef = useRef<HTMLInputElement>(null);
     const [previews, setPreviews] = useState<{ file: File; preview: string }[]>(
         [],
     );
+    const [featuredPreview, setFeaturedPreview] = useState<{
+        file: File;
+        preview: string;
+    } | null>(null);
 
     const { data, setData, post, processing, errors, reset } =
         useForm<FormFields>({
@@ -55,10 +61,30 @@ export default function ListYourBusiness({ flash }: Props) {
             instagram: '',
             facebook: '',
             agreeTerms: false,
+            featuredImage: null,
             images: [],
         });
 
     const cities = data.country ? (locationsByCountry[data.country] ?? []) : [];
+
+    // ── Featured image handling ─────────────────────────────────────────────────
+
+    const handleFeaturedImage = (files: FileList | null) => {
+        if (!files || files.length === 0) return;
+        const file = files[0];
+        if (!file.type.startsWith('image/') || file.size > 5 * 1024 * 1024) return;
+        if (featuredPreview) URL.revokeObjectURL(featuredPreview.preview);
+        const preview = URL.createObjectURL(file);
+        setFeaturedPreview({ file, preview });
+        setData('featuredImage', file);
+    };
+
+    const removeFeaturedImage = () => {
+        if (featuredPreview) URL.revokeObjectURL(featuredPreview.preview);
+        setFeaturedPreview(null);
+        setData('featuredImage', null);
+        if (featuredImageInputRef.current) featuredImageInputRef.current.value = '';
+    };
 
     // ── Image handling ──────────────────────────────────────────────────────────
 
@@ -112,6 +138,8 @@ export default function ListYourBusiness({ flash }: Props) {
             onSuccess: () => {
                 reset();
                 setPreviews([]);
+                if (featuredPreview) URL.revokeObjectURL(featuredPreview.preview);
+                setFeaturedPreview(null);
             },
         });
     };
@@ -262,7 +290,7 @@ export default function ListYourBusiness({ flash }: Props) {
                             placeholder="Tell potential clients about your services..."
                             rows={4}
                             maxLength={500}
-                            className="w-full resize-none rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-rose-500 focus:outline-none"
+                            className="w-full rounded-xl border border-input bg-card px-4 py-3 text-sm font-body placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
                         />
                         <p className="mt-1 text-xs text-gray-400">
                             {data.description.length}/500
@@ -272,10 +300,70 @@ export default function ListYourBusiness({ flash }: Props) {
                         )}
                     </div>
 
+                    {/* Featured Image */}
+                    <div>
+                        <label className={labelClass}>Featured Image</label>
+                        <input
+                            ref={featuredImageInputRef}
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp"
+                            className="hidden"
+                            onChange={(e) => handleFeaturedImage(e.target.files)}
+                        />
+                        {!featuredPreview ? (
+                            <div
+                                className="cursor-pointer rounded-xl border-2 border-dashed border-input bg-card p-6 text-center transition-colors hover:border-primary/50"
+                                onClick={() => featuredImageInputRef.current?.click()}
+                                onDragOver={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                }}
+                                onDrop={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    handleFeaturedImage(e.dataTransfer.files);
+                                }}
+                            >
+                                <p className="text-sm text-gray-500">
+                                    Drag & drop your featured image, or{' '}
+                                    <span className="font-medium text-primary">
+                                        browse
+                                    </span>
+                                </p>
+                                <p className="mt-1 text-xs text-gray-400">
+                                    PNG, JPG, WebP up to 5MB — displayed as your main listing image
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="group relative mt-1 overflow-hidden rounded-xl border border-input">
+                                <img
+                                    src={featuredPreview.preview}
+                                    alt="Featured image preview"
+                                    className="h-48 w-full object-cover"
+                                />
+                                <div className="absolute inset-0 flex items-end justify-between bg-gradient-to-t from-black/40 to-transparent p-3 opacity-0 transition-opacity group-hover:opacity-100">
+                                    <span className="truncate text-xs text-white">
+                                        {featuredPreview.file.name}
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={removeFeaturedImage}
+                                        className="ml-2 shrink-0 rounded-full bg-red-600 p-1 text-white"
+                                    >
+                                        <X className="h-3 w-3" />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                        {errors.featuredImage && (
+                            <p className={errorClass}>{errors.featuredImage}</p>
+                        )}
+                    </div>
+
                     {/* Portfolio Images */}
                     <div>
                         <label className={labelClass}>
-                            Logo / Portfolio Images (up to 6)
+                            Portfolio Images (up to 6)
                         </label>
                         <input
                             ref={fileInputRef}
