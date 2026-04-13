@@ -1,6 +1,11 @@
 <?php
 
-use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\CmsController;
+use App\Http\Controllers\Admin\InboxController;
+use App\Http\Controllers\Admin\VendorApplicationsController;
+use App\Http\Controllers\Admin\VendorsController;
+use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ListYourBusinessController;
@@ -30,8 +35,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
 
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/dashboard', [AdminDashboardController::class, 'index'])
-            ->name('dashboard');
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/inbox', [InboxController::class, 'index'])->name('admin.inbox');
+        Route::get('/vendors', [VendorsController::class, 'index'])->name('admin.vendors');
+        Route::get('/cms', [CmsController::class, 'index'])->name('admin.cms');
+        Route::get('/applications', [VendorApplicationsController::class, 'index'])->name('admin.applications');
+        Route::get('/users', [UsersController::class, 'index'])->name('admin.users');
     });
 });
 
