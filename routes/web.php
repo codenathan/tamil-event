@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\VendorsController;
 use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ListYourBusinessController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\SearchController;
@@ -32,15 +33,15 @@ Route::get('category/{category:slug}', [CategoryController::class, 'show'])->nam
 Route::get('location/{city:slug}', [LocationController::class, 'show'])->name('location.show');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-        Route::get('/inbox', [InboxController::class, 'index'])->name('admin.inbox');
-        Route::get('/vendors', [VendorsController::class, 'index'])->name('admin.vendors');
-        Route::get('/cms', [CmsController::class, 'index'])->name('admin.cms');
-        Route::get('/applications', [VendorApplicationsController::class, 'index'])->name('admin.applications');
-        Route::get('/users', [UsersController::class, 'index'])->name('admin.users');
+        Route::get('/inbox', [InboxController::class, 'index'])->name('inbox');
+        Route::get('/vendors', [VendorsController::class, 'index'])->name('vendors');
+        Route::get('/cms', [CmsController::class, 'index'])->name('cms');
+        Route::get('/applications', [VendorApplicationsController::class, 'index'])->name('applications');
+        Route::get('/users', [UsersController::class, 'index'])->name('users');
     });
 });
 

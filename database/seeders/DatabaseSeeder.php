@@ -31,5 +31,10 @@ class DatabaseSeeder extends Seeder
 
         $user->assignRole('admin');
 
+        User::factory()->create([
+            'name' => 'Local User',
+            'email' => 'test@codenathan.com',
+            'password' => Hash::make('THE59dhYu2ye'),
+        ]);
     }
 }
