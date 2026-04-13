@@ -85,9 +85,9 @@ export default function Footer() {
                             </Link>
                         </li>
                         <li>
-                            <span className="text-sm text-muted-foreground">
-                                Terms of Service
-                            </span>
+                            <Link href='/links' className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                                Links
+                            </Link>
                         </li>
                     </ul>
                 </div>

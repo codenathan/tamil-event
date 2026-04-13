@@ -9,17 +9,16 @@ use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LinksController;
 use App\Http\Controllers\ListYourBusinessController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\SearchController;
 use Illuminate\Support\Facades\Route;
-use Laravel\Fortify\Features;
 
-Route::inertia('/', 'welcome', [
-    'canRegister' => Features::enabled(Features::registration()),
-])->name('home');
-
+Route::inertia('/', 'welcome')->name('home');
 Route::inertia('privacy-policy', 'privacy-policy')->name('privacy-policy');
+
+Route::get('links', LinksController::class)->name('links');
 
 Route::get('contact', [ContactController::class, 'index'])->name('contact');
 Route::post('contact', [ContactController::class, 'store'])->name('contact.store');
