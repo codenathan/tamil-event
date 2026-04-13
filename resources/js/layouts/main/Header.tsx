@@ -70,6 +70,7 @@ export default function Header() {
                                 </Link>
                             </Button>
                             <Button
+                                asChild
                                 variant="ghost"
                                 size="sm"
                                 className="gap-1.5"
