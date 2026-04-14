@@ -16,7 +16,9 @@ class SearchController extends Controller
         $country = $request->string('country')->trim()->value();
 
         $vendors = Vendor::with(['category', 'city', 'country'])
-            ->when($query, fn ($q) => $q->where('name', 'like', "%{$query}%"))
+            ->when($query, fn ($q) => $q->where('name', 'like', "%{$query}%")
+                ->orWhereHas('category', fn($q) => $q->where('name', 'like', "%{$query}%"))
+            )
             ->when($city, fn ($q) => $q->whereHas('city', fn ($c) => $c->where('name', 'like', "%{$city}%")))
             ->when($country && !$city, fn ($q) => $q->whereHas('country', fn ($c) => $c->where('name', 'like', "%{$country}%")))
             ->paginate(12)

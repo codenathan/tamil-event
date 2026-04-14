@@ -5,7 +5,9 @@ import {
     Settings,
     ClipboardCheck,
     Users,
-    Mail
+    Mail,
+    FolderOpen,
+    MapPin,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import Footer from '@/layouts/main/Footer';
@@ -14,6 +16,8 @@ import Header from '@/layouts/main/Header';
 const navItems = [
     { href: '/admin/dashboard', label: 'Overview', icon: ShieldCheck },
     { href: '/admin/inbox', label: 'Inbox', icon: Mail },
+    { href: '/admin/categories', label: 'Categories', icon: FolderOpen },
+    { href: '/admin/locations', label: 'Locations', icon: MapPin },
     { href: '/admin/vendors', label: 'Vendors', icon: Store },
     { href: '/admin/cms', label: 'CMS', icon: Settings },
     {
