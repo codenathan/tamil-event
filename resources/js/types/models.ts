@@ -1,0 +1,40 @@
+export type Category = {
+    id: number;
+    name: string;
+    slug : string;
+}
+
+export type City = {
+    id: number;
+    name: string;
+    slug : string;
+}
+
+export type Country = {
+    id: number;
+    name: string;
+    slug : string;
+}
+
+export type Image = {
+    id: number;
+    path: string;
+    sort_order: number;
+}
+
+export type Vendor = {
+    id: number;
+    name: string;
+    slug: string;
+    description: string | null;
+    featured_image: string | null;
+    phone: string | null;
+    email: string | null;
+    website: string | null;
+    social_instagram: string | null;
+    social_facebook: string | null;
+    category: Category | null;
+    city: City | null;
+    country: Country | null;
+    images: Image[];
+};

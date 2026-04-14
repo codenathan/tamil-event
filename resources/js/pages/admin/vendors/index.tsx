@@ -21,33 +21,8 @@ import {
 } from '@/components/ui/table';
 import AdminLayout from '@/layouts/admin-layout';
 import { create, index, destroy, edit } from '@/routes/admin/vendors';
+import type { Vendor } from '@/types';
 
-
-// ── Types ────────────────────────────────────────────────────────────────────
-
-interface Category {
-    id: number;
-    name: string;
-}
-
-interface City {
-    id: number;
-    name: string;
-}
-
-interface Country {
-    id: number;
-    name: string;
-}
-
-interface Vendor {
-    id: number;
-    name: string;
-    email: string;
-    category: Category | null;
-    city: City | null;
-    country: Country | null;
-}
 
 interface PaginationLink {
     url: string | null;
@@ -99,22 +74,22 @@ export default function Index({ vendors, filters }: Props) {
 
         if (total <= 5) {
             for (let i = 1; i <= total; i++) {
-items.push(i);
-}
+                items.push(i);
+            }
         } else {
             items.push(1);
 
             if (current > 3) {
-items.push('ellipsis');
-}
+                items.push('ellipsis');
+            }
 
             for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) {
                 items.push(i);
             }
 
             if (current < total - 2) {
-items.push('ellipsis');
-}
+                items.push('ellipsis');
+            }
 
             items.push(total);
         }

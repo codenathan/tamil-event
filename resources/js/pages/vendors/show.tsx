@@ -1,45 +1,8 @@
 import { Head, Link } from '@inertiajs/react';
-import { useState } from 'react';
 import { MapPin, Phone, Mail, Globe, Instagram, Facebook, ArrowLeft, Send } from 'lucide-react';
+import { useState } from 'react';
+import type { Vendor} from '@/types';
 
-interface Category {
-    id: number;
-    name: string;
-    slug: string;
-}
-
-interface City {
-    id: number;
-    name: string;
-}
-
-interface Country {
-    id: number;
-    name: string;
-}
-
-interface Image {
-    id: number;
-    path: string;
-    sort_order: number;
-}
-
-interface Vendor {
-    id: number;
-    name: string;
-    slug: string;
-    description: string | null;
-    featured_image: string | null;
-    phone: string | null;
-    email: string | null;
-    website: string | null;
-    social_instagram: string | null;
-    social_facebook: string | null;
-    category: Category | null;
-    city: City | null;
-    country: Country | null;
-    images: Image[];
-}
 
 interface Props {
     vendor: Vendor;
