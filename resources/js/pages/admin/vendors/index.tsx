@@ -1,18 +1,16 @@
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { Store, Pencil, Trash2, Plus, Search } from 'lucide-react';
 import {  useState } from 'react';
 import type {ReactNode} from 'react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import AdminLayout from '@/layouts/admin-layout';
-import { create, index , destroy, edit } from '@/routes/admin/vendors';
 import {
     AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
     AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
     AlertDialogTitle, AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import {
     Pagination, PaginationContent, PaginationEllipsis, PaginationItem,
     PaginationLink, PaginationNext, PaginationPrevious,
@@ -21,7 +19,8 @@ import {
     Table, TableBody, TableCell, TableHead,
     TableHeader, TableRow,
 } from '@/components/ui/table';
-
+import AdminLayout from '@/layouts/admin-layout';
+import { create, index, destroy, edit } from '@/routes/admin/vendors';
 
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -31,13 +30,23 @@ interface Category {
     name: string;
 }
 
+interface City {
+    id: number;
+    name: string;
+}
+
+interface Country {
+    id: number;
+    name: string;
+}
+
 interface Vendor {
     id: number;
     name: string;
     email: string;
-    city: string;
-    country: string;
     category: Category | null;
+    city: City | null;
+    country: Country | null;
 }
 
 interface PaginationLink {
@@ -69,8 +78,6 @@ Index.layout = (page: ReactNode) => <AdminLayout>{page}</AdminLayout>;
 export default function Index({ vendors, filters }: Props) {
     const [search, setSearch] = useState(filters.search ?? '');
 
-    // Server-side search with debounce-free approach — fires on Enter or blur.
-    // Swap to useDebounce + router.get for live search if preferred.
     const handleSearch = (value: string) => {
         router.get(
             index.url(),
@@ -80,7 +87,7 @@ export default function Index({ vendors, filters }: Props) {
     };
 
     const handleDelete = (vendor: Vendor) => {
-        router.delete(destroy.url( vendor.id), {
+        router.delete(destroy.url(vendor.id), {
             preserveScroll: true,
         });
     };
@@ -91,14 +98,24 @@ export default function Index({ vendors, filters }: Props) {
         const items: (number | 'ellipsis')[] = [];
 
         if (total <= 5) {
-            for (let i = 1; i <= total; i++) items.push(i);
+            for (let i = 1; i <= total; i++) {
+items.push(i);
+}
         } else {
             items.push(1);
-            if (current > 3) items.push('ellipsis');
+
+            if (current > 3) {
+items.push('ellipsis');
+}
+
             for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) {
                 items.push(i);
             }
-            if (current < total - 2) items.push('ellipsis');
+
+            if (current < total - 2) {
+items.push('ellipsis');
+}
+
             items.push(total);
         }
 
@@ -163,7 +180,7 @@ export default function Index({ vendors, filters }: Props) {
                                     </TableCell>
 
                                     <TableCell className="text-sm">
-                                        {v.city}, {v.country}
+                                        {[v.city?.name, v.country?.name].filter(Boolean).join(', ') || '—'}
                                     </TableCell>
 
                                     <TableCell className="text-sm text-muted-foreground">
@@ -171,7 +188,7 @@ export default function Index({ vendors, filters }: Props) {
                                     </TableCell>
 
                                     <TableCell className="text-right space-x-1">
-                                        <Link href={edit.url(v.id)}>
+                                        <Link href={edit.url( v.id)}>
                                             <Button variant="ghost" size="icon">
                                                 <Pencil className="h-4 w-4" />
                                             </Button>
@@ -213,7 +230,6 @@ export default function Index({ vendors, filters }: Props) {
                         </TableBody>
                     </Table>
 
-                    {/* Laravel paginator links → Inertia navigation */}
                     {vendors.last_page > 1 && (
                         <Pagination className="mt-4">
                             <PaginationContent>
