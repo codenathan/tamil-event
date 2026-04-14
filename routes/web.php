@@ -37,7 +37,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
         Route::get('/inbox', [InboxController::class, 'index'])->name('inbox');
-        Route::get('/vendors', [VendorsController::class, 'index'])->name('vendors');
+        Route::resource('vendors', VendorsController::class);
         Route::get('/cms', [CmsController::class, 'index'])->name('cms');
         Route::get('/applications', [VendorApplicationsController::class, 'index'])->name('applications');
         Route::get('/users', [UsersController::class, 'index'])->name('users');
