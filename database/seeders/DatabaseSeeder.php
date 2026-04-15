@@ -20,7 +20,10 @@ class DatabaseSeeder extends Seeder
         $this->call(CitySeeder::class);
         $this->call(RolesAndPermissionsSeeder::class);
 
-        Vendor::factory(50)->create();
+        if (!app()->environment('production')) {
+            Vendor::factory(50)->create();
+        }
+
         // User::factory(10)->create();
 
         $user = User::factory()->create([
