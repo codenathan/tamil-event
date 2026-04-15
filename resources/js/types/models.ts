@@ -21,6 +21,7 @@ export type Image = {
     id: number;
     path: string;
     sort_order: number;
+    url : string;
 }
 
 export type Vendor = {
@@ -29,6 +30,7 @@ export type Vendor = {
     slug: string;
     description: string | null;
     featured_image: string | null;
+    featured_image_url : string | null;
     phone: string | null;
     email: string | null;
     website: string | null;

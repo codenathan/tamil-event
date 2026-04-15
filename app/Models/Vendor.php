@@ -12,7 +12,19 @@ class Vendor extends Model
     /** @use HasFactory<\Database\Factories\VendorFactory> */
     use HasFactory;
 
-    protected $fillable = ['featured_image'];
+    protected $fillable = [
+        'name', 'email', 'description', 'category_id', 'city_id',
+        'phone', 'website', 'featured_image',
+    ];
+
+    protected $appends = ['featured_image_url'];
+
+    public function getFeaturedImageUrlAttribute(): ?string
+    {
+        return $this->featured_image
+            ? asset('storage/' . $this->featured_image)
+            : null;
+    }
 
     public function images(): MorphMany
     {

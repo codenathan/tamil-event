@@ -19,7 +19,7 @@ export default function VendorShow({ vendor }: Props) {
         '@type': 'LocalBusiness',
         name: vendor.name,
         description: vendor.description ?? undefined,
-        image: vendor.featured_image ?? undefined,
+        image: vendor.featured_image_url ?? undefined,
         telephone: vendor.phone ?? undefined,
         email: vendor.email ?? undefined,
         url: vendor.website ?? undefined,
@@ -29,8 +29,12 @@ export default function VendorShow({ vendor }: Props) {
             addressCountry: vendor.country?.name ?? undefined,
         },
         sameAs: [
-            vendor.social_instagram ? `https://instagram.com/${vendor.social_instagram}` : null,
-            vendor.social_facebook ? `https://facebook.com/${vendor.social_facebook}` : null,
+            vendor.social_instagram
+                ? `https://instagram.com/${vendor.social_instagram}`
+                : null,
+            vendor.social_facebook
+                ? `https://facebook.com/${vendor.social_facebook}`
+                : null,
         ].filter(Boolean),
     };
 
@@ -62,7 +66,7 @@ export default function VendorShow({ vendor }: Props) {
                         <div className="aspect-[16/9] overflow-hidden rounded-xl bg-secondary">
                             {vendor.featured_image ? (
                                 <img
-                                    src={vendor.featured_image}
+                                    src={vendor.featured_image_url}
                                     alt={vendor.name}
                                     className="h-full w-full object-cover"
                                 />
@@ -77,9 +81,12 @@ export default function VendorShow({ vendor }: Props) {
                         {galleryImages.length > 0 && (
                             <div className="grid grid-cols-3 gap-3">
                                 {galleryImages.map((img) => (
-                                    <div key={img.id} className="aspect-[4/3] overflow-hidden rounded-lg">
+                                    <div
+                                        key={img.id}
+                                        className="aspect-[4/3] overflow-hidden rounded-lg"
+                                    >
                                         <img
-                                            src={img.path}
+                                            src={img.url}
                                             alt={`${vendor.name} gallery`}
                                             className="h-full w-full object-cover"
                                             loading="lazy"
@@ -116,8 +123,10 @@ export default function VendorShow({ vendor }: Props) {
 
                     {/* Right: contact card */}
                     <div>
-                        <div className="rounded-xl border border-border bg-card p-6 shadow-card space-y-4 sticky top-6">
-                            <h3 className="font-display text-lg font-semibold">Contact</h3>
+                        <div className="sticky top-6 space-y-4 rounded-xl border border-border bg-card p-6 shadow-card">
+                            <h3 className="font-display text-lg font-semibold">
+                                Contact
+                            </h3>
 
                             <div className="space-y-3 text-sm">
                                 {vendor.phone && (
@@ -125,7 +134,10 @@ export default function VendorShow({ vendor }: Props) {
                                         href={`tel:${vendor.phone}`}
                                         className="flex items-center gap-3 text-foreground/80 transition-colors hover:text-foreground"
                                     >
-                                        <Phone size={16} className="shrink-0 text-primary" />
+                                        <Phone
+                                            size={16}
+                                            className="shrink-0 text-primary"
+                                        />
                                         {vendor.phone}
                                     </a>
                                 )}
@@ -134,7 +146,10 @@ export default function VendorShow({ vendor }: Props) {
                                         href={`mailto:${vendor.email}`}
                                         className="flex items-center gap-3 text-foreground/80 transition-colors hover:text-foreground"
                                     >
-                                        <Mail size={16} className="shrink-0 text-primary" />
+                                        <Mail
+                                            size={16}
+                                            className="shrink-0 text-primary"
+                                        />
                                         {vendor.email}
                                     </a>
                                 )}
@@ -145,13 +160,17 @@ export default function VendorShow({ vendor }: Props) {
                                         rel="noopener noreferrer"
                                         className="flex items-center gap-3 text-foreground/80 transition-colors hover:text-foreground"
                                     >
-                                        <Globe size={16} className="shrink-0 text-primary" />
+                                        <Globe
+                                            size={16}
+                                            className="shrink-0 text-primary"
+                                        />
                                         Website
                                     </a>
                                 )}
                             </div>
 
-                            {(vendor.social_instagram || vendor.social_facebook) && (
+                            {(vendor.social_instagram ||
+                                vendor.social_facebook) && (
                                 <div className="flex gap-4 border-t border-border pt-3">
                                     {vendor.social_instagram && (
                                         <a
@@ -160,7 +179,8 @@ export default function VendorShow({ vendor }: Props) {
                                             rel="noopener noreferrer"
                                             className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-primary"
                                         >
-                                            <Instagram size={15} /> {vendor.social_instagram}
+                                            <Instagram size={15} />{' '}
+                                            {vendor.social_instagram}
                                         </a>
                                     )}
                                     {vendor.social_facebook && (
@@ -170,7 +190,8 @@ export default function VendorShow({ vendor }: Props) {
                                             rel="noopener noreferrer"
                                             className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-primary"
                                         >
-                                            <Facebook size={15} /> {vendor.social_facebook}
+                                            <Facebook size={15} />{' '}
+                                            {vendor.social_facebook}
                                         </a>
                                     )}
                                 </div>
@@ -187,17 +208,17 @@ export default function VendorShow({ vendor }: Props) {
                                 <div className="space-y-3 border-t border-border pt-3">
                                     <input
                                         placeholder="Your name"
-                                        className="h-10 w-full rounded-lg border border-input bg-muted/50 px-3 font-body text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                                        className="h-10 w-full rounded-lg border border-input bg-muted/50 px-3 font-body text-sm focus:ring-2 focus:ring-ring focus:outline-none"
                                     />
                                     <input
                                         placeholder="Your email"
                                         type="email"
-                                        className="h-10 w-full rounded-lg border border-input bg-muted/50 px-3 font-body text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                                        className="h-10 w-full rounded-lg border border-input bg-muted/50 px-3 font-body text-sm focus:ring-2 focus:ring-ring focus:outline-none"
                                     />
                                     <textarea
                                         placeholder="Your message..."
                                         rows={3}
-                                        className="w-full resize-none rounded-lg border border-input bg-muted/50 px-3 py-2 font-body text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                                        className="w-full resize-none rounded-lg border border-input bg-muted/50 px-3 py-2 font-body text-sm focus:ring-2 focus:ring-ring focus:outline-none"
                                     />
                                     <button className="w-full rounded-xl bg-accent px-6 py-2.5 font-semibold text-accent-foreground transition-colors hover:bg-accent/90">
                                         Send Enquiry

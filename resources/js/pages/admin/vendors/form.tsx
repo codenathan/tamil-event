@@ -207,7 +207,7 @@ export default function Form({ vendor ,categories, cities }: { vendor: Vendor, c
                             ) : vendor?.featured_image ? (
                                 <div className="relative aspect-[4/3] overflow-hidden rounded-lg border">
                                     <img
-                                        src={vendor.featured_image}
+                                        src={vendor.featured_image_url}
                                         className="h-full w-full object-cover"
                                     />
                                 </div>
@@ -243,7 +243,7 @@ export default function Form({ vendor ,categories, cities }: { vendor: Vendor, c
                                 }
                             >
                                 <Upload className="h-3.5 w-3.5" />
-                                {vendor?.featured_image
+                                {vendor?.featured_image_url
                                     ? 'Replace Image'
                                     : 'Upload Image'}
                             </Button>
@@ -315,7 +315,7 @@ export default function Form({ vendor ,categories, cities }: { vendor: Vendor, c
                                             className="group relative aspect-[4/3] overflow-hidden rounded-lg border border-border"
                                         >
                                             <img
-                                                src={img.path}
+                                                src={img.url}
                                                 alt="Gallery"
                                                 className="h-full w-full object-cover"
                                             />
