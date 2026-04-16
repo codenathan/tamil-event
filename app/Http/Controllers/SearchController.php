@@ -36,6 +36,8 @@ class SearchController extends Controller
 
     public function show(Vendor $vendor): Response
     {
+        abort_if(!$vendor->is_active, 404);
+
         $vendor->load(['category', 'city', 'country', 'images']);
 
         return Inertia::render('vendors/show', [

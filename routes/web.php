@@ -56,7 +56,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('vendors', VendorsController::class);
         Route::resource('categories', CategoriesController::class);
         Route::get('/cms', [CmsController::class, 'index'])->name('cms');
+
         Route::get('/applications', [VendorApplicationsController::class, 'index'])->name('applications');
+        Route::patch('/applications/{vendor}/approve', [VendorApplicationsController::class, 'update'])->name('applications.approve');
+        Route::delete('/applications/{vendor}', [VendorApplicationsController::class, 'destroy'])->name('applications.destroy');
+
+
         Route::get('/users', [UsersController::class, 'index'])->name('users');
     });
 });

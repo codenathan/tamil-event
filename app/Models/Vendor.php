@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
  * @method static active()
+ * @property bool $is_active
  */
 class Vendor extends Model
 {
@@ -17,7 +18,7 @@ class Vendor extends Model
 
     protected $fillable = [
         'name', 'email', 'description', 'category_id', 'city_id',
-        'phone', 'website', 'featured_image',
+        'phone', 'website', 'featured_image', 'is_active', 'status'
     ];
 
     protected $appends = ['featured_image_url'];

@@ -28,6 +28,12 @@ export type Image = {
     url : string;
 }
 
+export enum VendorStatus {
+    PENDING =  'pending',
+    APPROVED = 'approved',
+    REJECTED = 'rejected'
+}
+
 export type Vendor = {
     id: number;
     name: string;
@@ -44,6 +50,8 @@ export type Vendor = {
     city: City | null;
     country: Country | null;
     images: Image[];
+    is_active: boolean;
+    status : VendorStatus;
 };
 
 export enum ContactMessageStatus {
