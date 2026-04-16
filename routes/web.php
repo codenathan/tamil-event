@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\CategoriesController;
 use App\Http\Controllers\Admin\CmsController;
 use App\Http\Controllers\Admin\InboxController;
 use App\Http\Controllers\Admin\LocationsController;
@@ -53,6 +54,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/locations/countries/{country}/cities/{city}', [LocationsController::class, 'destroyCity'])->name('locations.cities.destroy');
 
         Route::resource('vendors', VendorsController::class);
+        Route::resource('categories', CategoriesController::class);
         Route::get('/cms', [CmsController::class, 'index'])->name('cms');
         Route::get('/applications', [VendorApplicationsController::class, 'index'])->name('applications');
         Route::get('/users', [UsersController::class, 'index'])->name('users');
