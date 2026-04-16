@@ -14,8 +14,10 @@ export type City = {
 export type Country = {
     id: number;
     name: string;
-    slug : string;
-}
+    slug: string;
+    cities: City[];
+    cities_count: number;
+};
 
 export type Image = {
     id: number;
