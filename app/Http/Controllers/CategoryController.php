@@ -13,7 +13,7 @@ class CategoryController extends Controller
 
     public function show(Category $category): Response
     {
-        $vendors = Vendor::with(['category', 'city', 'country'])
+        $vendors = Vendor::active()->with(['category', 'city', 'country'])
             ->where('category_id', $category->id)
             ->paginate(12);
 

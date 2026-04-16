@@ -34,6 +34,7 @@ class VendorFactory extends Factory
             'social_instagram' => $this->faker->optional()->userName(),
             'social_facebook'  => $this->faker->optional()->userName(),
             'featured_image'   => null,
+            'is_active'        => true,
         ];
     }
 }

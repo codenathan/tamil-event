@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
+/**
+ * @method static active()
+ */
 class Vendor extends Model
 {
     /** @use HasFactory<\Database\Factories\VendorFactory> */
@@ -44,5 +47,10 @@ class Vendor extends Model
     public function country() : BelongsTo
     {
         return $this->belongsTo(Country::class);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
     }
 }

@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import AdminLayout from '@/layouts/admin-layout';
-import { index, update, create } from '@/routes/admin/vendors';
+import { index, update, store } from '@/routes/admin/vendors';
 import type { Vendor , Category, City } from '@/types';
 
 Form.layout = (page: ReactNode) => <AdminLayout>{page}</AdminLayout>;
@@ -45,7 +45,7 @@ export default function Form({ vendor ,categories, cities }: { vendor: Vendor, c
         if (isEdit) {
             put(update.url(vendor.id));
         } else {
-            post(create.url());
+            post(store.url());
         }
     };
 
@@ -172,6 +172,7 @@ export default function Form({ vendor ,categories, cities }: { vendor: Vendor, c
                                         }
                                         placeholder="Email"
                                     />
+                                    <InputError message={errors.email} />
                                 </div>
                                 <div className="space-y-1.5">
                                     <Label>Website</Label>
@@ -182,6 +183,7 @@ export default function Form({ vendor ,categories, cities }: { vendor: Vendor, c
                                         }
                                         placeholder="Website"
                                     />
+                                    <InputError message={errors.website} />
                                 </div>
                             </div>
                         </CardContent>
@@ -196,23 +198,28 @@ export default function Form({ vendor ,categories, cities }: { vendor: Vendor, c
                         <CardContent className="space-y-3">
                             {/* IMAGE PREVIEW */}
                             {data.featured_image ? (
-                                <div className="relative aspect-[4/3] overflow-hidden rounded-lg border">
+                                <div className="relative aspect-4/3 overflow-hidden rounded-lg border">
                                     <img
                                         src={URL.createObjectURL(
                                             data.featured_image,
                                         )}
                                         className="h-full w-full object-cover"
+                                        alt=""
                                     />
                                 </div>
                             ) : vendor?.featured_image ? (
-                                <div className="relative aspect-[4/3] overflow-hidden rounded-lg border">
+                                <div className="relative aspect-4/3 overflow-hidden rounded-lg border">
                                     <img
-                                        src={vendor.featured_image_url}
+                                        src={
+                                            vendor.featured_image_url ??
+                                            undefined
+                                        }
                                         className="h-full w-full object-cover"
+                                        alt=""
                                     />
                                 </div>
                             ) : (
-                                <div className="flex aspect-[4/3] items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
+                                <div className="flex aspect-4/3 items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
                                     No image
                                 </div>
                             )}
@@ -312,7 +319,7 @@ export default function Form({ vendor ,categories, cities }: { vendor: Vendor, c
                                     {vendor?.images?.map((img) => (
                                         <div
                                             key={`existing-${img.id}`}
-                                            className="group relative aspect-[4/3] overflow-hidden rounded-lg border border-border"
+                                            className="group relative aspect-4/3 overflow-hidden rounded-lg border border-border"
                                         >
                                             <img
                                                 src={img.url}
@@ -326,7 +333,7 @@ export default function Form({ vendor ,categories, cities }: { vendor: Vendor, c
                                     {data.new_images.map((file, i) => (
                                         <div
                                             key={`new-${i}`}
-                                            className="group relative aspect-[4/3] overflow-hidden rounded-lg border border-border"
+                                            className="group relative aspect-4/3 overflow-hidden rounded-lg border border-border"
                                         >
                                             <img
                                                 src={URL.createObjectURL(file)}

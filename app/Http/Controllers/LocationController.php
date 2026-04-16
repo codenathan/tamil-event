@@ -13,7 +13,7 @@ class LocationController extends Controller
     {
         $city->load('country');
 
-        $vendors = Vendor::with(['category', 'city', 'country'])
+        $vendors = Vendor::active()->with(['category', 'city', 'country'])
             ->where('city_id', $city->id)
             ->paginate(12);
 
