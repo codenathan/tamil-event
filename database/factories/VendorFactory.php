@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Enums\VendorStatusEnum;
 use App\Models\Category;
 use App\Models\City;
-use App\Models\Country;
 use App\Models\Vendor;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -35,6 +35,7 @@ class VendorFactory extends Factory
             'social_facebook'  => $this->faker->optional()->userName(),
             'featured_image'   => null,
             'is_active'        => true,
+            'status'           => VendorStatusEnum::APPROVED->value,
         ];
     }
 }

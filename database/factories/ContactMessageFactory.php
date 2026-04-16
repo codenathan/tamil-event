@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\ContactMessageEnum;
 use App\Models\ContactMessage;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -22,6 +23,7 @@ class ContactMessageFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'phone' => fake()->phoneNumber(),
             'message' => fake()->paragraph(),
+            'status' => ContactMessageEnum::PENDING->value,
         ];
     }
 }

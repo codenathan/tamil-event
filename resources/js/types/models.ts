@@ -41,3 +41,18 @@ export type Vendor = {
     country: Country | null;
     images: Image[];
 };
+
+export enum ContactMessageStatus {
+    PENDING = "pending",
+    READ = "read",
+}
+
+export type ContactMessage = {
+    id: number;
+    name: string;
+    email: string;
+    phone: string | null;
+    message: string;
+    status: ContactMessageStatus;
+    created_at: string;
+};

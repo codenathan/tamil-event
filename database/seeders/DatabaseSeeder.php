@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\ContactMessage;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\Vendor;
@@ -22,6 +23,7 @@ class DatabaseSeeder extends Seeder
 
         if (!app()->environment('production')) {
             Vendor::factory(50)->create();
+            ContactMessage::factory(50)->create();
         }
 
         // User::factory(10)->create();

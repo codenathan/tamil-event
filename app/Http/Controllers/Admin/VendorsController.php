@@ -13,7 +13,7 @@ class VendorsController extends Controller
 {
     public function index(Request $request)
     {
-        $vendors = Vendor::with(['category', 'city', 'country'])
+        $vendors = Vendor::active()->with(['category', 'city', 'country'])
             ->when($request->search, fn($q, $s) =>
                 $q->where('name', 'like', "%{$s}%")
                   ->orWhere('email', 'like', "%{$s}%")

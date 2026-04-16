@@ -37,6 +37,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
         Route::get('/inbox', [InboxController::class, 'index'])->name('inbox');
+        Route::post('/inbox/{message}/mark-as-read', [InboxController::class, 'markAsRead'])->name('inbox.mark-as-read');
+        Route::delete('/inbox/{message}', [InboxController::class, 'destroy'])->name('inbox.destroy');
         Route::resource('vendors', VendorsController::class);
         Route::get('/cms', [CmsController::class, 'index'])->name('cms');
         Route::get('/applications', [VendorApplicationsController::class, 'index'])->name('applications');
