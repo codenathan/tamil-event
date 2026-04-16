@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\CategoriesController;
-use App\Http\Controllers\Admin\CmsController;
 use App\Http\Controllers\Admin\InboxController;
 use App\Http\Controllers\Admin\LocationsController;
 use App\Http\Controllers\Admin\VendorApplicationsController;
@@ -15,6 +14,8 @@ use App\Http\Controllers\LinksController;
 use App\Http\Controllers\ListYourBusinessController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\SearchController;
+use App\Models\User;
+use App\Notifications\VendorWelcomeNotification;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
@@ -40,25 +41,31 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
         Route::get('/inbox', [InboxController::class, 'index'])->name('inbox');
-        Route::post('/inbox/{message}/mark-as-read', [InboxController::class, 'markAsRead'])->name('inbox.mark-as-read');
+        Route::post('/inbox/{message}/mark-as-read', [InboxController::class, 'markAsRead'])
+            ->name('inbox.mark-as-read');
         Route::delete('/inbox/{message}', [InboxController::class, 'destroy'])->name('inbox.destroy');
 
         Route::get('/locations', [LocationsController::class, 'index'])->name('locations');
 
         // Countries
-        Route::post('/locations/countries', [LocationsController::class, 'storeCountry'])->name('locations.countries.store');
-        Route::delete('/locations/countries/{country}', [LocationsController::class, 'destroyCountry'])->name('locations.countries.destroy');
+        Route::post('/locations/countries', [LocationsController::class, 'storeCountry'])
+            ->name('locations.countries.store');
+        Route::delete('/locations/countries/{country}', [LocationsController::class, 'destroyCountry'])
+            ->name('locations.countries.destroy');
 
-        // Cities (scoped under their country)
-        Route::post('/locations/countries/{country}/cities', [LocationsController::class, 'storeCity'])->name('locations.cities.store');
-        Route::delete('/locations/countries/{country}/cities/{city}', [LocationsController::class, 'destroyCity'])->name('locations.cities.destroy');
+        Route::post('/locations/countries/{country}/cities', [LocationsController::class, 'storeCity'])
+            ->name('locations.cities.store');
+        Route::delete('/locations/countries/{country}/cities/{city}', [LocationsController::class, 'destroyCity'])
+            ->name('locations.cities.destroy');
 
         Route::resource('vendors', VendorsController::class);
         Route::resource('categories', CategoriesController::class);
 
         Route::get('/applications', [VendorApplicationsController::class, 'index'])->name('applications');
-        Route::patch('/applications/{vendor}/approve', [VendorApplicationsController::class, 'update'])->name('applications.approve');
-        Route::delete('/applications/{vendor}', [VendorApplicationsController::class, 'destroy'])->name('applications.destroy');
+        Route::patch('/applications/{vendor}/approve', [VendorApplicationsController::class, 'update'])
+            ->name('applications.approve');
+        Route::delete('/applications/{vendor}', [VendorApplicationsController::class, 'destroy'])
+            ->name('applications.destroy');
 
 
         Route::get('/users', [UsersController::class, 'index'])->name('users');

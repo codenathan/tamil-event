@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\VendorStatusEnum;
+use App\Events\VendorApproved;
 use App\Http\Controllers\Controller;
 use App\Models\Vendor;
 use Illuminate\Http\Request;
@@ -31,6 +32,8 @@ class VendorApplicationsController extends Controller
                 'is_active' => true,
                 'status' => VendorStatusEnum::APPROVED->value,
             ]);
+
+            event(new VendorApproved($vendor));
             return back()->with('success', 'Vendor approved');
         }
 
@@ -47,6 +50,4 @@ class VendorApplicationsController extends Controller
         $vendor->delete();
         return back()->with('success', 'Application deleted');
     }
-
-
 }
