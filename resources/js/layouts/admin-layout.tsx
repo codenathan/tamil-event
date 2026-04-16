@@ -2,7 +2,6 @@ import { Link, usePage } from '@inertiajs/react';
 import {
     ShieldCheck,
     Store,
-    Settings,
     ClipboardCheck,
     Users,
     Mail,
@@ -19,7 +18,6 @@ const navItems = [
     { href: '/admin/categories', label: 'Categories', icon: FolderOpen },
     { href: '/admin/locations', label: 'Locations', icon: MapPin },
     { href: '/admin/vendors', label: 'Vendors', icon: Store },
-    { href: '/admin/cms', label: 'CMS', icon: Settings },
     {
         href: '/admin/applications',
         label: 'Applications',
