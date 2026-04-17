@@ -7,6 +7,13 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Image extends Model
 {
+    protected $appends = ['url'];
+
+    public function getUrlAttribute(): string
+    {
+        return asset('storage/' . $this->path);
+    }
+
     protected $fillable = ['path', 'sort_order'];
 
     public function imageable(): MorphTo

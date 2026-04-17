@@ -46,6 +46,7 @@ export default function Header() {
                     >
                         Contact
                     </Link>
+                    { !isAuthenticated &&
                     <Button
                         asChild
                         size="sm"
@@ -55,6 +56,7 @@ export default function Header() {
                             List Your Business
                         </Link>
                     </Button>
+                    }
                     {isAuthenticated ? (
                         <>
                             <Button
@@ -64,10 +66,11 @@ export default function Header() {
                                 className="gap-1.5"
                             >
                                 <Link href={dashboard()}>
-                                    Dashboard
+                                    <LayoutDashboard className="h-3.5 w-3.5" /> Dashboard
                                 </Link>
                             </Button>
                             <Button
+                                asChild
                                 variant="ghost"
                                 size="sm"
                                 className="gap-1.5"

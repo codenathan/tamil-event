@@ -15,8 +15,10 @@ class SearchController extends Controller
         $city    = $request->string('city')->trim()->value();
         $country = $request->string('country')->trim()->value();
 
-        $vendors = Vendor::with(['category', 'city', 'country'])
-            ->when($query, fn ($q) => $q->where('name', 'like', "%{$query}%"))
+        $vendors = Vendor::active()->with(['category', 'city', 'country'])
+            ->when($query, fn ($q) => $q->where('name', 'like', "%{$query}%")
+                ->orWhereHas('category', fn($q) => $q->where('name', 'like', "%{$query}%"))
+            )
             ->when($city, fn ($q) => $q->whereHas('city', fn ($c) => $c->where('name', 'like', "%{$city}%")))
             ->when($country && !$city, fn ($q) => $q->whereHas('country', fn ($c) => $c->where('name', 'like', "%{$country}%")))
             ->paginate(12)
@@ -34,6 +36,8 @@ class SearchController extends Controller
 
     public function show(Vendor $vendor): Response
     {
+        abort_if(!$vendor->is_active, 404);
+
         $vendor->load(['category', 'city', 'country', 'images']);
 
         return Inertia::render('vendors/show', [

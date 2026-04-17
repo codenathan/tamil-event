@@ -14,6 +14,8 @@ class Country extends Model
     use HasFactory;
     use HasSlug;
 
+    protected $fillable = ['name', 'slug'];
+
     public function getSlugOptions() : SlugOptions
     {
         return SlugOptions::create()

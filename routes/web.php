@@ -1,18 +1,27 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\CategoriesController;
+use App\Http\Controllers\Admin\InboxController;
+use App\Http\Controllers\Admin\LocationsController;
+use App\Http\Controllers\Admin\VendorApplicationsController;
+use App\Http\Controllers\Admin\VendorsController;
+use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LinksController;
 use App\Http\Controllers\ListYourBusinessController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\SearchController;
+use App\Models\User;
+use App\Notifications\VendorWelcomeNotification;
 use Illuminate\Support\Facades\Route;
-use Laravel\Fortify\Features;
 
-Route::inertia('/', 'welcome', [
-    'canRegister' => Features::enabled(Features::registration()),
-])->name('home');
-
+Route::inertia('/', 'welcome')->name('home');
 Route::inertia('privacy-policy', 'privacy-policy')->name('privacy-policy');
+
+Route::get('links', LinksController::class)->name('links');
 
 Route::get('contact', [ContactController::class, 'index'])->name('contact');
 Route::post('contact', [ContactController::class, 'store'])->name('contact.store');
@@ -26,7 +35,41 @@ Route::get('category/{category:slug}', [CategoryController::class, 'show'])->nam
 Route::get('location/{city:slug}', [LocationController::class, 'show'])->name('location.show');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+        Route::get('/inbox', [InboxController::class, 'index'])->name('inbox');
+        Route::post('/inbox/{message}/mark-as-read', [InboxController::class, 'markAsRead'])
+            ->name('inbox.mark-as-read');
+        Route::delete('/inbox/{message}', [InboxController::class, 'destroy'])->name('inbox.destroy');
+
+        Route::get('/locations', [LocationsController::class, 'index'])->name('locations');
+
+        // Countries
+        Route::post('/locations/countries', [LocationsController::class, 'storeCountry'])
+            ->name('locations.countries.store');
+        Route::delete('/locations/countries/{country}', [LocationsController::class, 'destroyCountry'])
+            ->name('locations.countries.destroy');
+
+        Route::post('/locations/countries/{country}/cities', [LocationsController::class, 'storeCity'])
+            ->name('locations.cities.store');
+        Route::delete('/locations/countries/{country}/cities/{city}', [LocationsController::class, 'destroyCity'])
+            ->name('locations.cities.destroy');
+
+        Route::resource('vendors', VendorsController::class);
+        Route::resource('categories', CategoriesController::class);
+
+        Route::get('/applications', [VendorApplicationsController::class, 'index'])->name('applications');
+        Route::patch('/applications/{vendor}/approve', [VendorApplicationsController::class, 'update'])
+            ->name('applications.approve');
+        Route::delete('/applications/{vendor}', [VendorApplicationsController::class, 'destroy'])
+            ->name('applications.destroy');
+
+
+        Route::get('/users', [UsersController::class, 'index'])->name('users');
+    });
 });
 
 require __DIR__.'/settings.php';
