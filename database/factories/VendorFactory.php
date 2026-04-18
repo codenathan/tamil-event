@@ -21,21 +21,21 @@ class VendorFactory extends Factory
         $city = City::with('country')->inRandomOrder()->first();
 
         return [
-            'user_id'          => null,
-            'category_id'      => Category::inRandomOrder()->first()?->id,
-            'city_id'          => $city?->id,
-            'country_id'       => $city?->country_id,
-            'name'             => $name,
-            'slug'             => Str::slug($name),
-            'description'      => $this->faker->paragraph(),
-            'phone'            => $this->faker->phoneNumber(),
-            'email'            => $this->faker->unique()->safeEmail(),
-            'website'          => $this->faker->optional()->url(),
+            'user_id' => null,
+            'category_id' => Category::inRandomOrder()->first()?->id,
+            'city_id' => $city?->id,
+            'country_id' => $city?->country_id,
+            'name' => $name,
+            'slug' => Str::slug($name),
+            'description' => $this->faker->paragraph(),
+            'phone' => $this->faker->phoneNumber(),
+            'email' => $this->faker->unique()->safeEmail(),
+            'website' => $this->faker->optional()->url(),
             'social_instagram' => $this->faker->optional()->userName(),
-            'social_facebook'  => $this->faker->optional()->userName(),
-            'featured_image'   => null,
-            'is_active'        => true,
-            'status'           => VendorStatusEnum::APPROVED->value,
+            'social_facebook' => $this->faker->optional()->userName(),
+            'services' => [],
+            'is_active' => true,
+            'status' => VendorStatusEnum::APPROVED->value,
         ];
     }
 }

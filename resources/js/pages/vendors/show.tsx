@@ -1,18 +1,68 @@
-import { Head, Link } from '@inertiajs/react';
-import { MapPin, Phone, Mail, Globe, Instagram, Facebook, ArrowLeft, Send } from 'lucide-react';
+import { Head, Link, useForm } from '@inertiajs/react';
+import {
+    MapPin,
+    Phone,
+    Mail,
+    Globe,
+    Instagram,
+    Facebook,
+    ArrowLeft,
+    Send,
+} from 'lucide-react';
 import { useState } from 'react';
-import type { Vendor} from '@/types';
-
+import InputError from '@/components/input-error';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import type { Vendor } from '@/types';
 
 interface Props {
     vendor: Vendor;
 }
 
+/** Display a calendar date as YYYY-MM-DD (ISO 8601) for unambiguous international use. */
+function formatDateYmd(value: string): string {
+    const trimmed = value.trim();
+    const ymd = trimmed.match(/^(\d{4}-\d{2}-\d{2})/);
+
+    if (ymd) {
+        return ymd[1];
+    }
+
+    const t = Date.parse(trimmed);
+
+    if (Number.isNaN(t)) {
+        return trimmed;
+    }
+
+    return new Date(t).toISOString().slice(0, 10);
+}
+
+/** Split stored description into paragraphs (double newlines); falls back to one block. */
+function descriptionParagraphs(text: string): string[] {
+    return text
+        .split(/\n\s*\n/)
+        .map((p) => p.trim())
+        .filter(Boolean);
+}
+
 export default function VendorShow({ vendor }: Props) {
     const [showEnquiry, setShowEnquiry] = useState(false);
 
-    const location = [vendor.city?.name, vendor.country?.name].filter(Boolean).join(', ');
+    const { data, setData, post, processing, errors, reset } = useForm({
+        name: '',
+        email: '',
+        date: '',
+        message: '',
+    });
+
+    const location = [vendor.city?.name, vendor.country?.name]
+        .filter(Boolean)
+        .join(', ');
     const galleryImages = vendor.images.slice(0, 3);
+
+    const services = vendor.services?.length ? vendor.services : [];
 
     const jsonLd = {
         '@context': 'https://schema.org',
@@ -36,7 +86,18 @@ export default function VendorShow({ vendor }: Props) {
                 ? `https://facebook.com/${vendor.social_facebook}`
                 : null,
         ].filter(Boolean),
+        ...(services.length > 0 ? { knowsAbout: services } : {}),
     };
+
+    function submitEnquiry(e: React.FormEvent) {
+        e.preventDefault();
+        post(`/vendors/${vendor.slug}/enquire`, {
+            preserveScroll: true,
+            onSuccess: () => {
+                reset();
+            },
+        });
+    }
 
     return (
         <>
@@ -64,7 +125,7 @@ export default function VendorShow({ vendor }: Props) {
                     <div className="space-y-6 lg:col-span-2">
                         {/* Featured image */}
                         <div className="aspect-[16/9] overflow-hidden rounded-xl bg-secondary">
-                            {vendor.featured_image ? (
+                            {vendor.featured_image_url ? (
                                 <img
                                     src={vendor.featured_image_url}
                                     alt={vendor.name}
@@ -114,9 +175,43 @@ export default function VendorShow({ vendor }: Props) {
                                 )}
                             </div>
                             {vendor.description && (
-                                <p className="leading-relaxed text-foreground/80">
-                                    {vendor.description}
-                                </p>
+                                <div className="mt-6">
+                                    <h2 className="mb-3 font-display text-lg font-semibold text-foreground">
+                                        Description
+                                    </h2>
+                                    <div className="space-y-4 text-foreground/85 leading-relaxed">
+                                        {descriptionParagraphs(
+                                            vendor.description,
+                                        ).map((block, index) => (
+                                            <p
+                                                key={index}
+                                                className="whitespace-pre-line"
+                                            >
+                                                {block}
+                                            </p>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {services.length > 0 && (
+                                <div className="mt-6">
+                                    <h2 className="mb-3 font-display text-lg font-semibold text-foreground">
+                                        Services
+                                    </h2>
+                                    <ul
+                                        className="flex flex-wrap gap-2"
+                                        aria-label="Services offered"
+                                    >
+                                        {services.map((service, index) => (
+                                            <li key={`${service}-${index}`}>
+                                                <span className="inline-flex rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-sm font-medium text-primary">
+                                                    {service}
+                                                </span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
                             )}
                         </div>
                     </div>
@@ -198,6 +293,7 @@ export default function VendorShow({ vendor }: Props) {
                             )}
 
                             <button
+                                type="button"
                                 onClick={() => setShowEnquiry(!showEnquiry)}
                                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
                             >
@@ -205,25 +301,107 @@ export default function VendorShow({ vendor }: Props) {
                             </button>
 
                             {showEnquiry && (
-                                <div className="space-y-3 border-t border-border pt-3">
-                                    <input
-                                        placeholder="Your name"
-                                        className="h-10 w-full rounded-lg border border-input bg-muted/50 px-3 font-body text-sm focus:ring-2 focus:ring-ring focus:outline-none"
-                                    />
-                                    <input
-                                        placeholder="Your email"
-                                        type="email"
-                                        className="h-10 w-full rounded-lg border border-input bg-muted/50 px-3 font-body text-sm focus:ring-2 focus:ring-ring focus:outline-none"
-                                    />
-                                    <textarea
-                                        placeholder="Your message..."
-                                        rows={3}
-                                        className="w-full resize-none rounded-lg border border-input bg-muted/50 px-3 py-2 font-body text-sm focus:ring-2 focus:ring-ring focus:outline-none"
-                                    />
-                                    <button className="w-full rounded-xl bg-accent px-6 py-2.5 font-semibold text-accent-foreground transition-colors hover:bg-accent/90">
-                                        Send Enquiry
-                                    </button>
-                                </div>
+                                <form
+                                    onSubmit={submitEnquiry}
+                                    className="space-y-3 border-t border-border pt-3"
+                                >
+                                    <div className="space-y-2">
+                                        <Label htmlFor="enquiry-name">
+                                            Your name
+                                        </Label>
+                                        <Input
+                                            id="enquiry-name"
+                                            name="name"
+                                            value={data.name}
+                                            onChange={(e) =>
+                                                setData('name', e.target.value)
+                                            }
+                                            placeholder="Your name"
+                                            required
+                                            autoComplete="name"
+                                        />
+                                        <InputError message={errors.name} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="enquiry-email">
+                                            Email
+                                        </Label>
+                                        <Input
+                                            id="enquiry-email"
+                                            name="email"
+                                            type="email"
+                                            value={data.email}
+                                            onChange={(e) =>
+                                                setData('email', e.target.value)
+                                            }
+                                            placeholder="you@example.com"
+                                            required
+                                            autoComplete="email"
+                                        />
+                                        <InputError message={errors.email} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="enquiry-date">
+                                            Event date{' '}
+                                            <span className="font-normal text-muted-foreground">
+                                                (YYYY-MM-DD)
+                                            </span>
+                                        </Label>
+                                        <Input
+                                            id="enquiry-date"
+                                            name="date"
+                                            type="date"
+                                            value={data.date}
+                                            onChange={(e) =>
+                                                setData(
+                                                    'date',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            required
+                                        />
+                                        <p className="text-xs text-muted-foreground">
+                                            Dates are shown and saved as{' '}
+                                            <span className="font-mono tabular-nums">
+                                                {data.date
+                                                    ? formatDateYmd(data.date)
+                                                    : 'YYYY-MM-DD'}
+                                            </span>{' '}
+                                            (ISO 8601) to avoid US/EU format
+                                            confusion.
+                                        </p>
+                                        <InputError message={errors.date} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="enquiry-message">
+                                            Message
+                                        </Label>
+                                        <Textarea
+                                            id="enquiry-message"
+                                            name="message"
+                                            value={data.message}
+                                            onChange={(e) =>
+                                                setData(
+                                                    'message',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            placeholder="Your message..."
+                                            rows={3}
+                                            required
+                                        />
+                                        <InputError message={errors.message} />
+                                    </div>
+                                    <Button
+                                        type="submit"
+                                        disabled={processing}
+                                        className="w-full"
+                                    >
+                                        {processing
+                                            ? 'Sending…'
+                                            : 'Send enquiry'}
+                                    </Button>
+                                </form>
                             )}
                         </div>
                     </div>

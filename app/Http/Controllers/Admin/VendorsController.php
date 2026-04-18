@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\SaveVendorRequest;
 use App\Models\Category;
 use App\Models\City;
 use App\Models\Vendor;
@@ -13,20 +16,27 @@ class VendorsController extends Controller
 {
     public function index(Request $request)
     {
-        $vendors = Vendor::active()->with(['category', 'city', 'country'])
-            ->when($request->search, fn($q, $s) =>
-                $q->where('name', 'like', "%{$s}%")
-                  ->orWhere('email', 'like', "%{$s}%")
-                  ->orWhereHas('category', fn($q) => $q->where('name', 'like', "%{$s}%"))
-                  ->orWhereHas('city', fn($q) => $q->where('name', 'like', "%{$s}%"))
-                  ->orWhereHas('country', fn($q) => $q->where('name', 'like', "%{$s}%"))
-            )
-            ->paginate(10)
-            ->withQueryString();
+        $perPage = (int) $request->input('per_page', 10);
+        if (! in_array($perPage, [10, 25, 50, 100], true)) {
+            $perPage = 10;
+        }
+
+        $query = Vendor::active()->with(['category', 'city', 'country', 'media']);
+
+        $this->applySearch($query, $request, [
+            'columns' => ['name', 'email'],
+            'relationships' => [
+                'category' => ['name'],
+                'city' => ['name'],
+                'country' => ['name'],
+            ],
+        ]);
+
+        $vendors = $query->paginate($perPage)->withQueryString();
 
         return Inertia::render('admin/vendors/index', [
             'vendors' => $vendors,
-            'filters' => $request->only('search'),
+            'filters' => $request->only(['search', 'per_page']),
         ]);
     }
 
@@ -39,42 +49,29 @@ class VendorsController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(SaveVendorRequest $request)
     {
-        $validated = $request->validate([
-            'name'            => 'required|string|max:255',
-            'email'           => 'required|email|unique:vendors,email',
-            'category_id'     => 'required|exists:categories,id',
-            'city_id'         => 'required|exists:cities,id',
-            'description'     => 'nullable|string',
-            'website'         => 'nullable|url',
-            'phone'           => 'nullable|string|max:50',
-            'featured_image'  => 'nullable|image|max:2048',
-            'new_images'      => 'nullable|array',
-            'new_images.*'    => 'image|max:2048',
-        ]);
+        $vendor = Vendor::create($request->vendorAttributes());
 
         if ($request->hasFile('featured_image')) {
-            $validated['featured_image'] = $request->file('featured_image')->store('vendors', 'public');
+            $vendor->addMediaFromRequest('featured_image')->toMediaCollection('featured');
         }
 
-        $vendor = Vendor::create($validated);
-
         if ($request->hasFile('new_images')) {
-            foreach ($request->file('new_images') as $index => $image) {
-                $vendor->images()->create([
-                    'path'       => $image->store('vendors/gallery', 'public'),
-                    'sort_order' => $index,
-                ]);
+            foreach ($request->file('new_images', []) as $image) {
+                $vendor->addMedia($image)->toMediaCollection('gallery');
             }
         }
 
-        return redirect()->route('admin.vendors.index')->with('success', 'Vendor created.');
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Vendor created.')]);
+
+        return to_route('admin.vendors.index');
     }
 
     public function edit(Vendor $vendor)
     {
-        $vendor->load(['images','category', 'city.country']);
+        $vendor->load(['category', 'city.country', 'media']);
+
         return Inertia::render('admin/vendors/form', [
             'vendor' => $vendor,
             'categories' => Category::select('id', 'name')->get(),
@@ -82,49 +79,43 @@ class VendorsController extends Controller
         ]);
     }
 
-    public function update(Request $request, Vendor $vendor)
+    public function update(SaveVendorRequest $request, Vendor $vendor)
     {
-        $validated = $request->validate([
-            'name'            => 'required|string|max:255',
-            'email'           => 'required|email|unique:vendors,email,' . $vendor->id,
-            'category_id'     => 'required|exists:categories,id',
-            'city_id'         => 'required|exists:cities,id',
-            'description'     => 'nullable|string',
-            'website'         => 'nullable|url',
-            'phone'           => 'nullable|string|max:50',
-            'featured_image'  => 'nullable|image|max:2048',
-            'new_images'      => 'nullable|array',
-            'new_images.*'    => 'image|max:2048',
-        ]);
+        $vendor->update($request->vendorAttributes());
 
-        if ($request->hasFile('featured_image')) {
-            // Optionally delete the old file:
-            // Storage::disk('public')->delete($vendor->featured_image);
-            $validated['featured_image'] = $request->file('featured_image')->store('vendors', 'public');
-        } else {
-            unset($validated['featured_image']); // don't overwrite with null
+        foreach ($request->validated('delete_gallery_ids', []) as $mediaId) {
+            $vendor->media()
+                ->where('collection_name', 'gallery')
+                ->whereKey((int) $mediaId)
+                ->first()
+                ?->delete();
         }
 
-        $vendor->update($validated);
+        if ($request->boolean('delete_featured')) {
+            $vendor->clearMediaCollection('featured');
+        }
+
+        if ($request->hasFile('featured_image')) {
+            $vendor->addMediaFromRequest('featured_image')->toMediaCollection('featured');
+        }
 
         if ($request->hasFile('new_images')) {
-            $nextOrder = $vendor->images()->max('sort_order') + 1;
-
-            foreach ($request->file('new_images') as $index => $image) {
-                $vendor->images()->create([
-                    'path'       => $image->store('vendors/gallery', 'public'),
-                    'sort_order' => $nextOrder + $index,
-                ]);
+            foreach ($request->file('new_images', []) as $image) {
+                $vendor->addMedia($image)->toMediaCollection('gallery');
             }
         }
 
-        return redirect()->route('admin.vendors.index')->with('success', 'Vendor updated.');
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Vendor updated.')]);
+
+        return to_route('admin.vendors.index');
     }
 
     public function destroy(Vendor $vendor)
     {
         $vendor->delete();
 
-        return redirect()->back()->with('success', 'Vendor removed.');
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Vendor removed.')]);
+
+        return to_route('admin.vendors.index');
     }
 }

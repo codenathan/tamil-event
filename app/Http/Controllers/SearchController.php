@@ -11,24 +11,24 @@ class SearchController extends Controller
 {
     public function index(Request $request)
     {
-        $query   = $request->string('q')->trim()->value();
-        $city    = $request->string('city')->trim()->value();
+        $query = $request->string('q')->trim()->value();
+        $city = $request->string('city')->trim()->value();
         $country = $request->string('country')->trim()->value();
 
-        $vendors = Vendor::active()->with(['category', 'city', 'country'])
+        $vendors = Vendor::active()->with(['category', 'city', 'country', 'media'])
             ->when($query, fn ($q) => $q->where('name', 'like', "%{$query}%")
-                ->orWhereHas('category', fn($q) => $q->where('name', 'like', "%{$query}%"))
+                ->orWhereHas('category', fn ($q) => $q->where('name', 'like', "%{$query}%"))
             )
             ->when($city, fn ($q) => $q->whereHas('city', fn ($c) => $c->where('name', 'like', "%{$city}%")))
-            ->when($country && !$city, fn ($q) => $q->whereHas('country', fn ($c) => $c->where('name', 'like', "%{$country}%")))
+            ->when($country && ! $city, fn ($q) => $q->whereHas('country', fn ($c) => $c->where('name', 'like', "%{$country}%")))
             ->paginate(12)
             ->withQueryString();
 
         return Inertia::render('search', [
             'vendors' => $vendors,
             'filters' => [
-                'q'       => $query,
-                'city'    => $city,
+                'q' => $query,
+                'city' => $city,
                 'country' => $country,
             ],
         ]);
@@ -36,9 +36,9 @@ class SearchController extends Controller
 
     public function show(Vendor $vendor): Response
     {
-        abort_if(!$vendor->is_active, 404);
+        abort_if(! $vendor->is_active, 404);
 
-        $vendor->load(['category', 'city', 'country', 'images']);
+        $vendor->load(['category', 'city', 'country', 'media']);
 
         return Inertia::render('vendors/show', [
             'vendor' => $vendor,

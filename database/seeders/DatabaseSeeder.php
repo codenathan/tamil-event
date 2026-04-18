@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
         $this->call(CitySeeder::class);
         $this->call(RolesAndPermissionsSeeder::class);
 
-        if (!app()->environment('production')) {
+        if (! app()->environment('production')) {
             Vendor::factory(50)->create();
             ContactMessage::factory(50)->create();
         }

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ContactRequest;
 use App\Models\ContactMessage;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class ContactController extends Controller
@@ -16,8 +15,13 @@ class ContactController extends Controller
 
     public function store(ContactRequest $request)
     {
-        ContactMessage::create($request->validated());
+        ContactMessage::create([
+            ...$request->validated(),
+            'date' => now(),
+        ]);
 
-        return redirect()->back()->with('success', 'Your message has been sent successfully.');
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Your message has been sent successfully.')]);
+
+        return to_route('contact');
     }
 }

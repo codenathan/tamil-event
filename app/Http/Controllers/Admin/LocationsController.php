@@ -18,12 +18,12 @@ class LocationsController extends Controller
             ->with('cities:id,name,country_id')
             ->orderBy('name')
             ->get()
-            ->map(fn($country) => [
-                'id'          => $country->id,
-                'name'        => $country->name,
+            ->map(fn ($country) => [
+                'id' => $country->id,
+                'name' => $country->name,
                 'cities_count' => $country->cities_count,
-                'cities'      => $country->cities->map(fn($city) => [
-                    'id'   => $city->id,
+                'cities' => $country->cities->map(fn ($city) => [
+                    'id' => $city->id,
                     'name' => $city->name,
                 ]),
             ]);
@@ -55,7 +55,7 @@ class LocationsController extends Controller
     public function storeCity(Request $request, Country $country): RedirectResponse
     {
         $request->validate([
-            'name' => 'required|string|max:100|unique:cities,name,NULL,id,country_id,' . $country->id,
+            'name' => 'required|string|max:100|unique:cities,name,NULL,id,country_id,'.$country->id,
         ]);
 
         $country->cities()->create(['name' => $request->name]);

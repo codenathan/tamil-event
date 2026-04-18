@@ -14,9 +14,7 @@ class VendorWelcomeNotification extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct(public string $token)
-    {
-    }
+    public function __construct(public string $token) {}
 
     /**
      * Get the notification's delivery channels.

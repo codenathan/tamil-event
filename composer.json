@@ -15,11 +15,14 @@
         "laravel/framework": "^13.0",
         "laravel/tinker": "^3.0",
         "laravel/wayfinder": "^0.1.14",
+        "opcodesio/log-viewer": "^3.24",
+        "spatie/laravel-medialibrary": "^11",
         "spatie/laravel-permission": "^7.3",
         "spatie/laravel-sluggable": "^3.8"
     },
     "require-dev": {
         "fakerphp/faker": "^1.24",
+        "laravel/boost": "^2.4",
         "laravel/pail": "^1.2.5",
         "laravel/pint": "^1.27",
         "laravel/sail": "^1.53",
@@ -45,6 +48,9 @@
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
             "@php artisan key:generate",
             "@php artisan migrate --force",
+            "@php artisan db:seed --force",
+            "@php artisan storage:link --force",
+            "@php artisan optimize",
             "npm install",
             "npm run build"
         ],

@@ -1,8 +1,7 @@
 import { router, useForm } from '@inertiajs/react';
 import { FolderOpen, Plus, Pencil, Trash2 } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { useState } from 'react';
-import { toast } from 'sonner';
+import { useState } from 'react';   
 import {
     AlertDialog,
     AlertDialogAction,
@@ -96,14 +95,12 @@ export default function AdminCategories({ categoriesRecords }: Props) {
             post(store.url(), {
                 onSuccess: () => {
                     setDialogOpen(false);
-                    toast('Category added successfully');
                 },
             });
         } else {
             put(update.url(editCat!.id), {
                 onSuccess: () => {
                     setDialogOpen(false);
-                    toast('Category updated successfully');
                 },
             });
         }
@@ -113,7 +110,6 @@ export default function AdminCategories({ categoriesRecords }: Props) {
     const handleDelete = (id: number) => {
         router.delete(deleteCategory.url(id), {
             preserveScroll: true,
-            onSuccess: () => toast('Category deleted'),
         });
     };
 

@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Listeners;
 
 use App\Events\VendorApproved;
 use App\Models\User;
 use App\Notifications\VendorWelcomeNotification;
 use Illuminate\Support\Facades\Password;
-use Str;
+use Illuminate\Support\Str;
 
 class CreateVendorUser
 {
@@ -25,14 +27,15 @@ class CreateVendorUser
     {
         $vendor = $event->vendor;
 
-        // Avoid duplicates
         $user = User::firstOrCreate(
             ['email' => $vendor->email],
             [
                 'name' => $vendor->name,
-                'password' => bcrypt(Str::random(32)), // temporary random password
+                'password' => bcrypt(Str::random(32)),
             ]
         );
+
+        $user->assignRole('vendor');
 
         $vendor->user_id = $user->id;
         $vendor->save();

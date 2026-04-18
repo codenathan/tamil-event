@@ -1,7 +1,6 @@
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { X } from 'lucide-react';
-import type { FormEvent } from 'react';
-import { useState, useRef } from 'react';
+import { useState, useRef, type KeyboardEvent } from 'react';
 import type { Category, LocationsByCountry } from '@/data/categories';
 import { store } from '@/routes/list-your-business';
 
@@ -18,26 +17,24 @@ interface FormFields {
     website: string;
     instagram: string;
     facebook: string;
+    services: string[];
     agreeTerms: boolean;
     featuredImage: File | null;
     images: File[];
-    [key: string]: string | boolean | File | File[] | null;
-}
-
-interface Props {
-    flash?: { success?: string; error?: string };
+    [key: string]: string | boolean | File | File[] | string[] | null;
 }
 
 interface PageProps {
     categories: Category[];
     locationsByCountry: LocationsByCountry;
+    flash?: { success?: string; error?: string };
     [key: string]: unknown;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function ListYourBusiness({ flash }: Props) {
-    const { categories, locationsByCountry } = usePage<PageProps>().props;
+export default function ListYourBusiness() {
+    const { categories, locationsByCountry, flash } = usePage<PageProps>().props;
     const fileInputRef = useRef<HTMLInputElement>(null);
     const featuredImageInputRef = useRef<HTMLInputElement>(null);
     const [previews, setPreviews] = useState<{ file: File; preview: string }[]>(
@@ -47,6 +44,7 @@ export default function ListYourBusiness({ flash }: Props) {
         file: File;
         preview: string;
     } | null>(null);
+    const [serviceInput, setServiceInput] = useState('');
 
     const { data, setData, post, processing, errors, reset } =
         useForm<FormFields>({
@@ -60,6 +58,7 @@ export default function ListYourBusiness({ flash }: Props) {
             website: '',
             instagram: '',
             facebook: '',
+            services: [],
             agreeTerms: false,
             featuredImage: null,
             images: [],
@@ -124,24 +123,33 @@ export default function ListYourBusiness({ flash }: Props) {
         });
     };
 
-    // ── Submit ──────────────────────────────────────────────────────────────────
-
-    const handleSubmit = (e: FormEvent) => {
-        e.preventDefault();
-
-        if (!data.agreeTerms) {
+    const addServiceTag = (raw: string) => {
+        const t = raw.trim();
+        if (!t || data.services.length >= 20) return;
+        if (data.services.some((s) => s.toLowerCase() === t.toLowerCase()))
             return;
-        } // HTML5 validation also guards this
+        setData('services', [...data.services, t]);
+        setServiceInput('');
+    };
 
-        post(store().url, {
-            forceFormData: true, // required for file uploads with Inertia
-            onSuccess: () => {
-                reset();
-                setPreviews([]);
-                if (featuredPreview) URL.revokeObjectURL(featuredPreview.preview);
-                setFeaturedPreview(null);
-            },
-        });
+    const removeServiceTag = (index: number) => {
+        setData(
+            'services',
+            data.services.filter((_, i) => i !== index),
+        );
+    };
+
+    const onServiceKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            addServiceTag(serviceInput);
+        } else if (
+            e.key === 'Backspace' &&
+            serviceInput === '' &&
+            data.services.length > 0
+        ) {
+            removeServiceTag(data.services.length - 1);
+        }
     };
 
     // ── Styles (Tailwind — mirrors your existing token names) ───────────────────
@@ -155,17 +163,7 @@ export default function ListYourBusiness({ flash }: Props) {
         <>
             <Head title="List Your Business | Global Tamil Event Directory" />
 
-            {/* ── Flash messages ── */}
-            {flash?.success && (
-                <div className="mx-auto mt-6 mb-4 max-w-2xl rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
-                    {flash.success}
-                </div>
-            )}
-            {flash?.error && (
-                <div className="mx-auto mt-6 mb-4 max-w-2xl rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                    {flash.error}
-                </div>
-            )}
+           
 
             {/* ── Hero ── */}
             <section className="gradient-hero py-16 md:py-20">
@@ -182,10 +180,22 @@ export default function ListYourBusiness({ flash }: Props) {
 
             {/* ── Form ── */}
             <section className="mx-auto max-w-2xl px-4 py-12">
+                {flash?.success && (
+                    <div
+                        role="status"
+                        className="mb-6 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800 dark:text-emerald-200"
+                    >
+                        {flash.success}
+                    </div>
+                )}
                 <form
-                    onSubmit={handleSubmit}
                     className="space-y-6"
                     encType="multipart/form-data"
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        post(store.url());
+                        reset();
+                    }}
                 >
                     {/* Business Name */}
                     <div>
@@ -297,6 +307,64 @@ export default function ListYourBusiness({ flash }: Props) {
                         </p>
                         {errors.description && (
                             <p className={errorClass}>{errors.description}</p>
+                        )}
+                    </div>
+
+                    {/* Services (tags) */}
+                    <div>
+                        <label className={labelClass}>
+                            Services you offer{' '}
+                            <span className="font-normal text-muted-foreground">
+                                (optional, up to 20)
+                            </span>
+                        </label>
+                        <p className="mb-2 text-xs text-muted-foreground">
+                            Type a service and press Enter or comma to add a tag.
+                        </p>
+                        <div
+                            className={`flex min-h-11 flex-wrap items-center gap-2 rounded-xl border border-input bg-card px-3 py-2 focus-within:ring-2 focus-within:ring-ring`}
+                        >
+                            {data.services.map((tag, i) => (
+                                <span
+                                    key={`${tag}-${i}`}
+                                    className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground"
+                                >
+                                    {tag}
+                                    <button
+                                        type="button"
+                                        onClick={() => removeServiceTag(i)}
+                                        className="rounded-full p-0.5 hover:bg-destructive/20"
+                                        aria-label={`Remove ${tag}`}
+                                    >
+                                        <X className="h-3 w-3" />
+                                    </button>
+                                </span>
+                            ))}
+                            <input
+                                type="text"
+                                value={serviceInput}
+                                onChange={(e) =>
+                                    setServiceInput(e.target.value)
+                                }
+                                onKeyDown={onServiceKeyDown}
+                                onBlur={() => {
+                                    if (serviceInput.trim())
+                                        addServiceTag(serviceInput);
+                                }}
+                                placeholder={
+                                    data.services.length >= 20
+                                        ? 'Maximum tags reached'
+                                        : 'e.g. Wedding photography'
+                                }
+                                disabled={data.services.length >= 20}
+                                className="min-w-[8rem] flex-1 border-0 bg-transparent py-1 text-sm outline-none placeholder:text-muted-foreground"
+                            />
+                        </div>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                            {data.services.length}/20 tags
+                        </p>
+                        {errors.services && (
+                            <p className={errorClass}>{errors.services}</p>
                         )}
                     </div>
 

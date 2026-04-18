@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\VendorStatusEnum;
@@ -11,16 +13,40 @@ use Inertia\Inertia;
 
 class VendorApplicationsController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $vendors = Vendor::where('is_active', false)
+        $perPage = (int) $request->input('per_page', 10);
+        if (! in_array($perPage, [10, 25, 50, 100], true)) {
+            $perPage = 10;
+        }
+
+        $query = Vendor::query()
+            ->where('is_active', false)
             ->latest()
-            ->with(['category', 'city', 'country'])
-            ->paginate(10);
+            ->with([
+                'category',
+                'city',
+                'country',
+                'user:id,name',
+            ]);
+
+        $this->applySearch($query, $request, [
+            'columns' => ['name', 'email'],
+            'relationships' => [
+                'category' => ['name'],
+                'city' => ['name'],
+                'country' => ['name'],
+            ],
+        ]);
+
+        $vendors = $query->paginate($perPage)->withQueryString();
 
         return Inertia::render(
             'admin/vendor-applications',
-            compact('vendors')
+            [
+                'vendors' => $vendors,
+                'filters' => $request->only(['search', 'per_page']),
+            ]
         );
     }
 
@@ -34,6 +60,7 @@ class VendorApplicationsController extends Controller
             ]);
 
             event(new VendorApproved($vendor));
+
             return back()->with('success', 'Vendor approved');
         }
 
@@ -48,6 +75,7 @@ class VendorApplicationsController extends Controller
     public function destroy(Vendor $vendor)
     {
         $vendor->delete();
+
         return back()->with('success', 'Application deleted');
     }
 }

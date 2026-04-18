@@ -26,3 +26,9 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+/.cursor
+/.agents
+/.claude
+/.codex
+
