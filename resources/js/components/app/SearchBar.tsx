@@ -1,5 +1,5 @@
 import { Search } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { router } from '@inertiajs/react';
 import LocationDropdown from '@/components/app/LocationDropdown';
 
@@ -25,6 +25,14 @@ function parseLocation(location: string): { city?: string; country?: string } {
 const SearchBar = ({ large = false, initialQuery = '', initialLocation = '' }: SearchBarProps) => {
     const [query, setQuery] = useState(initialQuery);
     const [location, setLocation] = useState(initialLocation);
+
+    useEffect(() => {
+        setQuery(initialQuery);
+    }, [initialQuery]);
+
+    useEffect(() => {
+        setLocation(initialLocation);
+    }, [initialLocation]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
