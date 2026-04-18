@@ -1,5 +1,5 @@
 import { MapPin, ChevronDown, X } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { usePage } from '@inertiajs/react';
 import type { LocationsByCountry } from '@/data/categories';
 
@@ -20,10 +20,15 @@ const LocationDropdown = ({
     const [search, setSearch] = useState('');
     const containerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
-    const { locationsByCountry } = usePage<{
-        locationsByCountry: LocationsByCountry;
+    const { locationsByCountry = {} } = usePage<{
+        locationsByCountry?: LocationsByCountry;
         [key: string]: unknown;
     }>().props;
+
+    const close = useCallback(() => {
+        setOpen(false);
+        setSearch('');
+    }, []);
 
     useEffect(() => {
         const handler = (e: MouseEvent) => {
@@ -31,12 +36,26 @@ const LocationDropdown = ({
                 containerRef.current &&
                 !containerRef.current.contains(e.target as Node)
             ) {
-                setOpen(false);
+                close();
             }
         };
         document.addEventListener('mousedown', handler);
         return () => document.removeEventListener('mousedown', handler);
-    }, []);
+    }, [close]);
+
+    useEffect(() => {
+        if (!open) {
+            return;
+        }
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                close();
+            }
+        };
+        document.addEventListener('keydown', onKey);
+        return () => document.removeEventListener('keydown', onKey);
+    }, [open, close]);
 
     const filtered = useMemo(() => {
         const q = search.toLowerCase();
@@ -57,14 +76,12 @@ const LocationDropdown = ({
 
     const handleSelectCity = (city: string, country: string) => {
         onChange(`${city}, ${country}`);
-        setSearch('');
-        setOpen(false);
+        close();
     };
 
     const handleSelectCountry = (country: string) => {
         onChange(country);
-        setSearch('');
-        setOpen(false);
+        close();
     };
 
     const handleClear = () => {
@@ -89,11 +106,17 @@ const LocationDropdown = ({
                     setSearch(e.target.value);
                     if (!open) setOpen(true);
                 }}
-                onFocus={() => setOpen(true)}
+                onFocus={() => {
+                    setSearch(value);
+                    setOpen(true);
+                }}
                 placeholder={placeholder}
                 className={`w-full rounded-xl border border-input bg-card pr-10 pl-12 font-body placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:outline-none ${large ? 'h-14 text-base' : 'h-11 text-sm'}`}
                 aria-label="Select location"
+                aria-expanded={open}
+                aria-haspopup="listbox"
                 autoComplete="off"
+                role="combobox"
             />
             {value ? (
                 <button
@@ -109,7 +132,10 @@ const LocationDropdown = ({
             )}
 
             {open && (
-                <div className="absolute z-50 mt-1 max-h-64 w-full overflow-y-auto rounded-xl border border-input bg-popover shadow-lg">
+                <div
+                    className="absolute z-50 mt-1 max-h-64 w-full overflow-y-auto rounded-xl border border-input bg-popover shadow-lg"
+                    role="listbox"
+                >
                     {Object.keys(filtered).length === 0 ? (
                         <p className="px-4 py-3 text-sm text-muted-foreground">
                             No locations found

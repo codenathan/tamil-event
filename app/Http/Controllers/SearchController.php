@@ -12,11 +12,37 @@ class SearchController extends Controller
     public function index(Request $request)
     {
         $query = $request->string('q')->trim()->value();
+        $city = $request->string('city')->trim()->value();
+        $country = $request->string('country')->trim()->value();
 
         $vendors = Vendor::active()
             ->with(['category', 'city', 'country', 'media'])
             ->when($query, function ($q) use ($query) {
-                return $q->where('name', 'like', "%{$query}%");
+                $q->where(function ($sub) use ($query) {
+                    $sub->where('name', 'like', "%{$query}%")
+                        ->orWhereHas('city', function ($cityQ) use ($query) {
+                            $cityQ->where('name', 'like', "%{$query}%");
+                        })
+                        ->orWhereHas('category', function ($categoryQ) use ($query) {
+                            $categoryQ->where('name', 'like', "%{$query}%");
+                        })
+                        ->orWhereHas('country', function ($countryQ) use ($query) {
+                            $countryQ->where('name', 'like', "%{$query}%");
+                        });
+                });
+            })
+            ->when($city !== '' && $country !== '', function ($q) use ($city, $country) {
+                $q->whereHas('city', function ($cityQ) use ($city, $country) {
+                    $cityQ->where('name', $city)
+                        ->whereHas('country', function ($countryQ) use ($country) {
+                            $countryQ->where('name', $country);
+                        });
+                });
+            })
+            ->when($city === '' && $country !== '', function ($q) use ($country) {
+                $q->whereHas('country', function ($countryQ) use ($country) {
+                    $countryQ->where('name', $country);
+                });
             })
             ->paginate(12)
             ->withQueryString();
@@ -25,6 +51,8 @@ class SearchController extends Controller
             'vendors' => $vendors,
             'filters' => [
                 'q' => $query,
+                'city' => $city,
+                'country' => $country,
             ],
         ]);
     }
