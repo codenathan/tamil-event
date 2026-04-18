@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
 Route::inertia('privacy-policy', 'privacy-policy')->name('privacy-policy');
+Route::inertia('terms-and-conditions', 'terms-and-conditions')->name('terms-and-conditions');
 
 Route::get('links', LinksController::class)->name('links');
 

@@ -1,5 +1,5 @@
 import { Table } from 'lucide-react';
-import { type ReactNode } from 'react';
+import type {ReactNode} from 'react';
 
 import {
     Empty,

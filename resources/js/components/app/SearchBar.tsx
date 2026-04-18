@@ -1,6 +1,6 @@
+import { router } from '@inertiajs/react';
 import { Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { router } from '@inertiajs/react';
 import LocationDropdown from '@/components/app/LocationDropdown';
 
 interface SearchBarProps {
@@ -11,14 +11,19 @@ interface SearchBarProps {
 
 /** Parse "City, Country" or "Country" into separate params */
 function parseLocation(location: string): { city?: string; country?: string } {
-    if (!location) return {};
+    if (!location) {
+return {};
+}
+
     const commaIndex = location.indexOf(', ');
+
     if (commaIndex !== -1) {
         return {
             city: location.slice(0, commaIndex),
             country: location.slice(commaIndex + 2),
         };
     }
+
     return { country: location };
 }
 
@@ -38,9 +43,19 @@ const SearchBar = ({ large = false, initialQuery = '', initialLocation = '' }: S
         e.preventDefault();
         const { city, country } = parseLocation(location);
         const params: Record<string, string> = {};
-        if (query.trim()) params.q = query.trim();
-        if (city) params.city = city;
-        if (country) params.country = country;
+
+        if (query.trim()) {
+params.q = query.trim();
+}
+
+        if (city) {
+params.city = city;
+}
+
+        if (country) {
+params.country = country;
+}
+
         router.get('/search', params);
     };
 

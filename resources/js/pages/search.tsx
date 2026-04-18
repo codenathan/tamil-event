@@ -1,9 +1,11 @@
 import { Head } from '@inertiajs/react';
 import SearchBar from '@/components/app/SearchBar';
-import VendorCard, { VendorCardData } from '@/components/app/VendorCard';
-import VendorPagination, {
+import type { VendorCardData } from '@/components/app/VendorCard';
+import VendorCard from '@/components/app/VendorCard';
+import type {
     PaginatedData,
 } from '@/components/app/VendorPagination';
+import VendorPagination from '@/components/app/VendorPagination';
 
 interface PaginatedVendors extends PaginatedData {
     data: VendorCardData[];
@@ -28,8 +30,14 @@ interface Props {
 }
 
 function buildInitialLocation(city: string, country: string): string {
-    if (city && country) return `${city}, ${country}`;
-    if (country) return country;
+    if (city && country) {
+return `${city}, ${country}`;
+}
+
+    if (country) {
+return country;
+}
+
     return '';
 }
 

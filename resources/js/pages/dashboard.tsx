@@ -10,9 +10,10 @@ import {
 } from 'lucide-react';
 import type { KeyboardEvent } from 'react';
 import { useEffect, useState } from 'react';
+import DataTableWithSearch from '@/components/data-table-with-search';
+import InputError from '@/components/input-error';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import DataTableWithSearch from '@/components/data-table-with-search';
 import {
     Card,
     CardContent,
@@ -20,6 +21,13 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -29,19 +37,12 @@ import {
     TabsTrigger,
 } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
-import InputError from '@/components/input-error';
+import { dashboard } from '@/routes';
 import dashboardEnquiries from '@/routes/dashboard/enquiries';
 import listing from '@/routes/dashboard/listing';
-import { dashboard } from '@/routes';
 import type { Vendor } from '@/types';
-import { EnquireStatus, type Enquire } from '@/types/models';
+import { EnquireStatus  } from '@/types/models';
+import type {Enquire} from '@/types/models';
 
 interface PaginationLink {
     url: string | null;
@@ -74,39 +75,19 @@ function formatEnquiryDate(iso: string): string {
     }
 }
 
-export default function Dashboard({
-    vendor,
-    enquiries,
-}: PageProps) {
+function DashboardListingForm({ vendor }: { vendor: Vendor }) {
     const { data, setData, patch, processing, errors } = useForm({
-        name: vendor?.name ?? '',
-        description: vendor?.description ?? '',
-        services: [...(vendor?.services ?? [])],
-        phone: vendor?.phone ?? '',
-        email: vendor?.email ?? '',
-        website: vendor?.website ?? '',
+        name: vendor.name,
+        description: vendor.description ?? '',
+        services: [...(vendor.services ?? [])],
+        phone: vendor.phone ?? '',
+        email: vendor.email ?? '',
+        website: vendor.website ?? '',
     });
 
     const [serviceInput, setServiceInput] = useState('');
-    const [viewingEnquiry, setViewingEnquiry] = useState<Enquire | null>(null);
-
-    const openEnquiry = (row: Enquire) => {
-        if (row.status === EnquireStatus.PENDING) {
-            router.post(
-                dashboardEnquiries.markAsRead.url({ enquire: row.id }),
-                {},
-                { preserveScroll: true },
-            );
-        }
-
-        setViewingEnquiry(row);
-    };
 
     useEffect(() => {
-        if (!vendor) {
-            return;
-        }
-
         setData({
             name: vendor.name,
             description: vendor.description ?? '',
@@ -115,7 +96,6 @@ export default function Dashboard({
             email: vendor.email ?? '',
             website: vendor.website ?? '',
         });
-        setServiceInput('');
     }, [vendor, setData]);
 
     const addServiceTag = (raw: string) => {
@@ -151,6 +131,197 @@ export default function Dashboard({
         ) {
             removeServiceTag(data.services.length - 1);
         }
+    };
+
+    return (
+        <Card className="border-border/80 shadow-sm">
+            <CardHeader className="space-y-1">
+                <CardTitle className="font-display flex items-center gap-2 text-xl">
+                    <PencilLine className="size-5 text-primary" />
+                    Edit business listing
+                </CardTitle>
+                <CardDescription>
+                    Update how your business appears to visitors on TamilEvents.
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <form
+                    className="space-y-6"
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        patch(listing.update.url());
+                    }}
+                >
+                    <div className="grid gap-6 md:grid-cols-2">
+                        <div className="space-y-2">
+                            <Label htmlFor="name">Business name</Label>
+                            <Input
+                                id="name"
+                                value={data.name}
+                                onChange={(e) =>
+                                    setData('name', e.target.value)
+                                }
+                                readOnly={true}
+                                autoComplete="organization"
+                            />
+                        </div>
+                        <div className="space-y-2 md:col-span-2">
+                            <Label htmlFor="description">Description</Label>
+                            <Textarea
+                                id="description"
+                                rows={6}
+                                value={data.description}
+                                onChange={(e) =>
+                                    setData('description', e.target.value)
+                                }
+                                placeholder="Describe your services, experience, and what makes your business special."
+                                className="min-h-[140px] resize-y"
+                            />
+                            <InputError message={errors.description} />
+                        </div>
+                        <div className="space-y-2 md:col-span-2">
+                            <Label>
+                                Services{' '}
+                                <span className="font-normal text-muted-foreground">
+                                    (optional, up to 20)
+                                </span>
+                            </Label>
+                            <p className="text-xs text-muted-foreground">
+                                Type a service and press Enter or comma to add a
+                                tag.
+                            </p>
+                            <div className="flex min-h-10 flex-wrap items-center gap-2 rounded-md border border-input bg-background px-3 py-2 focus-within:ring-2 focus-within:ring-ring">
+                                {data.services.map((tag, i) => (
+                                    <span
+                                        key={`${tag}-${i}`}
+                                        className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground"
+                                    >
+                                        {tag}
+                                        <button
+                                            type="button"
+                                            onClick={() => removeServiceTag(i)}
+                                            className="rounded-full p-0.5 hover:bg-destructive/20"
+                                            aria-label={`Remove ${tag}`}
+                                        >
+                                            <X className="h-3 w-3" />
+                                        </button>
+                                    </span>
+                                ))}
+                                <input
+                                    type="text"
+                                    value={serviceInput}
+                                    onChange={(e) =>
+                                        setServiceInput(e.target.value)
+                                    }
+                                    onKeyDown={onServiceKeyDown}
+                                    onBlur={() => {
+                                        if (serviceInput.trim()) {
+                                            addServiceTag(serviceInput);
+                                        }
+                                    }}
+                                    placeholder={
+                                        data.services.length >= 20
+                                            ? 'Maximum tags reached'
+                                            : 'e.g. Wedding photography'
+                                    }
+                                    disabled={data.services.length >= 20}
+                                    className="min-w-32 flex-1 border-0 bg-transparent py-0.5 text-sm outline-none placeholder:text-muted-foreground"
+                                />
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                                {data.services.length}/20 tags
+                            </p>
+                            <InputError message={errors.services} />
+                        </div>
+                    </div>
+
+                    <div className="grid gap-4 md:grid-cols-3">
+                        <div className="space-y-2">
+                            <Label htmlFor="phone">Phone</Label>
+                            <div className="relative">
+                                <Phone className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                                <Input
+                                    id="phone"
+                                    type="tel"
+                                    value={data.phone}
+                                    onChange={(e) =>
+                                        setData('phone', e.target.value)
+                                    }
+                                    className="pl-10"
+                                    autoComplete="tel"
+                                />
+                            </div>
+                            <InputError message={errors.phone} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="email">Email</Label>
+                            <div className="relative">
+                                <Mail className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    value={data.email}
+                                    onChange={(e) =>
+                                        setData('email', e.target.value)
+                                    }
+                                    className="pl-10"
+                                    autoComplete="email"
+                                    required
+                                />
+                            </div>
+                            <InputError message={errors.email} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="website">Website</Label>
+                            <div className="relative">
+                                <Globe className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                                <Input
+                                    id="website"
+                                    type="url"
+                                    value={data.website}
+                                    onChange={(e) =>
+                                        setData('website', e.target.value)
+                                    }
+                                    className="pl-10"
+                                    placeholder="https://"
+                                />
+                            </div>
+                            <InputError message={errors.website} />
+                        </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-3 pt-2">
+                        <Button
+                            type="submit"
+                            disabled={processing}
+                            className="rounded-full gap-2"
+                        >
+                            <Save className="size-4" />
+                            Save changes
+                        </Button>
+                    </div>
+                </form>
+            </CardContent>
+        </Card>
+    );
+}
+
+export default function Dashboard({
+    vendor,
+    enquiries,
+}: PageProps) {
+    const [viewingEnquiry, setViewingEnquiry] = useState<Enquire | null>(null);
+
+    const openEnquiry = (row: Enquire) => {
+        if (row.status === EnquireStatus.PENDING) {
+            router.post(
+                dashboardEnquiries.markAsRead.url({ enquire: row.id }),
+                {},
+                { preserveScroll: true },
+            );
+        }
+
+        setViewingEnquiry(row);
     };
 
     const displayName = vendor?.name ?? 'there';
@@ -210,229 +381,10 @@ export default function Dashboard({
                             </TabsList>
 
                             <TabsContent value="listing" className="mt-0">
-                                <Card className="border-border/80 shadow-sm">
-                                    <CardHeader className="space-y-1">
-                                        <CardTitle className="font-display flex items-center gap-2 text-xl">
-                                            <PencilLine className="size-5 text-primary" />
-                                            Edit business listing
-                                        </CardTitle>
-                                        <CardDescription>
-                                            Update how your business appears to visitors
-                                            on TamilEvents.
-                                        </CardDescription>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <form
-                                            className="space-y-6"
-                                            onSubmit={(e) => {
-                                                e.preventDefault();
-                                                patch(listing.update.url());
-                                            }}
-                                        >
-                                            <div className="grid gap-6 md:grid-cols-2">
-                                                <div className="space-y-2">
-                                                    <Label htmlFor="name">
-                                                        Business name
-                                                    </Label>
-                                                    <Input
-                                                        id="name"
-                                                        value={data.name}
-                                                        onChange={(e) =>
-                                                            setData(
-                                                                'name',
-                                                                e.target.value,
-                                                            )
-                                                        }
-                                                        readOnly={true}
-                                                        autoComplete="organization"
-                                                    />
-                                                </div>
-                                                <div className="space-y-2 md:col-span-2">
-                                                    <Label htmlFor="description">
-                                                        Description
-                                                    </Label>
-                                                    <Textarea
-                                                        id="description"
-                                                        rows={6}
-                                                        value={data.description}
-                                                        onChange={(e) =>
-                                                            setData(
-                                                                'description',
-                                                                e.target.value,
-                                                            )
-                                                        }
-                                                        placeholder="Describe your services, experience, and what makes your business special."
-                                                        className="min-h-[140px] resize-y"
-                                                    />
-                                                    <InputError
-                                                        message={
-                                                            errors.description
-                                                        }
-                                                    />
-                                                </div>
-                                                <div className="space-y-2 md:col-span-2">
-                                                    <Label>
-                                                        Services{' '}
-                                                        <span className="font-normal text-muted-foreground">
-                                                            (optional, up to 20)
-                                                        </span>
-                                                    </Label>
-                                                    <p className="text-xs text-muted-foreground">
-                                                        Type a service and press Enter or
-                                                        comma to add a tag.
-                                                    </p>
-                                                    <div className="flex min-h-10 flex-wrap items-center gap-2 rounded-md border border-input bg-background px-3 py-2 focus-within:ring-2 focus-within:ring-ring">
-                                                        {data.services.map((tag, i) => (
-                                                            <span
-                                                                key={`${tag}-${i}`}
-                                                                className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground"
-                                                            >
-                                                                {tag}
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() =>
-                                                                        removeServiceTag(
-                                                                            i,
-                                                                        )
-                                                                    }
-                                                                    className="rounded-full p-0.5 hover:bg-destructive/20"
-                                                                    aria-label={`Remove ${tag}`}
-                                                                >
-                                                                    <X className="h-3 w-3" />
-                                                                </button>
-                                                            </span>
-                                                        ))}
-                                                        <input
-                                                            type="text"
-                                                            value={serviceInput}
-                                                            onChange={(e) =>
-                                                                setServiceInput(
-                                                                    e.target
-                                                                        .value,
-                                                                )
-                                                            }
-                                                            onKeyDown={onServiceKeyDown}
-                                                            onBlur={() => {
-                                                                if (
-                                                                    serviceInput.trim()
-                                                                ) {
-                                                                    addServiceTag(
-                                                                        serviceInput,
-                                                                    );
-                                                                }
-                                                            }}
-                                                            placeholder={
-                                                                data.services
-                                                                    .length >=
-                                                                20
-                                                                    ? 'Maximum tags reached'
-                                                                    : 'e.g. Wedding photography'
-                                                            }
-                                                            disabled={
-                                                                data.services
-                                                                    .length >= 20
-                                                            }
-                                                            className="min-w-32 flex-1 border-0 bg-transparent py-0.5 text-sm outline-none placeholder:text-muted-foreground"
-                                                        />
-                                                    </div>
-                                                    <p className="text-xs text-muted-foreground">
-                                                        {data.services.length}/20 tags
-                                                    </p>
-                                                    <InputError
-                                                        message={errors.services}
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            <div className="grid gap-4 md:grid-cols-3">
-                                                <div className="space-y-2">
-                                                    <Label htmlFor="phone">
-                                                        Phone
-                                                    </Label>
-                                                    <div className="relative">
-                                                        <Phone className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                                                        <Input
-                                                            id="phone"
-                                                            type="tel"
-                                                            value={data.phone}
-                                                            onChange={(e) =>
-                                                                setData(
-                                                                    'phone',
-                                                                    e.target.value,
-                                                                )
-                                                            }
-                                                            className="pl-10"
-                                                            autoComplete="tel"
-                                                        />
-                                                    </div>
-                                                    <InputError
-                                                        message={errors.phone}
-                                                    />
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <Label htmlFor="email">
-                                                        Email
-                                                    </Label>
-                                                    <div className="relative">
-                                                        <Mail className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                                                        <Input
-                                                            id="email"
-                                                            type="email"
-                                                            value={data.email}
-                                                            onChange={(e) =>
-                                                                setData(
-                                                                    'email',
-                                                                    e.target.value,
-                                                                )
-                                                            }
-                                                            className="pl-10"
-                                                            autoComplete="email"
-                                                            required
-                                                        />
-                                                    </div>
-                                                    <InputError
-                                                        message={errors.email}
-                                                    />
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <Label htmlFor="website">
-                                                        Website
-                                                    </Label>
-                                                    <div className="relative">
-                                                        <Globe className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                                                        <Input
-                                                            id="website"
-                                                            type="url"
-                                                            value={data.website}
-                                                            onChange={(e) =>
-                                                                setData(
-                                                                    'website',
-                                                                    e.target.value,
-                                                                )
-                                                            }
-                                                            className="pl-10"
-                                                            placeholder="https://"
-                                                        />
-                                                    </div>
-                                                    <InputError
-                                                        message={errors.website}
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            <div className="flex flex-wrap gap-3 pt-2">
-                                                <Button
-                                                    type="submit"
-                                                    disabled={processing}
-                                                    className="rounded-full gap-2"
-                                                >
-                                                    <Save className="size-4" />
-                                                    Save changes
-                                                </Button>
-                                            </div>
-                                        </form>
-                                    </CardContent>
-                                </Card>
+                                <DashboardListingForm
+                                    key={vendor.id}
+                                    vendor={vendor}
+                                />
                             </TabsContent>
 
                             <TabsContent value="enquiries" className="mt-0">

@@ -1,5 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import type { Category, LocationsByCountry } from '@/data/categories';
+import { privacyPolicy, termsAndConditions } from '@/routes';
 
 export default function Footer() {
     const { categories, locationsByCountry } = usePage<{
@@ -78,7 +79,15 @@ export default function Footer() {
                         </li>
                         <li>
                             <Link
-                                href="/privacy-policy"
+                                href={termsAndConditions.url()}
+                                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                            >
+                                Terms & Conditions
+                            </Link>
+                        </li>
+                        <li>
+                            <Link
+                                href={privacyPolicy.url()}
                                 className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                             >
                                 Privacy Policy

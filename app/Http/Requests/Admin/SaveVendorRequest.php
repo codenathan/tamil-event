@@ -35,6 +35,8 @@ class SaveVendorRequest extends FormRequest
             'city_id' => ['required', 'exists:cities,id'],
             'description' => ['nullable', 'string'],
             'website' => ['nullable', 'string', 'max:255'],
+            'social_instagram' => ['nullable', 'string', 'max:255'],
+            'social_facebook' => ['nullable', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:50'],
             'services' => ['nullable', 'array', 'max:20'],
             'services.*' => ['string', 'max:80'],
@@ -66,6 +68,14 @@ class SaveVendorRequest extends FormRequest
 
         if ($this->has('website') && $this->input('website') === '') {
             $merge['website'] = null;
+        }
+
+        if ($this->has('social_instagram') && $this->input('social_instagram') === '') {
+            $merge['social_instagram'] = null;
+        }
+
+        if ($this->has('social_facebook') && $this->input('social_facebook') === '') {
+            $merge['social_facebook'] = null;
         }
 
         if ($this->has('services') && is_array($this->input('services'))) {
@@ -103,6 +113,20 @@ class SaveVendorRequest extends FormRequest
         $data['website'] = $data['website'] !== null && $data['website'] !== ''
             ? $data['website']
             : null;
+
+        if (array_key_exists('social_instagram', $data)) {
+            $data['social_instagram'] = $data['social_instagram'] !== null
+                && $data['social_instagram'] !== ''
+                ? $data['social_instagram']
+                : null;
+        }
+
+        if (array_key_exists('social_facebook', $data)) {
+            $data['social_facebook'] = $data['social_facebook'] !== null
+                && $data['social_facebook'] !== ''
+                ? $data['social_facebook']
+                : null;
+        }
 
         return $data;
     }

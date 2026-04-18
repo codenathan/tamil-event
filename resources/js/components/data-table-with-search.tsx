@@ -1,6 +1,7 @@
 import { router } from '@inertiajs/react';
 import { Search, X } from 'lucide-react';
-import { type ReactNode, useCallback, useEffect, useState } from 'react';
+import {  useCallback, useEffect, useState } from 'react';
+import type {ReactNode} from 'react';
 
 import EmptyTable from '@/components/empty-table';
 import PaginatedPagination from '@/components/paginated-pagination';
@@ -77,6 +78,7 @@ export default function DataTableWithSearch<T extends { id: number | string }>({
             } else {
                 params.delete('search');
             }
+
             params.delete('page');
             const queryString = params.toString();
             const url = queryString ? `${searchUrl}?${queryString}` : searchUrl;
@@ -94,6 +96,7 @@ export default function DataTableWithSearch<T extends { id: number | string }>({
         const timeoutId = setTimeout(() => {
             debouncedSearch(searchValue);
         }, 300);
+
         return () => clearTimeout(timeoutId);
     }, [searchValue, debouncedSearch]);
 
@@ -101,11 +104,13 @@ export default function DataTableWithSearch<T extends { id: number | string }>({
 
     const handlePerPageChange = (value: string) => {
         const params = new URLSearchParams(window.location.search);
+
         if (value !== '10') {
             params.set('per_page', value);
         } else {
             params.delete('per_page');
         }
+
         params.delete('page');
         const queryString = params.toString();
         const url = queryString ? `${searchUrl}?${queryString}` : searchUrl;
@@ -118,8 +123,14 @@ export default function DataTableWithSearch<T extends { id: number | string }>({
 
     const visibleColumns = columns.filter((c) => !c.hideOnMobile);
     const getCellContent = (item: T, column: Column<T>) => {
-        if (column.render) return column.render(item);
-        if (column.accessor) return String(item[column.accessor]);
+        if (column.render) {
+return column.render(item);
+}
+
+        if (column.accessor) {
+return String(item[column.accessor]);
+}
+
         return null;
     };
 
@@ -175,8 +186,11 @@ export default function DataTableWithSearch<T extends { id: number | string }>({
                                             typeof column.header === 'string'
                                                 ? column.header
                                                 : null;
-                                        if (!label && typeof column.header !== 'string')
-                                            return null;
+
+                                        if (!label && typeof column.header !== 'string') {
+return null;
+}
+
                                         return (
                                             <div
                                                 key={idx}

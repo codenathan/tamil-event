@@ -52,6 +52,12 @@ export default function AdminVendorForm({
     const [cityId, setCityId] = useState(vendor?.city?.id?.toString() ?? '');
     const [phone, setPhone] = useState(vendor?.phone ?? '');
     const [website, setWebsite] = useState(vendor?.website ?? '');
+    const [socialInstagram, setSocialInstagram] = useState(
+        vendor?.social_instagram ?? '',
+    );
+    const [socialFacebook, setSocialFacebook] = useState(
+        vendor?.social_facebook ?? '',
+    );
     const [services, setServices] = useState<string[]>(
         vendor?.services ? [...vendor.services] : [],
     );
@@ -379,6 +385,51 @@ addServiceTag(
                                             />
                                             <InputError
                                                 message={errors.website}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="grid gap-3 sm:grid-cols-2">
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="vendor-social-instagram">
+                                                Instagram
+                                            </Label>
+                                            <Input
+                                                id="vendor-social-instagram"
+                                                name="social_instagram"
+                                                value={socialInstagram}
+                                                onChange={(e) =>
+                                                    setSocialInstagram(
+                                                        e.target.value,
+                                                    )
+                                                }
+                                                placeholder="@handle or profile URL"
+                                            />
+                                            <InputError
+                                                message={
+                                                    errors.social_instagram
+                                                }
+                                            />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="vendor-social-facebook">
+                                                Facebook
+                                            </Label>
+                                            <Input
+                                                id="vendor-social-facebook"
+                                                name="social_facebook"
+                                                value={socialFacebook}
+                                                onChange={(e) =>
+                                                    setSocialFacebook(
+                                                        e.target.value,
+                                                    )
+                                                }
+                                                placeholder="Page name or profile URL"
+                                            />
+                                            <InputError
+                                                message={
+                                                    errors.social_facebook
+                                                }
                                             />
                                         </div>
                                     </div>

@@ -139,6 +139,8 @@ class VendorCreationTest extends TestCase
             'description' => 'Great food.',
             'phone' => '+94111222333',
             'website' => 'https://catering.example',
+            'social_instagram' => 'delicious_catering',
+            'social_facebook' => 'DeliciousCateringLK',
             'services' => ['Buffets', 'Desserts'],
         ]);
 
@@ -151,10 +153,14 @@ class VendorCreationTest extends TestCase
             'city_id' => $city->id,
             'country_id' => $country->id,
             'is_active' => true,
+            'social_instagram' => 'delicious_catering',
+            'social_facebook' => 'DeliciousCateringLK',
         ]);
 
         $vendor = Vendor::query()->where('email', 'catering@example.com')->first();
         $this->assertNotNull($vendor);
+        $this->assertSame('delicious_catering', $vendor->social_instagram);
+        $this->assertSame('DeliciousCateringLK', $vendor->social_facebook);
         $this->assertSame(['Buffets', 'Desserts'], $vendor->services);
         $this->assertNotNull($vendor->user_id);
 
