@@ -1,6 +1,7 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { Plus, Pencil, Store, Trash2 } from 'lucide-react';
 import type { ReactNode } from 'react';
+import DataTableWithSearch from '@/components/data-table-with-search';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -15,7 +16,6 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import DataTableWithSearch from '@/components/data-table-with-search';
 import AdminLayout from '@/layouts/admin-layout';
 import { create, destroy, edit, index } from '@/routes/admin/vendors';
 import type { Vendor } from '@/types';

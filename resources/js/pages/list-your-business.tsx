@@ -1,7 +1,9 @@
-import { Head, useForm, usePage } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { X } from 'lucide-react';
-import { useState, useRef, type KeyboardEvent } from 'react';
+import { useState, useRef  } from 'react';
+import type {KeyboardEvent} from 'react';
 import type { Category, LocationsByCountry } from '@/data/categories';
+import { termsAndConditions } from '@/routes';
 import { store } from '@/routes/list-your-business';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -69,20 +71,36 @@ export default function ListYourBusiness() {
     // ── Featured image handling ─────────────────────────────────────────────────
 
     const handleFeaturedImage = (files: FileList | null) => {
-        if (!files || files.length === 0) return;
+        if (!files || files.length === 0) {
+return;
+}
+
         const file = files[0];
-        if (!file.type.startsWith('image/') || file.size > 5 * 1024 * 1024) return;
-        if (featuredPreview) URL.revokeObjectURL(featuredPreview.preview);
+
+        if (!file.type.startsWith('image/') || file.size > 5 * 1024 * 1024) {
+return;
+}
+
+        if (featuredPreview) {
+URL.revokeObjectURL(featuredPreview.preview);
+}
+
         const preview = URL.createObjectURL(file);
         setFeaturedPreview({ file, preview });
         setData('featuredImage', file);
     };
 
     const removeFeaturedImage = () => {
-        if (featuredPreview) URL.revokeObjectURL(featuredPreview.preview);
+        if (featuredPreview) {
+URL.revokeObjectURL(featuredPreview.preview);
+}
+
         setFeaturedPreview(null);
         setData('featuredImage', null);
-        if (featuredImageInputRef.current) featuredImageInputRef.current.value = '';
+
+        if (featuredImageInputRef.current) {
+featuredImageInputRef.current.value = '';
+}
     };
 
     // ── Image handling ──────────────────────────────────────────────────────────
@@ -125,9 +143,15 @@ export default function ListYourBusiness() {
 
     const addServiceTag = (raw: string) => {
         const t = raw.trim();
-        if (!t || data.services.length >= 20) return;
-        if (data.services.some((s) => s.toLowerCase() === t.toLowerCase()))
-            return;
+
+        if (!t || data.services.length >= 20) {
+return;
+}
+
+        if (data.services.some((s) => s.toLowerCase() === t.toLowerCase())) {
+return;
+}
+
         setData('services', [...data.services, t]);
         setServiceInput('');
     };
@@ -348,8 +372,9 @@ export default function ListYourBusiness() {
                                 }
                                 onKeyDown={onServiceKeyDown}
                                 onBlur={() => {
-                                    if (serviceInput.trim())
-                                        addServiceTag(serviceInput);
+                                    if (serviceInput.trim()) {
+addServiceTag(serviceInput);
+}
                                 }}
                                 placeholder={
                                     data.services.length >= 20
@@ -585,19 +610,27 @@ export default function ListYourBusiness() {
                             onChange={(e) =>
                                 setData('agreeTerms', e.target.checked)
                             }
-                            className="mt-0.5 h-4 w-4 cursor-pointer rounded border-gray-300 text-rose-600 focus:ring-rose-500"
+                            className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-gray-300 text-rose-600 focus:ring-rose-500"
                         />
-                        <label
-                            htmlFor="terms"
-                            className="cursor-pointer font-body text-sm leading-snug"
-                        >
-                            I agree to the{' '}
-                            <span className="font-medium text-primary">
+                        <p className="font-body text-sm leading-snug text-foreground">
+                            <label
+                                htmlFor="terms"
+                                className="cursor-pointer"
+                            >
+                                I agree to the{' '}
+                            </label>
+                            <Link
+                                href={termsAndConditions.url()}
+                                className="font-medium text-primary underline decoration-primary/30 underline-offset-2 transition-colors hover:text-primary/90"
+                            >
                                 Terms & Conditions
-                            </span>{' '}
-                            and confirm that all information provided is
-                            accurate.
-                        </label>
+                            </Link>
+                            <label htmlFor="terms" className="cursor-pointer">
+                                {' '}
+                                and confirm that all information provided is
+                                accurate.
+                            </label>
+                        </p>
                     </div>
 
                     {/* Submit */}

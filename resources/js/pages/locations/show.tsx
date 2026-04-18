@@ -1,8 +1,10 @@
 import { Head } from '@inertiajs/react';
-import VendorCard, { VendorCardData } from '@/components/app/VendorCard';
-import VendorPagination, {
+import type { VendorCardData } from '@/components/app/VendorCard';
+import VendorCard from '@/components/app/VendorCard';
+import type {
     PaginatedData,
 } from '@/components/app/VendorPagination';
+import VendorPagination from '@/components/app/VendorPagination';
 
 interface PaginatedVendors extends PaginatedData {
     data: VendorCardData[];

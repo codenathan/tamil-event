@@ -3,7 +3,7 @@ import { LayoutDashboard, LogIn, LogOut, Menu, Search, X } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { dashboard, logout } from '@/routes';
-import { User } from '@/types/auth';
+import type { User } from '@/types/auth';
 
 export default function Header() {
     const [mobileOpen, setMobileOpen] = useState(false);

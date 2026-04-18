@@ -1,6 +1,6 @@
+import { usePage } from '@inertiajs/react';
 import { MapPin, ChevronDown, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { usePage } from '@inertiajs/react';
 import type { LocationsByCountry } from '@/data/categories';
 
 interface LocationDropdownProps {
@@ -40,6 +40,7 @@ const LocationDropdown = ({
             }
         };
         document.addEventListener('mousedown', handler);
+
         return () => document.removeEventListener('mousedown', handler);
     }, [close]);
 
@@ -47,6 +48,7 @@ const LocationDropdown = ({
         if (!open) {
             return;
         }
+
         const onKey = (e: KeyboardEvent) => {
             if (e.key === 'Escape') {
                 e.preventDefault();
@@ -54,23 +56,31 @@ const LocationDropdown = ({
             }
         };
         document.addEventListener('keydown', onKey);
+
         return () => document.removeEventListener('keydown', onKey);
     }, [open, close]);
 
     const filtered = useMemo(() => {
         const q = search.toLowerCase();
-        if (!q) return locationsByCountry;
+
+        if (!q) {
+return locationsByCountry;
+}
+
         const result: Record<string, string[]> = {};
+
         for (const [country, cities] of Object.entries(locationsByCountry)) {
             const matchingCities = cities.filter(
                 (c) =>
                     c.toLowerCase().includes(q) ||
                     country.toLowerCase().includes(q),
             );
+
             if (matchingCities.length > 0) {
                 result[country] = matchingCities;
             }
         }
+
         return result;
     }, [search, locationsByCountry]);
 
@@ -104,7 +114,10 @@ const LocationDropdown = ({
                 value={open ? search : displayValue}
                 onChange={(e) => {
                     setSearch(e.target.value);
-                    if (!open) setOpen(true);
+
+                    if (!open) {
+setOpen(true);
+}
                 }}
                 onFocus={() => {
                     setSearch(value);

@@ -17,7 +17,9 @@ export interface PaginatedData {
 }
 
 export default function VendorPagination({ data }: { data: PaginatedData }) {
-    if (data.last_page <= 1) return null;
+    if (data.last_page <= 1) {
+return null;
+}
 
     return (
         <div className="flex items-center justify-between pt-6">
@@ -39,6 +41,7 @@ export default function VendorPagination({ data }: { data: PaginatedData }) {
                             </Link>
                         );
                     }
+
                     if (link.label === 'Next &raquo;') {
                         return (
                             <Link
@@ -52,6 +55,7 @@ export default function VendorPagination({ data }: { data: PaginatedData }) {
                             </Link>
                         );
                     }
+
                     return (
                         <Link
                             key={i}

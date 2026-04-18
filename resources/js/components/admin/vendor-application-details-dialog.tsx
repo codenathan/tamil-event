@@ -52,19 +52,23 @@ function normalizeUrl(href: string): string {
     if (href.startsWith('http://') || href.startsWith('https://')) {
         return href;
     }
+
     return `https://${href}`;
 }
 
 function portfolioUrls(vendor: Vendor): string[] {
     const urls: string[] = [];
+
     if (vendor.featured_image_url) {
         urls.push(vendor.featured_image_url);
     }
+
     for (const img of vendor.images) {
         if (!urls.includes(img.url)) {
             urls.push(img.url);
         }
     }
+
     return urls;
 }
 

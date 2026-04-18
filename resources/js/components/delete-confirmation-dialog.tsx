@@ -1,4 +1,6 @@
-import { type ReactNode, useState } from 'react';
+import {  useState } from 'react';
+import type {ReactNode} from 'react';
+import { Button } from '@/components/ui/button';
 import {
     Dialog,
     DialogContent,
@@ -17,7 +19,6 @@ import {
     DrawerTitle,
     DrawerTrigger,
 } from '@/components/ui/drawer';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useMediaQuery } from '@/hooks/use-media-query';
@@ -45,6 +46,7 @@ export default function DeleteConfirmationDialog({
 
     const handleOpenChange = (newOpen: boolean) => {
         setOpen(newOpen);
+
         if (!newOpen) {
             setConfirmText('');
         }
