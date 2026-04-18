@@ -21,12 +21,10 @@ export type Country = {
     cities_count: number;
 };
 
-export type Image = {
+export type VendorGalleryImage = {
     id: number;
-    path: string;
-    sort_order: number;
-    url : string;
-}
+    url: string;
+};
 
 export enum VendorStatus {
     PENDING =  'pending',
@@ -34,30 +32,54 @@ export enum VendorStatus {
     REJECTED = 'rejected'
 }
 
+export type VendorUserSummary = {
+    id: number;
+    name: string;
+};
+
 export type Vendor = {
     id: number;
     name: string;
     slug: string;
     description: string | null;
-    featured_image: string | null;
-    featured_image_url : string | null;
+    featured_image_url: string | null;
     phone: string | null;
     email: string | null;
     website: string | null;
     social_instagram: string | null;
     social_facebook: string | null;
+    services?: string[];
     category: Category | null;
     city: City | null;
     country: Country | null;
-    images: Image[];
+    images: VendorGalleryImage[];
     is_active: boolean;
-    status : VendorStatus;
+    status: VendorStatus;
+    user?: VendorUserSummary | null;
 };
 
 export enum ContactMessageStatus {
     PENDING = "pending",
     READ = "read",
 }
+
+export enum EnquireStatus {
+    PENDING = "pending",
+    READ = "read",
+}
+
+export type Enquire = {
+    id: number;
+    vendor_id: number;
+    name: string;
+    email: string;
+    /** ISO date string (event date) */
+    date: string;
+    message: string;
+    status: EnquireStatus;
+    created_at: string;
+    updated_at: string;
+};
 
 export type ContactMessage = {
     id: number;

@@ -5,11 +5,14 @@ namespace App\Providers;
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use App\Http\Responses\LoginResponse;
+use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 use Laravel\Fortify\Features;
@@ -38,10 +41,38 @@ class FortifyServiceProvider extends ServiceProvider
     /**
      * Configure Fortify actions.
      */
+    // private function configureActions(): void
+    // {
+    //     Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
+    //     Fortify::createUsersUsing(CreateNewUser::class);
+    // }
+
     private function configureActions(): void
     {
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::createUsersUsing(CreateNewUser::class);
+
+        Fortify::authenticateUsing(function (Request $request): ?User {
+            $credentials = [
+                Fortify::username() => $request->input(Fortify::username()),
+                'password' => $request->input('password'),
+            ];
+
+            if (! Auth::validate($credentials)) {
+                return null;
+            }
+
+            /** @var User $user */
+            $user = Auth::getProvider()->retrieveByCredentials($credentials);
+
+            if ($user->disabled_at !== null) {
+                throw ValidationException::withMessages([
+                    Fortify::username() => ['Your account has been disabled.'],
+                ]);
+            }
+
+            return $user;
+        });
     }
 
     /**

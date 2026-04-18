@@ -4,16 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Vendor;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class CategoryController extends Controller
 {
-
     public function show(Category $category): Response
     {
-        $vendors = Vendor::active()->with(['category', 'city', 'country'])
+        $vendors = Vendor::active()->with(['category', 'city', 'country', 'media'])
             ->where('category_id', $category->id)
             ->paginate(12);
 

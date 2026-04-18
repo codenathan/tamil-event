@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\HandleInertiaRequests;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -11,7 +12,8 @@ class CategoriesController extends Controller
 {
     /**
      * this has not been labeled categories as it will clash with the inertia share
-     * @see \App\Http\Middleware\HandleInertiaRequests
+     *
+     * @see HandleInertiaRequests
      */
     public function index()
     {
@@ -30,7 +32,9 @@ class CategoriesController extends Controller
 
         Category::create($data);
 
-        return back()->with('success', 'Category added');
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Category added.')]);
+
+        return to_route('admin.categories.index');
     }
 
     public function update(Category $category, Request $request)
@@ -43,13 +47,17 @@ class CategoriesController extends Controller
 
         $category->update($data);
 
-        return back()->with('success', 'Category updated');
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Category updated.')]);
+
+        return to_route('admin.categories.index');
     }
 
     public function destroy(Category $category)
     {
         $category->delete();
 
-        return back()->with('success', 'Category deleted');
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Category deleted.')]);
+
+        return to_route('admin.categories.index');
     }
 }

@@ -3,7 +3,6 @@
 namespace App\Http\Middleware;
 
 use App\Models\Category;
-use App\Models\City;
 use App\Models\Country;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -47,10 +46,7 @@ class HandleInertiaRequests extends Middleware
                 'roles' => $request->user()?->getRoleNames() ?? [],
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
-            'flash' => [
-                'success' => $request->session()->get('success'),
-                'error'   => $request->session()->get('error'),
-            ],
+
             'categories' => $this->sharedCategories(),
             'locationsByCountry' => $this->sharedLocationsByCountry(),
         ];

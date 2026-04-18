@@ -6,7 +6,7 @@ export interface VendorCardData {
     name: string;
     slug: string;
     description: string | null;
-    featured_image: string | null;
+    featured_image_url: string | null;
     website: string | null;
     social_instagram: string | null;
     social_facebook: string | null;
@@ -19,9 +19,9 @@ export default function VendorCard({ vendor }: { vendor: VendorCardData }) {
     return (
         <div className="group flex flex-col rounded-xl border border-border bg-card shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover overflow-hidden">
             <div className="relative h-48 bg-secondary">
-                {vendor.featured_image ? (
+                {vendor.featured_image_url ? (
                     <img
-                        src={vendor.featured_image}
+                        src={vendor.featured_image_url}
                         alt={vendor.name}
                         className="h-full w-full object-cover"
                     />

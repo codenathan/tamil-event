@@ -13,22 +13,22 @@ class CitySeeder extends Seeder
     {
         $locationsByCountry = [
             'United Kingdom' => ['London', 'Birmingham', 'Leicester'],
-            'Canada'         => ['Toronto', 'Scarborough'],
-            'France'         => ['Paris'],
-            'Germany'        => ['Berlin'],
-            'Australia'      => ['Sydney', 'Melbourne'],
-            'Sri Lanka'      => ['Colombo', 'Jaffna'],
-            'India'          => ['Chennai', 'Madurai'],
-            'United States'  => ['New York'],
-            'UAE'            => ['Dubai'],
-            'Singapore'      => ['Singapore'],
-            'Malaysia'       => ['Kuala Lumpur'],
+            'Canada' => ['Toronto', 'Scarborough'],
+            'France' => ['Paris'],
+            'Germany' => ['Berlin'],
+            'Australia' => ['Sydney', 'Melbourne'],
+            'Sri Lanka' => ['Colombo', 'Jaffna'],
+            'India' => ['Chennai', 'Madurai'],
+            'United States' => ['New York'],
+            'UAE' => ['Dubai'],
+            'Singapore' => ['Singapore'],
+            'Malaysia' => ['Kuala Lumpur'],
         ];
 
         foreach ($locationsByCountry as $countryName => $cities) {
             $country = Country::where('slug', Str::slug($countryName))->first();
 
-            if (!$country) {
+            if (! $country) {
                 continue;
             }
 

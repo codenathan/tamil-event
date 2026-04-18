@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\ContactMessageEnum;
 use App\Http\Controllers\Controller;
 use App\Models\ContactMessage;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class InboxController extends Controller

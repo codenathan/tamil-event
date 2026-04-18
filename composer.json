@@ -15,6 +15,8 @@
         "laravel/framework": "^13.0",
         "laravel/tinker": "^3.0",
         "laravel/wayfinder": "^0.1.14",
+        "opcodesio/log-viewer": "^3.24",
+        "spatie/laravel-medialibrary": "^11",
         "spatie/laravel-permission": "^7.3",
         "spatie/laravel-sluggable": "^3.8"
     },
@@ -45,6 +47,7 @@
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
             "@php artisan key:generate",
             "@php artisan migrate --force",
+            "@php artisan storage:link --force",
             "npm install",
             "npm run build"
         ],

@@ -2,10 +2,10 @@
 
 namespace App\Events;
 
+use App\Models\Vendor;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use App\Models\Vendor;
 
 class VendorApproved
 {
@@ -14,7 +14,5 @@ class VendorApproved
     /**
      * Create a new event instance.
      */
-    public function __construct(public Vendor $vendor)
-    {
-    }
+    public function __construct(public Vendor $vendor) {}
 }
