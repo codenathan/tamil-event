@@ -7,7 +7,9 @@ namespace App\Http\Controllers;
 use App\Enums\EnquireStatusEnum;
 use App\Http\Requests\StoreEnquireRequest;
 use App\Models\Vendor;
+use App\Notifications\VendorNewEnquiryNotification;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 
 class EnquireController extends Controller
@@ -16,10 +18,19 @@ class EnquireController extends Controller
     {
         abort_if(! $vendor->is_active, 404);
 
-        $vendor->enquires()->create([
+        $enquire = $vendor->enquires()->create([
             ...$request->validated(),
             'status' => EnquireStatusEnum::PENDING,
         ]);
+
+        $vendor->loadMissing('user');
+
+        $recipient = $vendor->email ?? $vendor->user?->email;
+
+        if (filled($recipient)) {
+            Notification::route('mail', $recipient)
+                ->notify(new VendorNewEnquiryNotification($enquire));
+        }
 
         Inertia::flash('toast', [
             'type' => 'success',
@@ -29,3 +40,4 @@ class EnquireController extends Controller
         return back();
     }
 }
+
