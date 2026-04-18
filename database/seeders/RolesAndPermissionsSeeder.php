@@ -14,11 +14,11 @@ class RolesAndPermissionsSeeder extends Seeder
     public function run(): void
     {
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
-        // Create permissions
 
-        // Create roles and assign permissions
-        Role::create(['name' => 'admin']);
-        Role::create(['name' => 'vendor']);
-        Role::create(['name' => 'user']);
+        $guard = config('auth.defaults.guard');
+
+        Role::firstOrCreate(['name' => 'admin', 'guard_name' => $guard]);
+        Role::firstOrCreate(['name' => 'vendor', 'guard_name' => $guard]);
+        Role::firstOrCreate(['name' => 'user', 'guard_name' => $guard]);
     }
 }

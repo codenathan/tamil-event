@@ -13,6 +13,7 @@ class CategoryController extends Controller
     {
         $vendors = Vendor::active()->with(['category', 'city', 'country', 'media'])
             ->where('category_id', $category->id)
+            ->orderBy('name')
             ->paginate(12);
 
         return Inertia::render('search', [

@@ -15,7 +15,6 @@ return new class extends Migration
     {
         Schema::create('contact_messages', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('vendor_id')->nullable()->constrained('vendors')->nullOnDelete();
             $table->string('name');
             $table->date('date');
             $table->string('email');
@@ -23,6 +22,9 @@ return new class extends Migration
             $table->text('message')->nullable();
             $table->string('status')->default('pending');
             $table->timestamps();
+
+            $table->index('status');
+            $table->index('created_at');
         });
     }
 

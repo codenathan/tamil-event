@@ -12,15 +12,12 @@ class SearchController extends Controller
     public function index(Request $request)
     {
         $query = $request->string('q')->trim()->value();
-        $city = $request->string('city')->trim()->value();
-        $country = $request->string('country')->trim()->value();
 
-        $vendors = Vendor::active()->with(['category', 'city', 'country', 'media'])
-            ->when($query, fn ($q) => $q->where('name', 'like', "%{$query}%")
-                ->orWhereHas('category', fn ($q) => $q->where('name', 'like', "%{$query}%"))
-            )
-            ->when($city, fn ($q) => $q->whereHas('city', fn ($c) => $c->where('name', 'like', "%{$city}%")))
-            ->when($country && ! $city, fn ($q) => $q->whereHas('country', fn ($c) => $c->where('name', 'like', "%{$country}%")))
+        $vendors = Vendor::active()
+            ->with(['category', 'city', 'country', 'media'])
+            ->when($query, function ($q) use ($query) {
+                return $q->where('name', 'like', "%{$query}%");
+            })
             ->paginate(12)
             ->withQueryString();
 
@@ -28,8 +25,6 @@ class SearchController extends Controller
             'vendors' => $vendors,
             'filters' => [
                 'q' => $query,
-                'city' => $city,
-                'country' => $country,
             ],
         ]);
     }

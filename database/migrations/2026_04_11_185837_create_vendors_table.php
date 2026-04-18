@@ -31,6 +31,10 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->string('status')->default('pending');
             $table->timestamps();
+
+            $table->index(['category_id', 'is_active']);
+            $table->index(['city_id', 'is_active']);
+            $table->index(['is_active', 'created_at']);
         });
     }
 

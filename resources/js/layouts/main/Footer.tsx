@@ -16,7 +16,7 @@ export default function Footer() {
             <div className="container grid grid-cols-1 gap-8 py-12 sm:grid-cols-2 lg:grid-cols-4">
                 <div>
                     <h3 className="text-gradient mb-3 font-display text-lg font-bold">
-                        TamilEvents
+                    TamilEventPlanner
                     </h3>
                     <p className="text-sm leading-relaxed text-muted-foreground">
                         The global directory for Tamil event services. Discover
@@ -94,7 +94,7 @@ export default function Footer() {
             </div>
             <div className="border-t border-border py-6">
                 <p className="text-center text-xs text-muted-foreground">
-                    © {new Date().getFullYear()} TamilEvents. All rights
+                    © {new Date().getFullYear()} TamilEventPlanner. All rights
                     reserved.
                 </p>
             </div>

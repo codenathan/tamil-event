@@ -9,12 +9,10 @@ use Database\Factories\ContactMessageFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
- * @property int|null $vendor_id
  * @property string $name
  * @property Carbon $date
  * @property string $email
@@ -23,7 +21,6 @@ use Illuminate\Support\Carbon;
  * @property ContactMessageEnum $status
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Vendor|null $vendor
  *
  * @method static \Database\Factories\ContactMessageFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ContactMessage newModelQuery()
@@ -32,7 +29,7 @@ use Illuminate\Support\Carbon;
  *
  * @mixin Model
  */
-#[Fillable(['vendor_id', 'name', 'date', 'email', 'phone', 'message', 'status'])]
+#[Fillable(['name', 'date', 'email', 'phone', 'message', 'status'])]
 final class ContactMessage extends Model
 {
     /** @use HasFactory<ContactMessageFactory> */
@@ -47,10 +44,5 @@ final class ContactMessage extends Model
             'date' => 'date',
             'status' => ContactMessageEnum::class,
         ];
-    }
-
-    public function vendor(): BelongsTo
-    {
-        return $this->belongsTo(Vendor::class);
     }
 }
