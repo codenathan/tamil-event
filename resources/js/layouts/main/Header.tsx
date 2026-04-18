@@ -3,11 +3,12 @@ import { LayoutDashboard, LogIn, LogOut, Menu, Search, X } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { dashboard, logout } from '@/routes';
+import { User } from '@/types/auth';
 
 export default function Header() {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const { auth } = usePage().props;
+    const { auth } = usePage<{ auth: { user: User | null } }>().props;
     const isAuthenticated = auth.user !== null;
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
@@ -22,7 +23,7 @@ export default function Header() {
             <div className="container flex h-16 items-center justify-between gap-4">
                 <Link href="/" className="flex shrink-0 items-center gap-2">
                     <span className="text-gradient font-display text-2xl font-bold">
-                        TamilEvents
+                    TamilEventPlanner
                     </span>
                 </Link>
 

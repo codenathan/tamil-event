@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\VendorApproved;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\SaveVendorRequest;
 use App\Models\Category;
@@ -62,6 +63,8 @@ class VendorsController extends Controller
                 $vendor->addMedia($image)->toMediaCollection('gallery');
             }
         }
+
+        event(new VendorApproved($vendor));
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Vendor created.')]);
 

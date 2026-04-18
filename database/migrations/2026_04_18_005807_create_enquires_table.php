@@ -22,6 +22,8 @@ return new class extends Migration
             $table->text('message');
             $table->string('status')->default('pending');
             $table->timestamps();
+
+            $table->index(['vendor_id', 'created_at']);
         });
     }
 
