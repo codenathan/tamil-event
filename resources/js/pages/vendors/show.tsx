@@ -129,7 +129,7 @@ export default function VendorShow({ vendor }: Props) {
                                 <img
                                     src={vendor.featured_image_url}
                                     alt={vendor.name}
-                                    className="h-full w-full object-cover"
+                                    className="h-full w-full object-cover object-top"
                                 />
                             ) : (
                                 <div className="flex h-full items-center justify-center font-display text-7xl font-bold text-muted-foreground/20 select-none">
@@ -149,7 +149,7 @@ export default function VendorShow({ vendor }: Props) {
                                         <img
                                             src={img.url}
                                             alt={`${vendor.name} gallery`}
-                                            className="h-full w-full object-cover"
+                                            className="h-full w-full object-cover object-top"
                                             loading="lazy"
                                         />
                                     </div>
@@ -179,7 +179,7 @@ export default function VendorShow({ vendor }: Props) {
                                     <h2 className="mb-3 font-display text-lg font-semibold text-foreground">
                                         Description
                                     </h2>
-                                    <div className="space-y-4 text-foreground/85 leading-relaxed">
+                                    <div className="space-y-4 leading-relaxed text-foreground/85">
                                         {descriptionParagraphs(
                                             vendor.description,
                                         ).map((block, index) => (
@@ -353,10 +353,7 @@ export default function VendorShow({ vendor }: Props) {
                                             type="date"
                                             value={data.date}
                                             onChange={(e) =>
-                                                setData(
-                                                    'date',
-                                                    e.target.value,
-                                                )
+                                                setData('date', e.target.value)
                                             }
                                             required
                                         />
