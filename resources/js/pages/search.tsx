@@ -23,10 +23,17 @@ interface CategoryProps {
     slug: string;
 }
 
+interface PageMeta {
+    title: string;
+    description: string;
+    canonicalUrl: string;
+}
+
 interface Props {
     vendors: PaginatedVendors;
     filters: Filters;
     category?: CategoryProps;
+    meta: PageMeta;
 }
 
 function buildInitialLocation(city: string, country: string): string {
@@ -41,7 +48,7 @@ return country;
     return '';
 }
 
-export default function Search({ vendors, filters, category }: Props) {
+export default function Search({ vendors, filters, category, meta }: Props) {
     const initialLocation = buildInitialLocation(filters.city, filters.country);
 
     const heading = category
@@ -57,11 +64,16 @@ export default function Search({ vendors, filters, category }: Props) {
     return (
         <>
             <Head>
-                <title>Search Vendors — TamilEventPlanner</title>
-                <meta
-                    name="description"
-                    content="Search Tamil event vendors worldwide."
-                />
+                <title>{meta.title}</title>
+                <meta name="description" content={meta.description} />
+                <link rel="canonical" href={meta.canonicalUrl} />
+                <meta property="og:type" content="website" />
+                <meta property="og:title" content={meta.title} />
+                <meta property="og:description" content={meta.description} />
+                <meta property="og:url" content={meta.canonicalUrl} />
+                <meta name="twitter:card" content="summary" />
+                <meta name="twitter:title" content={meta.title} />
+                <meta name="twitter:description" content={meta.description} />
             </Head>
 
             <section className="border-b border-border bg-secondary/40 py-6">

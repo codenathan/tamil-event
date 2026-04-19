@@ -28,6 +28,11 @@ class CategoryController extends Controller
                 'name' => $category->name,
                 'slug' => $category->slug,
             ],
+            'meta' => [
+                'title' => $category->name.' Vendors — TamilEventPlanner',
+                'description' => 'Browse vendors in the '.$category->name.' category. Find Tamil event professionals for your celebration on TamilEventPlanner.',
+                'canonicalUrl' => route('category.show', $category),
+            ],
         ]);
     }
 }

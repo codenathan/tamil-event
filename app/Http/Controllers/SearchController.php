@@ -44,6 +44,7 @@ class SearchController extends Controller
                     $countryQ->where('name', $country);
                 });
             })
+            ->orderBy('name')
             ->paginate(12)
             ->withQueryString();
 
@@ -54,7 +55,39 @@ class SearchController extends Controller
                 'city' => $city,
                 'country' => $country,
             ],
+            'meta' => $this->searchIndexMeta($request, $query, $city, $country),
         ]);
+    }
+
+    /**
+     * @return array{title: string, description: string, canonicalUrl: string}
+     */
+    private function searchIndexMeta(Request $request, string $query, string $city, string $country): array
+    {
+        $hasFilters = $query !== '' || $city !== '' || $country !== '';
+        $site = 'TamilEventPlanner';
+
+        if ($hasFilters) {
+            $parts = array_values(array_filter([
+                $query,
+                $city !== '' ? $city : $country,
+            ], fn (string $v): bool => $v !== ''));
+
+            $label = implode(' in ', $parts);
+            $heading = 'Results for "'.$label.'"';
+            $description = $label !== ''
+                ? 'Find Tamil event vendors for '.$label.'. Browse photographers, caterers, decorators, and more on TamilEventPlanner.'
+                : 'Find Tamil event vendors on TamilEventPlanner. Browse photographers, caterers, decorators, and more.';
+        } else {
+            $heading = 'All Vendors';
+            $description = 'Search Tamil event vendors worldwide. Browse photographers, caterers, decorators, and more.';
+        }
+
+        return [
+            'title' => $heading.' — '.$site,
+            'description' => $description,
+            'canonicalUrl' => $request->fullUrl(),
+        ];
     }
 
     public function show(Vendor $vendor): Response
@@ -63,8 +96,18 @@ class SearchController extends Controller
 
         $vendor->load(['category', 'city', 'country', 'media']);
 
+        $featured = $vendor->featured_image_url;
+        $ogImageUrl = null;
+        if (is_string($featured) && $featured !== '') {
+            $ogImageUrl = str_starts_with($featured, 'http://') || str_starts_with($featured, 'https://')
+                ? $featured
+                : url($featured);
+        }
+
         return Inertia::render('vendors/show', [
             'vendor' => $vendor,
+            'ogImageUrl' => $ogImageUrl,
+            'canonicalUrl' => route('vendors.show', $vendor),
         ]);
     }
 }
