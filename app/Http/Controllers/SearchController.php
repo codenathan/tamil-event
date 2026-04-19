@@ -98,15 +98,34 @@ class SearchController extends Controller
 
         $featured = $vendor->featured_image_url;
         $ogImageUrl = null;
+        $ogImageWidth = null;
+        $ogImageHeight = null;
+        $ogImageType = null;
+
         if (is_string($featured) && $featured !== '') {
             $ogImageUrl = str_starts_with($featured, 'http://') || str_starts_with($featured, 'https://')
                 ? $featured
                 : url($featured);
+
+            $featuredMedia = $vendor->getFirstMedia('featured');
+
+            $ogImageWidth  = $featuredMedia->getCustomProperty('width')
+                ?? getimagesize($featuredMedia->getPath())[0]
+                ?? null;
+            $ogImageHeight = $featuredMedia->getCustomProperty('height')
+                ?? getimagesize($featuredMedia->getPath())[1]
+                ?? null;
+
+            $ogImageType = $featuredMedia->getAttribute('mime_type');
         }
+
 
         return Inertia::render('vendors/show', [
             'vendor' => $vendor,
             'ogImageUrl' => $ogImageUrl,
+            'ogImageWidth'  => $ogImageWidth,
+            'ogImageHeight' => $ogImageHeight,
+            'ogImageType'  => $ogImageType,
             'canonicalUrl' => route('vendors.show', $vendor),
         ]);
     }

@@ -21,6 +21,9 @@ import type { Vendor } from '@/types';
 interface Props {
     vendor: Vendor;
     ogImageUrl: string | null;
+    ogImageWidth: string | null;
+    ogImageHeight: string | null;
+    ogImageType : string | null;
     canonicalUrl: string;
 }
 
@@ -35,6 +38,9 @@ function descriptionParagraphs(text: string): string[] {
 export default function VendorShow({
     vendor,
     ogImageUrl,
+    ogImageWidth,
+    ogImageHeight,
+    ogImageType,
     canonicalUrl,
 }: Props) {
     const [showEnquiry, setShowEnquiry] = useState(false);
@@ -102,9 +108,26 @@ export default function VendorShow({
                 <meta property="og:description" content={pageDescription} />
                 <meta property="og:url" content={canonicalUrl} />
                 {ogImageUrl ? (
-                    <meta property="og:image" content={ogImageUrl} />
+                    <>
+                        <meta property="og:image" content={ogImageUrl} />
+                        <meta
+                            property="og:image:width"
+                            content={ogImageWidth ?? undefined}
+                        />
+                        <meta
+                            property="og:image:height"
+                            content={ogImageHeight ?? undefined}
+                        />
+                        <meta
+                            property="og:image:type"
+                            content={ogImageType ?? undefined}
+                        />
+                    </>
                 ) : null}
-                <meta name="twitter:card" content={ogImageUrl ? 'summary_large_image' : 'summary'} />
+                <meta
+                    name="twitter:card"
+                    content={ogImageUrl ? 'summary_large_image' : 'summary'}
+                />
                 <meta name="twitter:title" content={pageTitle} />
                 <meta name="twitter:description" content={pageDescription} />
                 {ogImageUrl ? (
