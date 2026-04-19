@@ -9,7 +9,10 @@ export default function GoogleAnalytics() {
     const { url, props } = usePage();
     const { measurementId, enabled } = props.analytics;
     const urlRef = useRef(url);
-    urlRef.current = url;
+
+    useEffect(() => {
+        urlRef.current = url;
+    }, [url]);
 
     useEffect(() => {
         if (!measurementId) {
@@ -52,6 +55,7 @@ export default function GoogleAnalytics() {
                     { once: true },
                 );
             }
+
             return;
         }
 
