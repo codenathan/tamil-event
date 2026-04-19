@@ -2,6 +2,7 @@ import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { X } from 'lucide-react';
 import { useState, useRef  } from 'react';
 import type {KeyboardEvent} from 'react';
+import { toast } from 'sonner';
 import type { Category, LocationsByCountry } from '@/data/categories';
 import { termsAndConditions } from '@/routes';
 import { store } from '@/routes/list-your-business';
@@ -77,9 +78,15 @@ return;
 
         const file = files[0];
 
-        if (!file.type.startsWith('image/') || file.size > 5 * 1024 * 1024) {
-return;
-}
+        if (!file.type.startsWith('image/')) {
+            toast.error('Invalid file type. Please upload a PNG, JPG, or WebP image.');
+            return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error(`"${file.name}" is too large. Featured image must be under 5MB.`);
+            return;
+        }
 
         if (featuredPreview) {
 URL.revokeObjectURL(featuredPreview.preview);
@@ -110,7 +117,20 @@ featuredImageInputRef.current.value = '';
             return;
         }
 
-        const valid = Array.from(files)
+        const allFiles = Array.from(files);
+
+        const oversized = allFiles.filter(
+            (f) => f.type.startsWith('image/') && f.size > 5 * 1024 * 1024,
+        );
+
+        if (oversized.length > 0) {
+            const names = oversized.map((f) => `"${f.name}"`).join(', ');
+            toast.error(
+                `${oversized.length === 1 ? `${names} is` : `${names} are`} too large. Each image must be under 5MB.`,
+            );
+        }
+
+        const valid = allFiles
             .filter(
                 (f) => f.type.startsWith('image/') && f.size <= 5 * 1024 * 1024,
             )
@@ -187,7 +207,7 @@ return;
         <>
             <Head title="List Your Business | Global Tamil Event Directory" />
 
-           
+
 
             {/* ── Hero ── */}
             <section className="gradient-hero py-16 md:py-20">
