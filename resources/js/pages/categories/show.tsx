@@ -23,10 +23,10 @@ export default function CategoryShow({ category, vendors }: Props) {
     return (
         <>
             <Head>
-                <title>{category.name} Vendors — TamilEvents</title>
+                <title>{category.name} Vendors — Tamil Event Planner</title>
                 <meta
                     name="description"
-                    content={`Browse ${category.name} vendors on TamilEvents.`}
+                    content={`Browse ${category.name} vendors on TamilEventPlanner.`}
                 />
             </Head>
 

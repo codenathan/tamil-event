@@ -10,6 +10,7 @@ import {
     ImagePlus,
     Building2,
     ClipboardList,
+    PersonStanding
 } from 'lucide-react';
 import type { Category } from '@/data/categories';
 
@@ -24,6 +25,7 @@ const iconMap: Record<string, React.ElementType> = {
     ImagePlus,
     Building2,
     ClipboardList,
+    PersonStanding
 };
 
 const CategoryCard = ({ category }: { category: Category }) => {

@@ -15,7 +15,7 @@ export default function Welcome() {
         <>
             <Head>
                 <title>
-                    TamilEvents — Discover Tamil Event Services Worldwide
+                    TamilEventPlanner — Discover Tamil Event Services Worldwide
                 </title>
                 <meta
                     name="description"

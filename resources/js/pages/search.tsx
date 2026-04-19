@@ -57,7 +57,7 @@ export default function Search({ vendors, filters, category }: Props) {
     return (
         <>
             <Head>
-                <title>Search Vendors — TamilEvents</title>
+                <title>Search Vendors — TamilEventPlanner</title>
                 <meta
                     name="description"
                     content="Search Tamil event vendors worldwide."

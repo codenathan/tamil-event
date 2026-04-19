@@ -31,10 +31,10 @@ export default function LocationShow({ city, vendors }: Props) {
     return (
         <>
             <Head>
-                <title>{`${city.name} Vendors — TamilEvents`}</title>
+                <title>{`${city.name} Vendors — TamilEventPlanner`}</title>
                 <meta
                     name="description"
-                    content={`Browse ${city.name} vendors on TamilEvents.`}
+                    content={`Browse ${city.name} vendors on TamilEventPlanner.`}
                 />
             </Head>
 

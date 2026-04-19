@@ -102,7 +102,7 @@ export default function VendorShow({ vendor }: Props) {
     return (
         <>
             <Head>
-                <title>{`${vendor.name} — Tamil ${vendor.category?.name ?? ''} in ${vendor.city?.name ?? ''} — TamilEvents`}</title>
+                <title>{`${vendor.name} — Tamil ${vendor.category?.name ?? ''} in ${vendor.city?.name ?? ''} — TamilEventPlanner`}</title>
                 <meta
                     name="description"
                     content={`${vendor.description ?? ''} Contact ${vendor.name} for your Tamil event in ${location}.`}
@@ -129,7 +129,7 @@ export default function VendorShow({ vendor }: Props) {
                                 <img
                                     src={vendor.featured_image_url}
                                     alt={vendor.name}
-                                    className="h-full w-full object-cover object-top"
+                                    className="h-full w-full object-cover"
                                 />
                             ) : (
                                 <div className="flex h-full items-center justify-center font-display text-7xl font-bold text-muted-foreground/20 select-none">
@@ -149,7 +149,7 @@ export default function VendorShow({ vendor }: Props) {
                                         <img
                                             src={img.url}
                                             alt={`${vendor.name} gallery`}
-                                            className="h-full w-full object-cover object-top"
+                                            className="h-full w-full object-cover"
                                             loading="lazy"
                                         />
                                     </div>

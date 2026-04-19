@@ -141,7 +141,7 @@ function DashboardListingForm({ vendor }: { vendor: Vendor }) {
                     Edit business listing
                 </CardTitle>
                 <CardDescription>
-                    Update how your business appears to visitors on TamilEvents.
+                    Update how your business appears to visitors on TamilEventPlanner.
                 </CardDescription>
             </CardHeader>
             <CardContent>
