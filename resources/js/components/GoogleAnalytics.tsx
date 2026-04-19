@@ -1,13 +1,59 @@
-import { usePage } from '@inertiajs/react';
-import { useEffect, useRef } from 'react';
+import { getInitialPageFromDOM, router } from '@inertiajs/core';
+import type { Page } from '@inertiajs/core';
+import { useEffect, useRef, useState } from 'react';
+
+type AnalyticsProps = {
+    measurementId: string | null;
+    enabled: boolean;
+};
+
+function readAnalytics(page: Page | null): AnalyticsProps | null {
+    if (!page?.props || typeof page.props !== 'object') {
+        return null;
+    }
+
+    const raw = (page.props as { analytics?: unknown }).analytics;
+
+    if (
+        !raw ||
+        typeof raw !== 'object' ||
+        !('measurementId' in raw) ||
+        !('enabled' in raw)
+    ) {
+        return null;
+    }
+
+    return raw as AnalyticsProps;
+}
 
 function setGaDisable(measurementId: string, disable: boolean): void {
     (window as Record<string, boolean | undefined>)[`ga-disable-${measurementId}`] = disable;
 }
 
 export default function GoogleAnalytics() {
-    const { url, props } = usePage();
-    const { measurementId, enabled } = props.analytics;
+    const [page, setPage] = useState<Page | null>(() =>
+        typeof document !== 'undefined' ? getInitialPageFromDOM<Page>('app') : null,
+    );
+
+    useEffect(() => {
+        const removeNavigate = router.on('navigate', (event) => {
+            setPage(event.detail.page);
+        });
+        const removeSuccess = router.on('success', (event) => {
+            setPage(event.detail.page);
+        });
+
+        return () => {
+            removeNavigate();
+            removeSuccess();
+        };
+    }, []);
+
+    const analytics = readAnalytics(page);
+    const measurementId = analytics?.measurementId ?? null;
+    const enabled = analytics?.enabled ?? false;
+    const url = page?.url ?? '';
+
     const urlRef = useRef(url);
 
     useEffect(() => {
