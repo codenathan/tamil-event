@@ -1,4 +1,5 @@
 import { createInertiaApp } from '@inertiajs/react';
+import GoogleAnalytics from '@/components/GoogleAnalytics';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
@@ -25,6 +26,7 @@ createInertiaApp({
     withApp(app) {
         return (
             <TooltipProvider delayDuration={0}>
+                <GoogleAnalytics />
                 {app}
                 <Toaster />
             </TooltipProvider>

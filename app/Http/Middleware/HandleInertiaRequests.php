@@ -49,6 +49,37 @@ class HandleInertiaRequests extends Middleware
 
             'categories' => $this->sharedCategories(),
             'locationsByCountry' => $this->sharedLocationsByCountry(),
+
+            'analytics' => $this->sharedAnalytics($request),
+        ];
+    }
+
+    /**
+     * @return array{measurementId: string|null, enabled: bool}
+     */
+    protected function sharedAnalytics(Request $request): array
+    {
+        $id = config('analytics.google_analytics_measurement_id');
+        $hasId = is_string($id) && $id !== '';
+
+        $shareMeasurementId = $hasId && (
+            app()->environment('production')
+            || config('analytics.google_analytics_enabled')
+        );
+
+        $path = trim($request->path(), '/');
+        $excludedPrefixes = ['dashboard', 'admin', 'settings'];
+        $pathAllowed = true;
+        foreach ($excludedPrefixes as $prefix) {
+            if ($path === $prefix || str_starts_with($path, $prefix.'/')) {
+                $pathAllowed = false;
+                break;
+            }
+        }
+
+        return [
+            'measurementId' => $shareMeasurementId ? $id : null,
+            'enabled' => $pathAllowed,
         ];
     }
 
