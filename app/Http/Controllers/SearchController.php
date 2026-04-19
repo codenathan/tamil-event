@@ -63,8 +63,18 @@ class SearchController extends Controller
 
         $vendor->load(['category', 'city', 'country', 'media']);
 
+        $featured = $vendor->featured_image_url;
+        $ogImageUrl = null;
+        if (is_string($featured) && $featured !== '') {
+            $ogImageUrl = str_starts_with($featured, 'http://') || str_starts_with($featured, 'https://')
+                ? $featured
+                : url($featured);
+        }
+
         return Inertia::render('vendors/show', [
             'vendor' => $vendor,
+            'ogImageUrl' => $ogImageUrl,
+            'canonicalUrl' => route('vendors.show', $vendor),
         ]);
     }
 }

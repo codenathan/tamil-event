@@ -41,7 +41,7 @@ export default function CategoryShow({ category, vendors }: Props) {
                 </div>
             </section>
 
-            <section className="container py-10">
+            {/* <section className="container py-10">
                 <div className="mb-8 flex items-center justify-between">
                     <h2 className="font-display text-2xl font-bold md:text-3xl">
                         {vendors.total > 0
@@ -64,7 +64,7 @@ export default function CategoryShow({ category, vendors }: Props) {
                         No vendors available for this category.
                     </div>
                 )}
-            </section>
+            </section> */}
         </>
     );
 }

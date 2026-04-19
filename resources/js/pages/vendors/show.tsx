@@ -10,6 +10,7 @@ import {
     Send,
 } from 'lucide-react';
 import { useState } from 'react';
+import DatePicker from '@/components/date-picker';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,27 +20,11 @@ import type { Vendor } from '@/types';
 
 interface Props {
     vendor: Vendor;
+    ogImageUrl: string | null;
+    canonicalUrl: string;
 }
 
-/** Display a calendar date as YYYY-MM-DD (ISO 8601) for unambiguous international use. */
-function formatDateYmd(value: string): string {
-    const trimmed = value.trim();
-    const ymd = trimmed.match(/^(\d{4}-\d{2}-\d{2})/);
 
-    if (ymd) {
-        return ymd[1];
-    }
-
-    const t = Date.parse(trimmed);
-
-    if (Number.isNaN(t)) {
-        return trimmed;
-    }
-
-    return new Date(t).toISOString().slice(0, 10);
-}
-
-/** Split stored description into paragraphs (double newlines); falls back to one block. */
 function descriptionParagraphs(text: string): string[] {
     return text
         .split(/\n\s*\n/)
@@ -47,7 +32,11 @@ function descriptionParagraphs(text: string): string[] {
         .filter(Boolean);
 }
 
-export default function VendorShow({ vendor }: Props) {
+export default function VendorShow({
+    vendor,
+    ogImageUrl,
+    canonicalUrl,
+}: Props) {
     const [showEnquiry, setShowEnquiry] = useState(false);
 
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -99,14 +88,28 @@ export default function VendorShow({ vendor }: Props) {
         });
     }
 
+    const pageTitle = `${vendor.name} — Tamil ${vendor.category?.name ?? ''} in ${vendor.city?.name ?? ''} — TamilEventPlanner`;
+    const pageDescription = `${vendor.description ?? ''} Contact ${vendor.name} for your Tamil event in ${location}.`;
+
     return (
         <>
             <Head>
-                <title>{`${vendor.name} — Tamil ${vendor.category?.name ?? ''} in ${vendor.city?.name ?? ''} — TamilEventPlanner`}</title>
-                <meta
-                    name="description"
-                    content={`${vendor.description ?? ''} Contact ${vendor.name} for your Tamil event in ${location}.`}
-                />
+                <title>{pageTitle}</title>
+                <meta name="description" content={pageDescription} />
+                <link rel="canonical" href={canonicalUrl} />
+                <meta property="og:type" content="website" />
+                <meta property="og:title" content={pageTitle} />
+                <meta property="og:description" content={pageDescription} />
+                <meta property="og:url" content={canonicalUrl} />
+                {ogImageUrl ? (
+                    <meta property="og:image" content={ogImageUrl} />
+                ) : null}
+                <meta name="twitter:card" content={ogImageUrl ? 'summary_large_image' : 'summary'} />
+                <meta name="twitter:title" content={pageTitle} />
+                <meta name="twitter:description" content={pageDescription} />
+                {ogImageUrl ? (
+                    <meta name="twitter:image" content={ogImageUrl} />
+                ) : null}
                 <script type="application/ld+json">
                     {JSON.stringify(jsonLd)}
                 </script>
@@ -343,30 +346,15 @@ export default function VendorShow({ vendor }: Props) {
                                     <div className="space-y-2">
                                         <Label htmlFor="enquiry-date">
                                             Event date{' '}
-                                            <span className="font-normal text-muted-foreground">
-                                                (YYYY-MM-DD)
-                                            </span>
                                         </Label>
-                                        <Input
+                                        <DatePicker
                                             id="enquiry-date"
-                                            name="date"
-                                            type="date"
-                                            value={data.date}
-                                            onChange={(e) =>
-                                                setData('date', e.target.value)
-                                            }
                                             required
+                                            value={data.date}
+                                            onValueChange={(v) =>
+                                                setData('date', v)
+                                            }
                                         />
-                                        <p className="text-xs text-muted-foreground">
-                                            Dates are shown and saved as{' '}
-                                            <span className="font-mono tabular-nums">
-                                                {data.date
-                                                    ? formatDateYmd(data.date)
-                                                    : 'YYYY-MM-DD'}
-                                            </span>{' '}
-                                            (ISO 8601) to avoid US/EU format
-                                            confusion.
-                                        </p>
                                         <InputError message={errors.date} />
                                     </div>
                                     <div className="space-y-2">
