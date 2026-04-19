@@ -107,23 +107,25 @@ export default function VendorShow({
                 <meta property="og:title" content={pageTitle} />
                 <meta property="og:description" content={pageDescription} />
                 <meta property="og:url" content={canonicalUrl} />
+
                 {ogImageUrl ? (
-                    <>
-                        <meta property="og:image" content={ogImageUrl} />
-                        <meta
-                            property="og:image:width"
-                            content={ogImageWidth ?? undefined}
-                        />
-                        <meta
-                            property="og:image:height"
-                            content={ogImageHeight ?? undefined}
-                        />
-                        <meta
-                            property="og:image:type"
-                            content={ogImageType ?? undefined}
-                        />
-                    </>
+                    <meta property="og:image" content={ogImageUrl} />
                 ) : null}
+
+                {ogImageWidth ? (
+                    <meta property="og:image:width" content={ogImageWidth} />
+                ) : null}
+
+                {ogImageHeight ? (
+                    <meta property="og:image:height" content={ogImageHeight} />
+                ) : null}
+                {ogImageType ? (
+                    <meta
+                        property="og:image:type"
+                        content={ogImageType}
+                    />
+                ) : null}
+
                 <meta
                     name="twitter:card"
                     content={ogImageUrl ? 'summary_large_image' : 'summary'}
