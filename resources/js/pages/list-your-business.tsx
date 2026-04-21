@@ -387,9 +387,17 @@ return;
                             <input
                                 type="text"
                                 value={serviceInput}
-                                onChange={(e) =>
-                                    setServiceInput(e.target.value)
-                                }
+                                onChange={(e) => {
+                                    const val = e.target.value;
+
+                                    if (val.includes(',')) {
+                                        const parts = val.split(',');
+                                        parts.slice(0, -1).forEach((p) => addServiceTag(p));
+                                        setServiceInput(parts[parts.length - 1]);
+                                    } else {
+                                        setServiceInput(val);
+                                    }
+                                }}
                                 onKeyDown={onServiceKeyDown}
                                 onBlur={() => {
                                     if (serviceInput.trim()) {
