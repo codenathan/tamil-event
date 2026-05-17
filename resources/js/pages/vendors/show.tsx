@@ -140,8 +140,8 @@ export default function VendorShow({
                     name="twitter:card"
                     content={ogImageUrl ? 'summary_large_image' : 'summary'}
                 />
-                <meta name="twitter:title" content={pageTitle} />
-                <meta name="twitter:description" content={pageDescription} />
+                <meta name="twitter:title" content={meta.title} />
+                <meta name="twitter:description" content={meta.description} />
                 {ogImageUrl ? (
                     <meta name="twitter:image" content={ogImageUrl} />
                 ) : null}
