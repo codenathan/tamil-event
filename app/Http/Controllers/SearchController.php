@@ -108,19 +108,13 @@ class SearchController extends Controller
             ->filter()
             ->implode(', ');
 
-        $defaultTitle = sprintf(
-            '%s — Tamil %s in %s — TamilEventPlanner',
-            $vendor->name,
-            $vendor->category?->name ?? 'vendor',
-            $vendor->city?->name ?? 'your area',
-        );
+        $categoryName = $vendor->category?->name ?? 'Vendor';
 
-        $defaultDescription = trim(sprintf(
-            '%s Contact %s for your Tamil event in %s.',
-            $vendor->description ?? '',
-            $vendor->name,
-            $location !== '' ? $location : 'your area',
-        ));
+        $defaultTitle = $location !== ''
+            ? sprintf('%s - Tamil - %s in %s', $vendor->name, $categoryName, $location)
+            : sprintf('%s - Tamil - %s', $vendor->name, $categoryName);
+
+        $defaultDescription = trim((string) ($vendor->description ?? ''));
 
         return Inertia::render('vendors/show', [
             'vendor' => $vendor,
