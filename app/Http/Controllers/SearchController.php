@@ -109,7 +109,7 @@ class SearchController extends Controller
 
             $featuredMedia = $vendor->getFirstMedia('featured');
 
-            $ogImageWidth  = $featuredMedia->getCustomProperty('width')
+            $ogImageWidth = $featuredMedia->getCustomProperty('width')
                 ?? getimagesize($featuredMedia->getPath())[0]
                 ?? null;
             $ogImageHeight = $featuredMedia->getCustomProperty('height')
@@ -119,6 +119,17 @@ class SearchController extends Controller
             $ogImageType = $featuredMedia->getAttribute('mime_type');
         }
 
+        $location = collect([$vendor->city?->name, $vendor->country?->name])
+            ->filter()
+            ->implode(', ');
+
+        $categoryName = $vendor->category?->name ?? 'Vendor';
+
+        $defaultTitle = $location !== ''
+            ? sprintf('%s - Tamil - %s in %s', $vendor->name, $categoryName, $location)
+            : sprintf('%s - Tamil - %s', $vendor->name, $categoryName);
+
+        $defaultDescription = trim((string) ($vendor->description ?? ''));
 
         return Inertia::render('vendors/show', [
             'vendor' => $vendor,
@@ -127,9 +138,9 @@ class SearchController extends Controller
                 'description' => $vendor->seo_description ?: $defaultDescription,
             ],
             'ogImageUrl' => $ogImageUrl,
-            'ogImageWidth'  => $ogImageWidth,
+            'ogImageWidth' => $ogImageWidth,
             'ogImageHeight' => $ogImageHeight,
-            'ogImageType'  => $ogImageType,
+            'ogImageType' => $ogImageType,
             'canonicalUrl' => route('vendors.show', $vendor),
         ]);
     }

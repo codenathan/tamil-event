@@ -64,6 +64,35 @@ class VendorSeoTest extends TestCase
         );
     }
 
+    public function test_vendor_show_page_uses_default_seo_meta_when_custom_fields_are_empty(): void
+    {
+        $category = Category::factory()->create(['name' => 'Weddings Decor']);
+        $country = Country::factory()->create(['name' => 'United Kingdom']);
+        $city = City::factory()->create([
+            'country_id' => $country->id,
+            'name' => 'Harrow',
+        ]);
+
+        $vendor = Vendor::factory()->create([
+            'name' => 'Aarya Weddings & Events',
+            'category_id' => $category->id,
+            'city_id' => $city->id,
+            'country_id' => $country->id,
+            'description' => 'Weddings, Mehndi, Reception Décor.',
+            'is_active' => true,
+            'seo_title' => null,
+            'seo_description' => null,
+        ]);
+
+        $this->get(route('vendors.show', $vendor))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('vendors/show')
+                ->where('meta.title', 'Aarya Weddings & Events - Tamil - Weddings Decor in Harrow, United Kingdom')
+                ->where('meta.description', 'Weddings, Mehndi, Reception Décor.')
+            );
+    }
+
     public function test_vendor_show_page_uses_custom_seo_meta_when_set(): void
     {
         $category = Category::factory()->create(['name' => 'Photography']);
