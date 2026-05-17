@@ -217,8 +217,34 @@ return;
                     encType="multipart/form-data"
                     onSubmit={(e) => {
                         e.preventDefault();
-                        post(store.url());
-                        reset();
+                        post(store.url(), {
+                            onSuccess: () => {
+                                reset();
+                                setFeaturedPreview((current) => {
+                                    if (current) {
+                                        URL.revokeObjectURL(current.preview);
+                                    }
+
+                                    return null;
+                                });
+                                setPreviews((current) => {
+                                    current.forEach((p) =>
+                                        URL.revokeObjectURL(p.preview),
+                                    );
+
+                                    return [];
+                                });
+                                setServiceInput('');
+
+                                if (featuredImageInputRef.current) {
+                                    featuredImageInputRef.current.value = '';
+                                }
+
+                                if (fileInputRef.current) {
+                                    fileInputRef.current.value = '';
+                                }
+                            },
+                        });
                     }}
                 >
                     {/* Business Name */}

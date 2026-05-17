@@ -2,9 +2,9 @@ import { usePage } from '@inertiajs/react';
 import CookieBanner from '@/components/app/CookieBanner';
 import Footer from '@/layouts/main/Footer';
 import Header from '@/layouts/main/Header';
+import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
 
-
-export default function MainLayout({ children} : { children: React.ReactNode }) {
+export default function MainLayout({ children }: { children: React.ReactNode }) {
     const { props } = usePage<{
         flash: { success?: string; error?: string };
     }>();
@@ -28,6 +28,9 @@ export default function MainLayout({ children} : { children: React.ReactNode }) 
                 <Footer />
                 <CookieBanner />
             </div>
+            <AnimatedThemeToggler
+                className="fixed bottom-6 right-6 z-60 flex size-12 items-center justify-center rounded-full border border-border bg-card/95 text-foreground shadow-lg backdrop-blur-md transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            />
         </>
     );
 }

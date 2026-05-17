@@ -94,14 +94,9 @@ class HandleInertiaRequests extends Middleware
 
     protected function sharedLocationsByCountry(): array
     {
-        return Cache::rememberForever('inertia.locations_by_country', function () {
-            return Country::with(['cities' => fn ($query) => $query->orderBy('name')])
-                ->orderBy('name')
-                ->get(['id', 'name', 'slug'])
-                ->mapWithKeys(fn ($country) => [
-                    $country->name => $country->cities->pluck('name')->all(),
-                ])
-                ->toArray();
-        });
+        return Cache::rememberForever(
+            'inertia.locations_by_country',
+            fn (): array => Country::locationsByCountry(withVendorsOnly: true),
+        );
     }
 }

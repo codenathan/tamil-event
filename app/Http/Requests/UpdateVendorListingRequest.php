@@ -22,6 +22,8 @@ class UpdateVendorListingRequest extends FormRequest
     {
         $vendorId = $this->user()->vendor->id;
 
+        $vendor = $this->user()->vendor;
+
         return [
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
@@ -30,6 +32,20 @@ class UpdateVendorListingRequest extends FormRequest
             'phone' => ['nullable', 'string', 'max:50'],
             'email' => ['required', 'email', 'max:255', Rule::unique('vendors', 'email')->ignore($vendorId)],
             'website' => ['nullable', 'string', 'max:255'],
+            'featured_image' => ['nullable', 'image', 'max:2048'],
+            'new_images' => ['nullable', 'array'],
+            'new_images.*' => ['image', 'max:2048'],
+            'delete_featured' => ['sometimes', 'boolean'],
+            'delete_gallery_ids' => ['nullable', 'array'],
+            'delete_gallery_ids.*' => [
+                'integer',
+                Rule::exists('media', 'id')->where(
+                    fn ($query) => $query
+                        ->where('model_type', $vendor->getMorphClass())
+                        ->where('model_id', $vendor->id)
+                        ->where('collection_name', 'gallery'),
+                ),
+            ],
         ];
     }
 
@@ -54,6 +70,13 @@ class UpdateVendorListingRequest extends FormRequest
     public function listingAttributes(): array
     {
         $data = $this->validated();
+
+        unset(
+            $data['featured_image'],
+            $data['new_images'],
+            $data['delete_featured'],
+            $data['delete_gallery_ids'],
+        );
 
         $website = $data['website'] ?? null;
         if ($website === '') {

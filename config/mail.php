@@ -115,4 +115,18 @@ return [
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Notifications
+    |--------------------------------------------------------------------------
+    |
+    | Address used for admin alerts and BCC copies of vendor-facing mail.
+    |
+    */
+
+    'admin' => [
+        'address' => env('MAIL_ADMIN_ADDRESS', 'info@tamileventplanner.com'),
+        'name' => env('MAIL_ADMIN_NAME', 'Tamil Event Planner'),
+    ],
+
 ];

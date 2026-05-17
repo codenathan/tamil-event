@@ -46,6 +46,10 @@ export default function AdminVendorForm({
     const [name, setName] = useState(vendor?.name ?? '');
     const [email, setEmail] = useState(vendor?.email ?? '');
     const [description, setDescription] = useState(vendor?.description ?? '');
+    const [seoTitle, setSeoTitle] = useState(vendor?.seo_title ?? '');
+    const [seoDescription, setSeoDescription] = useState(
+        vendor?.seo_description ?? '',
+    );
     const [categoryId, setCategoryId] = useState(
         vendor?.category?.id?.toString() ?? '',
     );
@@ -269,6 +273,53 @@ export default function AdminVendorForm({
                                         />
                                         <InputError
                                             message={errors.description}
+                                        />
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <Label htmlFor="vendor-seo-title">
+                                            SEO title
+                                        </Label>
+                                        <Input
+                                            id="vendor-seo-title"
+                                            name="seo_title"
+                                            value={seoTitle}
+                                            maxLength={255}
+                                            onChange={(e) =>
+                                                setSeoTitle(e.target.value)
+                                            }
+                                            placeholder="Custom page title for search engines"
+                                        />
+                                        <p className="text-xs text-muted-foreground">
+                                            Optional. Leave blank to use the
+                                            auto-generated vendor page title.
+                                        </p>
+                                        <InputError message={errors.seo_title} />
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <Label htmlFor="vendor-seo-description">
+                                            SEO description
+                                        </Label>
+                                        <Textarea
+                                            id="vendor-seo-description"
+                                            name="seo_description"
+                                            value={seoDescription}
+                                            maxLength={500}
+                                            rows={3}
+                                            onChange={(e) =>
+                                                setSeoDescription(
+                                                    e.target.value,
+                                                )
+                                            }
+                                            placeholder="Custom meta description for search engines"
+                                        />
+                                        <p className="text-xs text-muted-foreground">
+                                            Optional. Leave blank to use the
+                                            auto-generated vendor description.
+                                        </p>
+                                        <InputError
+                                            message={errors.seo_description}
                                         />
                                     </div>
 

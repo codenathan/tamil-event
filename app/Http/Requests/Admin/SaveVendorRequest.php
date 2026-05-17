@@ -34,6 +34,8 @@ class SaveVendorRequest extends FormRequest
             'category_id' => ['required', 'exists:categories,id'],
             'city_id' => ['required', 'exists:cities,id'],
             'description' => ['nullable', 'string'],
+            'seo_title' => ['nullable', 'string', 'max:255'],
+            'seo_description' => ['nullable', 'string', 'max:500'],
             'website' => ['nullable', 'string', 'max:255'],
             'social_instagram' => ['nullable', 'string', 'max:255'],
             'social_facebook' => ['nullable', 'string', 'max:255'],
@@ -78,6 +80,14 @@ class SaveVendorRequest extends FormRequest
             $merge['social_facebook'] = null;
         }
 
+        if ($this->has('seo_title') && $this->input('seo_title') === '') {
+            $merge['seo_title'] = null;
+        }
+
+        if ($this->has('seo_description') && $this->input('seo_description') === '') {
+            $merge['seo_description'] = null;
+        }
+
         if ($this->has('services') && is_array($this->input('services'))) {
             $merge['services'] = collect($this->input('services'))
                 ->map(fn (mixed $s): string => trim((string) $s))
@@ -110,9 +120,11 @@ class SaveVendorRequest extends FormRequest
 
         $data['country_id'] = City::findOrFail($data['city_id'])->country_id;
         $data['services'] = $this->normalizedServices($data['services'] ?? null);
-        $data['website'] = $data['website'] !== null && $data['website'] !== ''
-            ? $data['website']
-            : null;
+        if (array_key_exists('website', $data)) {
+            $data['website'] = $data['website'] !== null && $data['website'] !== ''
+                ? $data['website']
+                : null;
+        }
 
         if (array_key_exists('social_instagram', $data)) {
             $data['social_instagram'] = $data['social_instagram'] !== null
@@ -125,6 +137,18 @@ class SaveVendorRequest extends FormRequest
             $data['social_facebook'] = $data['social_facebook'] !== null
                 && $data['social_facebook'] !== ''
                 ? $data['social_facebook']
+                : null;
+        }
+
+        if (array_key_exists('seo_title', $data)) {
+            $data['seo_title'] = $data['seo_title'] !== null && $data['seo_title'] !== ''
+                ? $data['seo_title']
+                : null;
+        }
+
+        if (array_key_exists('seo_description', $data)) {
+            $data['seo_description'] = $data['seo_description'] !== null && $data['seo_description'] !== ''
+                ? $data['seo_description']
                 : null;
         }
 

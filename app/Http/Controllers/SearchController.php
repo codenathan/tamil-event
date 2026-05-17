@@ -104,8 +104,30 @@ class SearchController extends Controller
                 : url($featured);
         }
 
+        $location = collect([$vendor->city?->name, $vendor->country?->name])
+            ->filter()
+            ->implode(', ');
+
+        $defaultTitle = sprintf(
+            '%s — Tamil %s in %s — TamilEventPlanner',
+            $vendor->name,
+            $vendor->category?->name ?? 'vendor',
+            $vendor->city?->name ?? 'your area',
+        );
+
+        $defaultDescription = trim(sprintf(
+            '%s Contact %s for your Tamil event in %s.',
+            $vendor->description ?? '',
+            $vendor->name,
+            $location !== '' ? $location : 'your area',
+        ));
+
         return Inertia::render('vendors/show', [
             'vendor' => $vendor,
+            'meta' => [
+                'title' => $vendor->seo_title ?: $defaultTitle,
+                'description' => $vendor->seo_description ?: $defaultDescription,
+            ],
             'ogImageUrl' => $ogImageUrl,
             'canonicalUrl' => route('vendors.show', $vendor),
         ]);

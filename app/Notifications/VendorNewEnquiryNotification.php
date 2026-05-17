@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace App\Notifications;
 
 use App\Models\Enquire;
+use App\Notifications\Concerns\CopiesAdminOnMail;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class VendorNewEnquiryNotification extends Notification
+class VendorNewEnquiryNotification extends Notification implements ShouldQueue
 {
+    use CopiesAdminOnMail;
     use Queueable;
 
     public function __construct(public Enquire $enquire) {}
@@ -53,9 +56,11 @@ class VendorNewEnquiryNotification extends Notification
             }
         }
 
-        return $mail
-            ->line('—')
-            ->salutation(__('Thanks, :app', ['app' => config('app.name')]));
+        return $this->withAdminBcc(
+            $mail
+                ->line('—')
+                ->salutation(__('Thanks, :app', ['app' => config('app.name')])),
+        );
     }
 
     /**

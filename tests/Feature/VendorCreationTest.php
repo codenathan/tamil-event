@@ -10,9 +10,11 @@ use App\Models\City;
 use App\Models\Country;
 use App\Models\User;
 use App\Models\Vendor;
+use App\Notifications\AdminNewVendorSignupNotification;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
@@ -22,6 +24,8 @@ class VendorCreationTest extends TestCase
 
     public function test_guest_can_submit_list_your_business_with_valid_payload(): void
     {
+        Notification::fake();
+
         $category = Category::factory()->create([
             'name' => 'Photography',
         ]);
@@ -35,7 +39,9 @@ class VendorCreationTest extends TestCase
             'slug' => 'colombo',
         ]);
 
-        $response = $this->from(route('list-your-business'))->post(route('list-your-business.store'), [
+        $this->get(route('list-your-business'));
+
+        $response = $this->post(route('list-your-business.store'), [
             'businessName' => 'Acme Photography',
             'category' => $category->slug,
             'country' => $country->name,
@@ -65,6 +71,40 @@ class VendorCreationTest extends TestCase
         $vendor = Vendor::query()->where('email', 'vendor@example.com')->first();
         $this->assertNotNull($vendor);
         $this->assertSame(['Weddings', 'Portraits'], $vendor->services);
+
+        Notification::assertSentOnDemand(
+            AdminNewVendorSignupNotification::class,
+            fn (AdminNewVendorSignupNotification $notification, array $channels, AnonymousNotifiable $notifiable): bool => ($notifiable->routes['mail'] ?? null) === config('mail.admin.address')
+                && $notification->vendor->is($vendor),
+        );
+    }
+
+    public function test_guest_list_your_business_validation_errors_redirect_back_with_errors(): void
+    {
+        $this->get(route('list-your-business'));
+
+        $response = $this->post(route('list-your-business.store'), [
+            'businessName' => '',
+            'category' => '',
+            'country' => '',
+            'city' => '',
+            'description' => '',
+            'phone' => '',
+            'email' => 'not-an-email',
+            'agreeTerms' => false,
+        ]);
+
+        $response->assertRedirect(route('list-your-business'));
+        $response->assertSessionHasErrors([
+            'businessName',
+            'category',
+            'country',
+            'city',
+            'description',
+            'phone',
+            'email',
+            'agreeTerms',
+        ]);
     }
 
     public function test_guest_can_submit_list_your_business_with_featured_and_gallery_images(): void
@@ -85,7 +125,9 @@ class VendorCreationTest extends TestCase
         $featured = UploadedFile::fake()->image('featured.jpg', 800, 600);
         $gallery = UploadedFile::fake()->image('gallery.jpg', 400, 300);
 
-        $response = $this->from(route('list-your-business'))->post(route('list-your-business.store'), [
+        $this->get(route('list-your-business'));
+
+        $response = $this->post(route('list-your-business.store'), [
             'businessName' => 'Acme Photography',
             'category' => $category->slug,
             'country' => $country->name,
@@ -130,6 +172,8 @@ class VendorCreationTest extends TestCase
             'name' => 'Colombo',
             'slug' => 'colombo',
         ]);
+
+        $this->actingAs($admin)->get(route('admin.vendors.create'));
 
         $response = $this->actingAs($admin)->post(route('admin.vendors.store'), [
             'name' => 'Delicious Catering',
