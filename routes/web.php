@@ -18,8 +18,11 @@ use App\Http\Controllers\ListYourBusinessController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MarkVendorEnquiryReadController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\UpdateVendorListingController;
 use Illuminate\Support\Facades\Route;
+
+Route::get('sitemap.xml', SitemapController::class)->name('sitemap');
 
 Route::inertia('/', 'welcome')->name('home');
 Route::inertia('privacy-policy', 'privacy-policy')->name('privacy-policy');

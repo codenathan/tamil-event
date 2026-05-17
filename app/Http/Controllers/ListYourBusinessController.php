@@ -10,7 +10,10 @@ use App\Models\Category;
 use App\Models\City;
 use App\Models\Country;
 use App\Models\Vendor;
+use App\Notifications\AdminNewVendorSignupNotification;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -18,7 +21,12 @@ class ListYourBusinessController extends Controller
 {
     public function index(): Response
     {
-        return Inertia::render('list-your-business');
+        return Inertia::render('list-your-business', [
+            'locationsByCountry' => Cache::rememberForever(
+                'inertia.all_locations_by_country',
+                fn (): array => Country::locationsByCountry(),
+            ),
+        ]);
     }
 
     public function store(StoreListYourBusinessRequest $request): RedirectResponse
@@ -57,6 +65,11 @@ class ListYourBusinessController extends Controller
                 $vendor->addMedia($file)->toMediaCollection('gallery');
             }
         }
+
+        $vendor->load(['category', 'city', 'country']);
+
+        Notification::route('mail', config('mail.admin.address'))
+            ->notify(new AdminNewVendorSignupNotification($vendor));
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Thanks! Your listing has been submitted for review.')]);
 

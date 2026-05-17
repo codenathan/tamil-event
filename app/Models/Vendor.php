@@ -28,6 +28,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $name
  * @property string $slug
  * @property string|null $description
+ * @property string|null $seo_title
+ * @property string|null $seo_description
  * @property string|null $phone
  * @property string|null $email
  * @property string|null $website
@@ -56,6 +58,8 @@ use Spatie\Sluggable\SlugOptions;
     'name',
     'slug',
     'description',
+    'seo_title',
+    'seo_description',
     'phone',
     'email',
     'website',

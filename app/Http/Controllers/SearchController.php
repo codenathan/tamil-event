@@ -122,6 +122,10 @@ class SearchController extends Controller
 
         return Inertia::render('vendors/show', [
             'vendor' => $vendor,
+            'meta' => [
+                'title' => $vendor->seo_title ?: $defaultTitle,
+                'description' => $vendor->seo_description ?: $defaultDescription,
+            ],
             'ogImageUrl' => $ogImageUrl,
             'ogImageWidth'  => $ogImageWidth,
             'ogImageHeight' => $ogImageHeight,

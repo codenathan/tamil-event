@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\Category;
 use App\Models\City;
 use App\Models\Country;
+use App\Models\Vendor;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Date;
@@ -58,10 +59,18 @@ class AppServiceProvider extends ServiceProvider
         Category::saved(fn () => Cache::forget('inertia.categories'));
         Category::deleted(fn () => Cache::forget('inertia.categories'));
 
-        Country::saved(fn () => Cache::forget('inertia.locations_by_country'));
-        Country::deleted(fn () => Cache::forget('inertia.locations_by_country'));
+        $forgetLocationCaches = function (): void {
+            Cache::forget('inertia.locations_by_country');
+            Cache::forget('inertia.all_locations_by_country');
+        };
 
-        City::saved(fn () => Cache::forget('inertia.locations_by_country'));
-        City::deleted(fn () => Cache::forget('inertia.locations_by_country'));
+        Country::saved($forgetLocationCaches);
+        Country::deleted($forgetLocationCaches);
+
+        City::saved($forgetLocationCaches);
+        City::deleted($forgetLocationCaches);
+
+        Vendor::saved($forgetLocationCaches);
+        Vendor::deleted($forgetLocationCaches);
     }
 }

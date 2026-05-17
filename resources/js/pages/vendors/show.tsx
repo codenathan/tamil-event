@@ -13,6 +13,13 @@ import { useState } from 'react';
 import DatePicker from '@/components/date-picker';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import {
+    Carousel,
+    CarouselContent,
+    CarouselItem,
+    CarouselNext,
+    CarouselPrevious,
+} from '@/components/ui/carousel';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -20,6 +27,10 @@ import type { Vendor } from '@/types';
 
 interface Props {
     vendor: Vendor;
+    meta: {
+        title: string;
+        description: string;
+    };
     ogImageUrl: string | null;
     ogImageWidth: string | null;
     ogImageHeight: string | null;
@@ -37,6 +48,7 @@ function descriptionParagraphs(text: string): string[] {
 
 export default function VendorShow({
     vendor,
+    meta,
     ogImageUrl,
     ogImageWidth,
     ogImageHeight,
@@ -55,7 +67,8 @@ export default function VendorShow({
     const location = [vendor.city?.name, vendor.country?.name]
         .filter(Boolean)
         .join(', ');
-    const galleryImages = vendor.images.slice(0, 3);
+
+    const galleryImages = vendor.images;
 
     const services = vendor.services?.length ? vendor.services : [];
 
@@ -94,18 +107,15 @@ export default function VendorShow({
         });
     }
 
-    const pageTitle = `${vendor.name} — Tamil ${vendor.category?.name ?? ''} in ${vendor.city?.name ?? ''} — TamilEventPlanner`;
-    const pageDescription = `${vendor.description ?? ''} Contact ${vendor.name} for your Tamil event in ${location}.`;
-
     return (
         <>
             <Head>
-                <title>{pageTitle}</title>
-                <meta name="description" content={pageDescription} />
+                <title>{meta.title}</title>
+                <meta name="description" content={meta.description} />
                 <link rel="canonical" href={canonicalUrl} />
                 <meta property="og:type" content="website" />
-                <meta property="og:title" content={pageTitle} />
-                <meta property="og:description" content={pageDescription} />
+                <meta property="og:title" content={meta.title} />
+                <meta property="og:description" content={meta.description} />
                 <meta property="og:url" content={canonicalUrl} />
 
                 {ogImageUrl ? (
@@ -166,23 +176,43 @@ export default function VendorShow({
                             )}
                         </div>
 
-                        {/* Gallery */}
+                        {/* Gallery carousel — 3 per row */}
                         {galleryImages.length > 0 && (
-                            <div className="grid grid-cols-3 gap-3">
-                                {galleryImages.map((img) => (
-                                    <div
-                                        key={img.id}
-                                        className="aspect-[4/3] overflow-hidden rounded-lg"
-                                    >
-                                        <img
-                                            src={img.url}
-                                            alt={`${vendor.name} gallery`}
-                                            className="h-full w-full object-cover"
-                                            loading="lazy"
-                                        />
-                                    </div>
-                                ))}
-                            </div>
+                            <Carousel
+                                className="w-full"
+                                opts={{
+                                    align: 'start',
+                                    loop: galleryImages.length > 3,
+                                }}
+                            >
+                                <CarouselContent className="-ml-3">
+                                    {galleryImages.map((image, index) => (
+                                        <CarouselItem
+                                            key={image.id}
+                                            className="basis-1/3 pl-3"
+                                        >
+                                            <div className="aspect-[4/3] overflow-hidden rounded-lg bg-secondary">
+                                                <img
+                                                    src={image.url}
+                                                    alt={`${vendor.name} gallery`}
+                                                    className="h-full w-full object-cover"
+                                                    loading={
+                                                        index < 3
+                                                            ? 'eager'
+                                                            : 'lazy'
+                                                    }
+                                                />
+                                            </div>
+                                        </CarouselItem>
+                                    ))}
+                                </CarouselContent>
+                                {galleryImages.length > 3 && (
+                                    <>
+                                        <CarouselPrevious className="left-3 border-0 bg-background/80 shadow-md backdrop-blur-sm hover:bg-background/90" />
+                                        <CarouselNext className="right-3 border-0 bg-background/80 shadow-md backdrop-blur-sm hover:bg-background/90" />
+                                    </>
+                                )}
+                            </Carousel>
                         )}
 
                         {/* Name + location */}

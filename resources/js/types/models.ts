@@ -42,6 +42,8 @@ export type Vendor = {
     name: string;
     slug: string;
     description: string | null;
+    seo_title: string | null;
+    seo_description: string | null;
     featured_image_url: string | null;
     phone: string | null;
     email: string | null;
