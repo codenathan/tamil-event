@@ -32,6 +32,9 @@ interface Props {
         description: string;
     };
     ogImageUrl: string | null;
+    ogImageWidth: string | null;
+    ogImageHeight: string | null;
+    ogImageType : string | null;
     canonicalUrl: string;
 }
 
@@ -47,6 +50,9 @@ export default function VendorShow({
     vendor,
     meta,
     ogImageUrl,
+    ogImageWidth,
+    ogImageHeight,
+    ogImageType,
     canonicalUrl,
 }: Props) {
     const [showEnquiry, setShowEnquiry] = useState(false);
@@ -111,12 +117,31 @@ export default function VendorShow({
                 <meta property="og:title" content={meta.title} />
                 <meta property="og:description" content={meta.description} />
                 <meta property="og:url" content={canonicalUrl} />
+
                 {ogImageUrl ? (
                     <meta property="og:image" content={ogImageUrl} />
                 ) : null}
-                <meta name="twitter:card" content={ogImageUrl ? 'summary_large_image' : 'summary'} />
-                <meta name="twitter:title" content={meta.title} />
-                <meta name="twitter:description" content={meta.description} />
+
+                {ogImageWidth ? (
+                    <meta property="og:image:width" content={ogImageWidth} />
+                ) : null}
+
+                {ogImageHeight ? (
+                    <meta property="og:image:height" content={ogImageHeight} />
+                ) : null}
+                {ogImageType ? (
+                    <meta
+                        property="og:image:type"
+                        content={ogImageType}
+                    />
+                ) : null}
+
+                <meta
+                    name="twitter:card"
+                    content={ogImageUrl ? 'summary_large_image' : 'summary'}
+                />
+                <meta name="twitter:title" content={pageTitle} />
+                <meta name="twitter:description" content={pageDescription} />
                 {ogImageUrl ? (
                     <meta name="twitter:image" content={ogImageUrl} />
                 ) : null}

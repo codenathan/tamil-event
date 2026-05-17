@@ -46,7 +46,7 @@ class ListYourBusinessController extends Controller
             'country_id' => $country->id,
             'name' => $data['businessName'],
             'description' => $data['description'],
-            'phone' => $data['phone'],
+            'phone' => $data['phone'] ?: null,
             'email' => $data['email'],
             'website' => $data['website'] ?: null,
             'social_instagram' => $data['instagram'] ?: null,

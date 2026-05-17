@@ -30,7 +30,7 @@ class StoreListYourBusinessRequest extends FormRequest
             'country' => ['required', 'string', 'exists:countries,name'],
             'city' => ['required', 'string'],
             'description' => ['required', 'string', 'max:500'],
-            'phone' => ['required', 'string', 'max:50'],
+            'phone' => ['nullable', 'string', 'max:50'],
             'email' => ['required', 'email', 'max:255', 'unique:vendors,email'],
             'website' => ['nullable', 'string', 'max:255'],
             'instagram' => ['nullable', 'string', 'max:100'],
