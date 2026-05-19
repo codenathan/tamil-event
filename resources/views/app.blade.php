@@ -42,6 +42,22 @@
         <x-inertia::head>
             <title>{{ config('app.name', 'Laravel') }}</title>
         </x-inertia::head>
+
+        @php
+            $analytics = $page['props']['analytics'] ?? null;
+            $gaId = $analytics['measurementId'] ?? null;
+            $gaEnabled = $analytics['enabled'] ?? false;
+        @endphp
+
+        @if ($gaId && $gaEnabled)
+            <script>
+                window.dataLayer = window.dataLayer || [];
+                function gtag() { window.dataLayer.push(arguments); }
+                gtag('js', new Date());
+                gtag('config', '{{ $gaId }}', { send_page_view: true });
+            </script>
+            <script async src="https://www.googletagmanager.com/gtag/js?id={{ urlencode($gaId) }}"></script>
+        @endif
     </head>
     <body class="font-sans antialiased">
         <x-inertia::app />

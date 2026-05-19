@@ -7,6 +7,7 @@ import {
     Mail,
     FolderOpen,
     MapPin,
+    BookOpen,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import Footer from '@/layouts/main/Footer';
@@ -16,6 +17,7 @@ const navItems = [
     { href: '/admin/dashboard', label: 'Overview', icon: ShieldCheck },
     { href: '/admin/inbox', label: 'Inbox', icon: Mail },
     { href: '/admin/categories', label: 'Categories', icon: FolderOpen },
+    { href: '/admin/blogs', label: 'Blog', icon: BookOpen },
     { href: '/admin/locations', label: 'Locations', icon: MapPin },
     { href: '/admin/vendors', label: 'Vendors', icon: Store },
     {

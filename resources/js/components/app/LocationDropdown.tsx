@@ -77,10 +77,7 @@ const LocationDropdown = ({
                             <CommandEmpty>No locations found.</CommandEmpty>
                             {Object.entries(locationsByCountry).map(
                                 ([country, cities]) => (
-                                    <CommandGroup
-                                        key={country}
-                                        heading={country}
-                                    >
+                                    <CommandGroup key={country}>
                                         <CommandItem
                                             keywords={[country]}
                                             onSelect={() => {
@@ -88,6 +85,7 @@ const LocationDropdown = ({
                                                 setOpen(false);
                                             }}
                                             value={`country-${country}`}
+                                            className="font-semibold text-foreground"
                                         >
                                             <Check
                                                 className={cn(
@@ -116,6 +114,7 @@ const LocationDropdown = ({
                                                         setOpen(false);
                                                     }}
                                                     value={`${city}-${country}`}
+                                                    className="pl-6"
                                                 >
                                                     <Check
                                                         className={cn(

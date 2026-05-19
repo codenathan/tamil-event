@@ -1,6 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import category from '@/routes/category';
 import location from '@/routes/location';
+import locationCategory from '@/routes/location/category';
 
 interface Category {
     id: number;
@@ -66,6 +67,29 @@ export default function Links() {
                             {city.country.name} - {city.name}
                         </Link>
                     ))}
+                </div>
+            </section>
+
+            {/* Location + Category combos */}
+            <section>
+                <h2 className="mb-6 font-display text-2xl font-bold">
+                    Browse by Location & Category
+                </h2>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                    {cities.map((city) =>
+                        categories.map((cat) => (
+                            <Link
+                                key={`${city.id}-${cat.id}`}
+                                href={locationCategory.show({
+                                    city: city.slug,
+                                    category: cat.slug,
+                                })}
+                                className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm font-medium transition-colors hover:bg-muted hover:text-foreground"
+                            >
+                                {city.name} - {cat.name}
+                            </Link>
+                        )),
+                    )}
                 </div>
             </section>
         </div>

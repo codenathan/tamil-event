@@ -155,7 +155,7 @@ export default function VendorShow({
                     href="/search"
                     className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
                 >
-                    <ArrowLeft size={16} /> Back to search
+                    <ArrowLeft size={16} /> Back
                 </Link>
 
                 <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">

@@ -42,6 +42,12 @@ export default function Header() {
                         Browse
                     </Link>
                     <Link
+                        href="/blogs"
+                        className="text-sm font-medium text-foreground/80 transition-colors hover:text-foreground"
+                    >
+                        Blog
+                    </Link>
+                    <Link
                         href="/contact"
                         className="text-sm font-medium text-foreground/80 transition-colors hover:text-foreground"
                     >
@@ -132,6 +138,13 @@ export default function Header() {
                         className="block py-2 text-sm font-medium"
                     >
                         Browse
+                    </Link>
+                    <Link
+                        href="/blogs"
+                        onClick={() => setMobileOpen(false)}
+                        className="block py-2 text-sm font-medium"
+                    >
+                        Blog
                     </Link>
                     <Link
                         href="/contact"
