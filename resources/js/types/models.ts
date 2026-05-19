@@ -83,6 +83,33 @@ export type Enquire = {
     updated_at: string;
 };
 
+export enum BlogStatus {
+    DRAFT = 'draft',
+    PUBLISHED = 'published',
+    ARCHIVED = 'archived',
+}
+
+export type Blog = {
+    id: number;
+    user_id: number;
+    title: string;
+    slug: string;
+    excerpt: string | null;
+    content: string;
+    status: BlogStatus;
+    published_at: string | null;
+    meta_title: string | null;
+    meta_description: string | null;
+    meta_keywords: string | null;
+    featured_image_url: string | null;
+    created_at: string;
+    updated_at: string;
+    user: {
+        id: number;
+        name: string;
+    };
+};
+
 export type ContactMessage = {
     id: number;
     name: string;

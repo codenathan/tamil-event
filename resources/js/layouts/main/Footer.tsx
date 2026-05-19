@@ -65,9 +65,12 @@ export default function Footer() {
                     </h4>
                     <ul className="space-y-2">
                         <li>
-                            <span className="text-sm text-muted-foreground">
-                                About Us
-                            </span>
+                            <Link
+                                href="/blogs"
+                                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                            >
+                                Blog
+                            </Link>
                         </li>
                         <li>
                             <Link

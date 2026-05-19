@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\CategoriesController;
 use App\Http\Controllers\Admin\DisableUserController;
 use App\Http\Controllers\Admin\EnableUserController;
@@ -9,12 +10,14 @@ use App\Http\Controllers\Admin\LocationsController;
 use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\Admin\VendorApplicationsController;
 use App\Http\Controllers\Admin\VendorsController;
+use App\Http\Controllers\BlogController as PublicBlogController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EnquireController;
 use App\Http\Controllers\LinksController;
 use App\Http\Controllers\ListYourBusinessController;
+use App\Http\Controllers\LocationCategoryController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MarkVendorEnquiryReadController;
 use App\Http\Controllers\SearchController;
@@ -37,10 +40,16 @@ Route::get('list-your-business', [ListYourBusinessController::class, 'index'])->
 Route::post('list-your-business', [ListYourBusinessController::class, 'store'])->name('list-your-business.store');
 
 Route::get('search', [SearchController::class, 'index'])->name('search');
+Route::get('blogs', [PublicBlogController::class, 'index'])->name('blogs.index');
+Route::get('blogs/{blog:slug}', [PublicBlogController::class, 'show'])->name('blogs.show');
+
 Route::get('vendors/{vendor:slug}', [SearchController::class, 'show'])->name('vendors.show');
 Route::post('vendors/{vendor:slug}/enquire', [EnquireController::class, 'store'])->name('vendors.enquire.store');
 Route::get('category/{category:slug}', [CategoryController::class, 'show'])->name('category.show');
 Route::get('location/{city:slug}', [LocationController::class, 'show'])->name('location.show');
+Route::get('location/{city:slug}/{category:slug}', [LocationCategoryController::class, 'show'])
+    ->name('location.category.show')
+    ->withoutScopedBindings();
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -80,6 +89,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('applications.approve');
         Route::delete('/applications/{vendor}', [VendorApplicationsController::class, 'destroy'])
             ->name('applications.destroy');
+
+        Route::resource('blogs', BlogController::class)->except(['show']);
 
         Route::get('/users', [UsersController::class, 'index'])->name('users');
     });

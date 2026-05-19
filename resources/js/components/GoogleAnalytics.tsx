@@ -1,18 +1,13 @@
-import { getInitialPageFromDOM, router } from '@inertiajs/core';
-import type { Page } from '@inertiajs/core';
-import { useEffect, useRef, useState } from 'react';
+import { router } from '@inertiajs/react';
+import { useEffect } from 'react';
 
 type AnalyticsProps = {
     measurementId: string | null;
     enabled: boolean;
 };
 
-function readAnalytics(page: Page | null): AnalyticsProps | null {
-    if (!page?.props || typeof page.props !== 'object') {
-        return null;
-    }
-
-    const raw = (page.props as { analytics?: unknown }).analytics;
+function readAnalytics(page: { props?: Record<string, unknown> }): AnalyticsProps | null {
+    const raw = page.props?.analytics;
 
     if (
         !raw ||
@@ -26,101 +21,53 @@ function readAnalytics(page: Page | null): AnalyticsProps | null {
     return raw as AnalyticsProps;
 }
 
-function setGaDisable(measurementId: string, disable: boolean): void {
-    (window as Record<string, boolean | undefined>)[`ga-disable-${measurementId}`] = disable;
-}
-
+/**
+ * Google Analytics SPA navigation tracker.
+ *
+ * The gtag.js script is loaded server-side in app.blade.php so it is
+ * available immediately on first paint. This component only tracks
+ * subsequent Inertia page visits by listening to router events.
+ */
 export default function GoogleAnalytics() {
-    const [page, setPage] = useState<Page | null>(() =>
-        typeof document !== 'undefined' ? getInitialPageFromDOM<Page>('app') : null,
-    );
+    if (typeof window === 'undefined') {
+        return null;
+    }
 
     useEffect(() => {
-        const removeNavigate = router.on('navigate', (event) => {
-            setPage(event.detail.page);
-        });
-        const removeSuccess = router.on('success', (event) => {
-            setPage(event.detail.page);
-        });
-
-        return () => {
-            removeNavigate();
-            removeSuccess();
-        };
-    }, []);
-
-    const analytics = readAnalytics(page);
-    const measurementId = analytics?.measurementId ?? null;
-    const enabled = analytics?.enabled ?? false;
-    const url = page?.url ?? '';
-
-    const urlRef = useRef(url);
-
-    useEffect(() => {
-        urlRef.current = url;
-    }, [url]);
-
-    useEffect(() => {
-        if (!measurementId) {
-            return;
-        }
-
-        setGaDisable(measurementId, !enabled);
-
-        if (!enabled) {
-            return;
-        }
-
-        const sendPageView = (): void => {
+        const sendPageView = (measurementId: string, url: string): void => {
             window.gtag?.('event', 'page_view', {
-                page_path: urlRef.current,
+                page_path: url,
                 page_title: document.title,
+                page_location: window.location.href,
             });
         };
 
-        const configureAndSend = (): void => {
-            window.gtag?.('config', measurementId, { send_page_view: false });
-            sendPageView();
-        };
+        const handleNavigate = (event: Event): void => {
+            const customEvent = event as CustomEvent<{ page: { props: Record<string, unknown>; url: string } }>;
+            const page = customEvent.detail.page;
+            const analytics = readAnalytics(page);
 
-        const existing = document.querySelector<HTMLScriptElement>(
-            `script[data-ga-measurement-id="${measurementId}"]`,
-        );
-
-        if (existing) {
-            if (existing.dataset.gaLoaded === 'true') {
-                sendPageView();
-            } else if (!existing.dataset.gaLoadHooked) {
-                existing.dataset.gaLoadHooked = 'true';
-                existing.addEventListener(
-                    'load',
-                    () => {
-                        existing.dataset.gaLoaded = 'true';
-                        configureAndSend();
-                    },
-                    { once: true },
-                );
+            if (!analytics || !analytics.enabled) {
+                return;
             }
 
-            return;
-        }
+            const measurementId = analytics.measurementId;
 
-        window.dataLayer = window.dataLayer ?? [];
-        window.gtag = function gtag(...args: unknown[]): void {
-            window.dataLayer.push(args);
-        };
-        window.gtag('js', new Date());
+            if (!measurementId) {
+                return;
+            }
 
-        const script = document.createElement('script');
-        script.async = true;
-        script.dataset.gaMeasurementId = measurementId;
-        script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(measurementId)}`;
-        script.onload = () => {
-            script.dataset.gaLoaded = 'true';
-            configureAndSend();
+            requestAnimationFrame(() => {
+                sendPageView(measurementId, page.url);
+            });
         };
-        document.head.appendChild(script);
-    }, [measurementId, enabled, url]);
+
+        const unsubscribe = router.on('navigate', handleNavigate);
+
+        return () => {
+            unsubscribe();
+        };
+    }, []);
 
     return null;
 }
