@@ -1,19 +1,21 @@
 import { router } from '@inertiajs/react';
 import { Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import CategoryDropdown from '@/components/app/CategoryDropdown';
 import LocationDropdown from '@/components/app/LocationDropdown';
 
 interface SearchBarProps {
     large?: boolean;
     initialQuery?: string;
     initialLocation?: string;
+    initialCategory?: string;
 }
 
 /** Parse "City, Country" or "Country" into separate params */
 function parseLocation(location: string): { city?: string; country?: string } {
     if (!location) {
-return {};
-}
+        return {};
+    }
 
     const commaIndex = location.indexOf(', ');
 
@@ -27,9 +29,10 @@ return {};
     return { country: location };
 }
 
-const SearchBar = ({ large = false, initialQuery = '', initialLocation = '' }: SearchBarProps) => {
+const SearchBar = ({ large = false, initialQuery = '', initialLocation = '', initialCategory = '' }: SearchBarProps) => {
     const [query, setQuery] = useState(initialQuery);
     const [location, setLocation] = useState(initialLocation);
+    const [category, setCategory] = useState(initialCategory);
 
     useEffect(() => {
         setQuery(initialQuery);
@@ -39,22 +42,30 @@ const SearchBar = ({ large = false, initialQuery = '', initialLocation = '' }: S
         setLocation(initialLocation);
     }, [initialLocation]);
 
+    useEffect(() => {
+        setCategory(initialCategory);
+    }, [initialCategory]);
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const { city, country } = parseLocation(location);
         const params: Record<string, string> = {};
 
         if (query.trim()) {
-params.q = query.trim();
-}
+            params.q = query.trim();
+        }
 
         if (city) {
-params.city = city;
-}
+            params.city = city;
+        }
 
         if (country) {
-params.country = country;
-}
+            params.country = country;
+        }
+
+        if (category) {
+            params.category = category;
+        }
 
         router.get('/search', params);
     };
@@ -62,7 +73,7 @@ params.country = country;
     return (
         <form
             onSubmit={handleSubmit}
-            className={`flex w-full flex-col gap-3 sm:flex-row ${large ? 'max-w-2xl' : 'max-w-xl'}`}
+            className={`flex w-full flex-col gap-3 sm:flex-row ${large ? 'max-w-4xl' : 'max-w-3xl'}`}
         >
             <div className="relative flex-1">
                 <Search className="absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
@@ -77,6 +88,11 @@ params.country = country;
             <LocationDropdown
                 value={location}
                 onChange={setLocation}
+                large={large}
+            />
+            <CategoryDropdown
+                value={category}
+                onChange={setCategory}
                 large={large}
             />
             <button

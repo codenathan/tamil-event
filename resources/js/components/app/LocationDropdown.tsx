@@ -70,6 +70,8 @@ const LocationDropdown = ({
                 <PopoverContent
                     align="start"
                     className="w-(--radix-popover-trigger-width) p-0"
+                    side="bottom"
+                    avoidCollisions={false}
                 >
                     <Command>
                         <CommandInput placeholder="Search city or country..." />
