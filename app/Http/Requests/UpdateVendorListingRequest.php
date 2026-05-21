@@ -32,6 +32,8 @@ class UpdateVendorListingRequest extends FormRequest
             'phone' => ['nullable', 'string', 'max:50'],
             'email' => ['required', 'email', 'max:255', Rule::unique('vendors', 'email')->ignore($vendorId)],
             'website' => ['nullable', 'string', 'max:255'],
+            'social_instagram' => ['nullable', 'string', 'max:255'],
+            'social_facebook' => ['nullable', 'string', 'max:255'],
             'featured_image' => ['nullable', 'image', 'max:2048'],
             'new_images' => ['nullable', 'array'],
             'new_images.*' => ['image', 'max:2048'],
@@ -93,6 +95,16 @@ class UpdateVendorListingRequest extends FormRequest
             $phone = null;
         }
 
+        $socialInstagram = $data['social_instagram'] ?? null;
+        if ($socialInstagram === '') {
+            $socialInstagram = null;
+        }
+
+        $socialFacebook = $data['social_facebook'] ?? null;
+        if ($socialFacebook === '') {
+            $socialFacebook = null;
+        }
+
         return [
             'name' => $data['name'],
             'description' => $description,
@@ -100,6 +112,8 @@ class UpdateVendorListingRequest extends FormRequest
             'phone' => $phone,
             'email' => $data['email'],
             'website' => $website,
+            'social_instagram' => $socialInstagram,
+            'social_facebook' => $socialFacebook,
         ];
     }
 }
