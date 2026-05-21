@@ -15,6 +15,7 @@ interface Filters {
     q: string;
     city: string;
     country: string;
+    category: string;
 }
 
 interface CategoryProps {
@@ -53,8 +54,8 @@ export default function Search({ vendors, filters, category, meta }: Props) {
 
     const heading = category
         ? `${category.name} Vendors`
-        : filters.q || filters.city || filters.country
-          ? `Results for "${[filters.q, filters.city || filters.country].filter(Boolean).join(' in ')}"`
+        : filters.q || filters.city || filters.country || filters.category
+          ? `Results for "${[filters.q, filters.category, filters.city || filters.country].filter(Boolean).join(' in ')}"`
           : 'All Vendors';
 
     const subtitle = category
@@ -81,6 +82,7 @@ export default function Search({ vendors, filters, category, meta }: Props) {
                     <SearchBar
                         initialQuery={filters.q}
                         initialLocation={initialLocation}
+                        initialCategory={filters.category}
                     />
                 </div>
             </section>

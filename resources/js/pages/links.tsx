@@ -23,14 +23,25 @@ interface Country {
     name: string;
 }
 
+interface Combination {
+    city_id: number;
+    city_name: string;
+    city_slug: string;
+    category_id: number;
+    category_name: string;
+    category_slug: string;
+    country_name: string;
+}
+
 interface Props {
     categories: Category[];
     cities: City[];
+    combinations: Combination[];
     [key: string]: unknown;
 }
 
 export default function Links() {
-    const { categories, cities } = usePage<Props>().props;
+    const { categories, cities, combinations } = usePage<Props>().props;
 
     return (
         <div className="container space-y-12 py-12">
@@ -76,20 +87,18 @@ export default function Links() {
                     Browse by Location & Category
                 </h2>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                    {cities.map((city) =>
-                        categories.map((cat) => (
-                            <Link
-                                key={`${city.id}-${cat.id}`}
-                                href={locationCategory.show({
-                                    city: city.slug,
-                                    category: cat.slug,
-                                })}
-                                className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm font-medium transition-colors hover:bg-muted hover:text-foreground"
-                            >
-                                {city.name} - {cat.name}
-                            </Link>
-                        )),
-                    )}
+                    {combinations.map((combo) => (
+                        <Link
+                            key={`${combo.city_id}-${combo.category_id}`}
+                            href={locationCategory.show({
+                                city: combo.city_slug,
+                                category: combo.category_slug,
+                            })}
+                            className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm font-medium transition-colors hover:bg-muted hover:text-foreground"
+                        >
+                            {combo.city_name} - {combo.category_name}
+                        </Link>
+                    ))}
                 </div>
             </section>
         </div>

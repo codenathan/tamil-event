@@ -14,6 +14,7 @@ class SearchController extends Controller
         $query = $request->string('q')->trim()->value();
         $city = $request->string('city')->trim()->value();
         $country = $request->string('country')->trim()->value();
+        $category = $request->string('category')->trim()->value();
 
         $vendors = Vendor::active()
             ->with(['category', 'city', 'country', 'media'])
@@ -44,6 +45,11 @@ class SearchController extends Controller
                     $countryQ->where('name', $country);
                 });
             })
+            ->when($category !== '', function ($q) use ($category) {
+                $q->whereHas('category', function ($categoryQ) use ($category) {
+                    $categoryQ->where('name', $category);
+                });
+            })
             ->orderBy('name')
             ->paginate(12)
             ->withQueryString();
@@ -54,24 +60,26 @@ class SearchController extends Controller
                 'q' => $query,
                 'city' => $city,
                 'country' => $country,
+                'category' => $category,
             ],
-            'meta' => $this->searchIndexMeta($request, $query, $city, $country),
+            'meta' => $this->searchIndexMeta($request, $query, $city, $country, $category),
         ]);
     }
 
     /**
      * @return array{title: string, description: string, canonicalUrl: string}
      */
-    private function searchIndexMeta(Request $request, string $query, string $city, string $country): array
+    private function searchIndexMeta(Request $request, string $query, string $city, string $country, string $category): array
     {
-        $hasFilters = $query !== '' || $city !== '' || $country !== '';
+        $hasFilters = $query !== '' || $city !== '' || $country !== '' || $category !== '';
         $site = 'TamilEventPlanner';
 
         if ($hasFilters) {
             $parts = array_values(array_filter([
                 $query,
+                $category !== '' ? $category : null,
                 $city !== '' ? $city : $country,
-            ], fn (string $v): bool => $v !== ''));
+            ], fn (?string $v): bool => $v !== '' && $v !== null));
 
             $label = implode(' in ', $parts);
             $heading = 'Results for "'.$label.'"';
@@ -126,8 +134,8 @@ class SearchController extends Controller
         $categoryName = $vendor->category?->name ?? 'Vendor';
 
         $defaultTitle = $location !== ''
-            ? sprintf('%s - Tamil - %s in %s', $vendor->name, $categoryName, $location)
-            : sprintf('%s - Tamil - %s', $vendor->name, $categoryName);
+            ? sprintf('%s - Tamil %s in %s', $vendor->name, $categoryName, $location)
+            : sprintf('%s - Tamil %s', $vendor->name, $categoryName);
 
         $defaultDescription = trim((string) ($vendor->description ?? ''));
 
