@@ -60,6 +60,8 @@ class UpdateVendorListingTest extends TestCase
             'description' => 'Updated description.',
             'phone' => '+441234567890',
             'website' => 'https://example.com',
+            'social_instagram' => '@mybusiness',
+            'social_facebook' => 'mybusinesspage',
             'services' => ['Portraits'],
             'featured_image' => UploadedFile::fake()->image('new-featured.jpg'),
             'new_images' => [
@@ -74,6 +76,8 @@ class UpdateVendorListingTest extends TestCase
         $vendor->refresh();
 
         $this->assertSame('Updated description.', $vendor->description);
+        $this->assertSame('@mybusiness', $vendor->social_instagram);
+        $this->assertSame('mybusinesspage', $vendor->social_facebook);
         $this->assertNotNull($vendor->getFirstMedia('featured'));
         $this->assertStringContainsString('new-featured', $vendor->getFirstMedia('featured')->file_name);
         $this->assertNull($vendor->media()->whereKey($existingGallery->id)->first());

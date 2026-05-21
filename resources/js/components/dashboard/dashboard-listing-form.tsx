@@ -1,5 +1,5 @@
 import { Form } from '@inertiajs/react';
-import { Globe, Mail, PencilLine, Phone, Save, X } from 'lucide-react';
+import { Facebook, Globe, Instagram, Mail, PencilLine, Phone, Save, X } from 'lucide-react';
 import type { KeyboardEvent } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
@@ -21,6 +21,8 @@ type ListingFormData = {
     phone: string;
     email: string;
     website: string;
+    social_instagram: string;
+    social_facebook: string;
 };
 
 type DashboardListingFormProps = {
@@ -35,6 +37,8 @@ export function DashboardListingForm({ vendor }: DashboardListingFormProps) {
         phone: vendor.phone ?? '',
         email: vendor.email ?? '',
         website: vendor.website ?? '',
+        social_instagram: vendor.social_instagram ?? '',
+        social_facebook: vendor.social_facebook ?? '',
     });
 
     const [serviceInput, setServiceInput] = useState('');
@@ -69,6 +73,8 @@ export function DashboardListingForm({ vendor }: DashboardListingFormProps) {
             phone: vendor.phone ?? '',
             email: vendor.email ?? '',
             website: vendor.website ?? '',
+            social_instagram: vendor.social_instagram ?? '',
+            social_facebook: vendor.social_facebook ?? '',
         });
         setFeaturedFile(null);
         setNewGalleryFiles([]);
@@ -126,6 +132,8 @@ export function DashboardListingForm({ vendor }: DashboardListingFormProps) {
                     phone: data.phone,
                     email: data.email,
                     website: data.website,
+                    social_instagram: data.social_instagram,
+                    social_facebook: data.social_facebook,
                     ...(featuredFile ? { featured_image: featuredFile } : {}),
                     ...(newGalleryFiles.length > 0
                         ? { new_images: newGalleryFiles }
@@ -178,7 +186,7 @@ export function DashboardListingForm({ vendor }: DashboardListingFormProps) {
                                     <legend className="text-sm font-semibold">
                                         Details
                                     </legend>
-                                    <div className="space-y-1.5">
+                                    {/* <div className="space-y-1.5">
                                         <Label htmlFor="name">Business name</Label>
                                         <Input
                                             id="name"
@@ -186,7 +194,7 @@ export function DashboardListingForm({ vendor }: DashboardListingFormProps) {
                                             readOnly
                                             autoComplete="organization"
                                         />
-                                    </div>
+                                    </div> */}
                                     <div className="space-y-1.5">
                                         <Label htmlFor="description">
                                             Description
@@ -324,6 +332,44 @@ export function DashboardListingForm({ vendor }: DashboardListingFormProps) {
                                                 />
                                             </div>
                                             <InputError message={errors.website} />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="social_instagram">Instagram</Label>
+                                            <div className="relative">
+                                                <Instagram className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                                                <Input
+                                                    id="social_instagram"
+                                                    value={data.social_instagram}
+                                                    onChange={(e) =>
+                                                        setData((prev) => ({
+                                                            ...prev,
+                                                            social_instagram: e.target.value,
+                                                        }))
+                                                    }
+                                                    className="pl-10"
+                                                    placeholder="@handle or profile URL"
+                                                />
+                                            </div>
+                                            <InputError message={errors.social_instagram} />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="social_facebook">Facebook</Label>
+                                            <div className="relative">
+                                                <Facebook className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                                                <Input
+                                                    id="social_facebook"
+                                                    value={data.social_facebook}
+                                                    onChange={(e) =>
+                                                        setData((prev) => ({
+                                                            ...prev,
+                                                            social_facebook: e.target.value,
+                                                        }))
+                                                    }
+                                                    className="pl-10"
+                                                    placeholder="Page name or profile URL"
+                                                />
+                                            </div>
+                                            <InputError message={errors.social_facebook} />
                                         </div>
                                     </div>
                                 </fieldset>
