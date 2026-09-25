@@ -23,10 +23,6 @@ class LocationCategoryController extends Controller
             ->orderBy('name')
             ->paginate(12);
 
-        $location = collect([$city->name, $city->country?->name])
-            ->filter()
-            ->implode(', ');
-
         return Inertia::render('search', [
             'vendors' => $vendors,
             'filters' => [
@@ -40,8 +36,8 @@ class LocationCategoryController extends Controller
                 'slug' => $category->slug,
             ],
             'meta' => [
-                'title' => $category->name.' Vendors in '.$location.' — TamilEventPlanner',
-                'description' => 'Browse '.$category->name.' vendors in '.$location.'. Find Tamil event professionals for your celebration on TamilEventPlanner.',
+                'title' => 'Tamil '.$category->name.' in '.$city->name.' - TamilEventPlanner',
+                'description' => 'Find Tamil '.$category->name.' in '.$city->name,
                 'canonicalUrl' => route('location.category.show', [$city, $category]),
             ],
         ]);

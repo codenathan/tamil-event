@@ -19,7 +19,7 @@ class EnquireController extends Controller
         abort_if(! $vendor->is_active, 404);
 
         $enquire = $vendor->enquires()->create([
-            ...$request->validated(),
+            ...$request->safe()->except('cf-turnstile-response'),
             'status' => EnquireStatusEnum::PENDING,
         ]);
 
@@ -40,4 +40,3 @@ class EnquireController extends Controller
         return back();
     }
 }
-

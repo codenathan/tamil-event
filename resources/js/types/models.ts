@@ -75,6 +75,7 @@ export type Enquire = {
     vendor_id: number;
     name: string;
     email: string;
+    phone: string | null;
     /** ISO date string (event date) */
     date: string;
     message: string;
@@ -118,4 +119,20 @@ export type ContactMessage = {
     message: string;
     status: ContactMessageStatus;
     created_at: string;
+};
+
+export type SearchLogSource = 'home' | 'search' | 'other';
+
+export type SearchLog = {
+    id: number;
+    user_id: number | null;
+    query: string | null;
+    category: string | null;
+    city: string | null;
+    country: string | null;
+    results_count: number;
+    source: SearchLogSource;
+    created_at: string;
+    updated_at: string;
+    user?: { id: number; name: string; email: string } | null;
 };

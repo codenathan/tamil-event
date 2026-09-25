@@ -1,4 +1,4 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import {
     MapPin,
     Phone,
@@ -12,6 +12,7 @@ import {
 import { useState } from 'react';
 import DatePicker from '@/components/date-picker';
 import InputError from '@/components/input-error';
+import TurnstileWidget from '@/components/turnstile-widget';
 import { Button } from '@/components/ui/button';
 import {
     Carousel,
@@ -34,10 +35,9 @@ interface Props {
     ogImageUrl: string | null;
     ogImageWidth: string | null;
     ogImageHeight: string | null;
-    ogImageType : string | null;
+    ogImageType: string | null;
     canonicalUrl: string;
 }
-
 
 function descriptionParagraphs(text: string): string[] {
     return text
@@ -56,12 +56,16 @@ export default function VendorShow({
     canonicalUrl,
 }: Props) {
     const [showEnquiry, setShowEnquiry] = useState(false);
+    const { turnstileSiteKey } = usePage().props;
+    const [turnstileWidgetKey, setTurnstileWidgetKey] = useState(0);
 
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         email: '',
+        phone: '',
         date: '',
         message: '',
+        'cf-turnstile-response': '',
     });
 
     const location = [vendor.city?.name, vendor.country?.name]
@@ -104,6 +108,11 @@ export default function VendorShow({
             onSuccess: () => {
                 reset();
             },
+            onFinish: () => {
+                // Turnstile tokens are single-use: remount the widget for a fresh one.
+                setData('cf-turnstile-response', '');
+                setTurnstileWidgetKey((key) => key + 1);
+            },
         });
     }
 
@@ -130,10 +139,7 @@ export default function VendorShow({
                     <meta property="og:image:height" content={ogImageHeight} />
                 ) : null}
                 {ogImageType ? (
-                    <meta
-                        property="og:image:type"
-                        content={ogImageType}
-                    />
+                    <meta property="og:image:type" content={ogImageType} />
                 ) : null}
 
                 <meta
@@ -399,6 +405,26 @@ export default function VendorShow({
                                         <InputError message={errors.email} />
                                     </div>
                                     <div className="space-y-2">
+                                        <Label htmlFor="enquiry-phone">
+                                            Phone{' '}
+                                            <span className="font-normal text-muted-foreground">
+                                                (optional)
+                                            </span>
+                                        </Label>
+                                        <Input
+                                            id="enquiry-phone"
+                                            name="phone"
+                                            type="tel"
+                                            value={data.phone}
+                                            onChange={(e) =>
+                                                setData('phone', e.target.value)
+                                            }
+                                            placeholder="+44 7700 900000"
+                                            autoComplete="tel"
+                                        />
+                                        <InputError message={errors.phone} />
+                                    </div>
+                                    <div className="space-y-2">
                                         <Label htmlFor="enquiry-date">
                                             Event date{' '}
                                         </Label>
@@ -432,9 +458,34 @@ export default function VendorShow({
                                         />
                                         <InputError message={errors.message} />
                                     </div>
+                                    {turnstileSiteKey && (
+                                        <div className="space-y-2">
+                                            <TurnstileWidget
+                                                key={turnstileWidgetKey}
+                                                siteKey={turnstileSiteKey}
+                                                onTokenChange={(token) =>
+                                                    setData(
+                                                        'cf-turnstile-response',
+                                                        token ?? '',
+                                                    )
+                                                }
+                                            />
+                                            <InputError
+                                                message={
+                                                    errors[
+                                                        'cf-turnstile-response'
+                                                    ]
+                                                }
+                                            />
+                                        </div>
+                                    )}
                                     <Button
                                         type="submit"
-                                        disabled={processing}
+                                        disabled={
+                                            processing ||
+                                            (!!turnstileSiteKey &&
+                                                !data['cf-turnstile-response'])
+                                        }
                                         className="w-full"
                                     >
                                         {processing

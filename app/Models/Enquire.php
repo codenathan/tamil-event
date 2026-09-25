@@ -18,6 +18,7 @@ use Illuminate\Support\Carbon;
  * @property string $name
  * @property Carbon $date
  * @property string $email
+ * @property string|null $phone
  * @property string $message
  * @property EnquireStatusEnum $status
  * @property Carbon|null $created_at
@@ -28,7 +29,7 @@ use Illuminate\Support\Carbon;
  *
  * @mixin Model
  */
-#[Fillable(['vendor_id', 'name', 'date', 'email', 'message', 'status'])]
+#[Fillable(['vendor_id', 'name', 'date', 'email', 'phone', 'message', 'status'])]
 final class Enquire extends Model
 {
     /** @use HasFactory<EnquireFactory> */

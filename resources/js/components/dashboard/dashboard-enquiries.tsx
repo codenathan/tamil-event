@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/react';
-import { Eye, Mail, MapPin } from 'lucide-react';
+import { Eye, Mail, MapPin, Phone } from 'lucide-react';
 import { useState } from 'react';
 import DataTableWithSearch from '@/components/data-table-with-search';
 import { Badge } from '@/components/ui/badge';
@@ -69,19 +69,20 @@ export function DashboardEnquiries({ enquiries }: DashboardEnquiriesProps) {
         <>
             <Card className="border-border/60 shadow-sm">
                 <CardHeader className="space-y-1 border-b border-border/40 pb-6">
-                    <CardTitle className="font-display flex items-center gap-2 text-lg">
+                    <CardTitle className="flex items-center gap-2 font-display text-lg">
                         <Mail className="size-5 text-primary" />
                         Enquiries
                     </CardTitle>
                     <CardDescription>
-                        Messages from people who contacted you via your public listing.
+                        Messages from people who contacted you via your public
+                        listing.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-6">
                     <DataTableWithSearch<Enquire>
                         data={enquiries}
                         searchUrl={dashboard.url()}
-                        searchPlaceholder="Search by name, email, or message..."
+                        searchPlaceholder="Search by name, email, phone, or message..."
                         emptyMessage="No enquiries found."
                         itemLabel="enquiries"
                         columns={[
@@ -95,6 +96,11 @@ export function DashboardEnquiries({ enquiries }: DashboardEnquiriesProps) {
                                         <div className="text-xs text-muted-foreground">
                                             {row.email}
                                         </div>
+                                        {row.phone ? (
+                                            <div className="text-xs text-muted-foreground">
+                                                {row.phone}
+                                            </div>
+                                        ) : null}
                                         <div className="text-xs text-muted-foreground">
                                             Received{' '}
                                             {formatEnquiryDate(row.created_at)}
@@ -158,17 +164,32 @@ export function DashboardEnquiries({ enquiries }: DashboardEnquiriesProps) {
                                         <Mail className="size-3.5 text-muted-foreground" />
                                         <span>{viewingEnquiry.email}</span>
                                     </div>
+                                    {viewingEnquiry.phone ? (
+                                        <div className="flex items-center gap-2">
+                                            <Phone className="size-3.5 text-muted-foreground" />
+                                            <a
+                                                href={`tel:${viewingEnquiry.phone}`}
+                                                className="hover:underline"
+                                            >
+                                                {viewingEnquiry.phone}
+                                            </a>
+                                        </div>
+                                    ) : null}
                                     <div className="flex items-center gap-2">
                                         <MapPin className="size-3.5 text-muted-foreground" />
                                         <span>
                                             Event date:{' '}
-                                            {formatEnquiryDate(viewingEnquiry.date)}
+                                            {formatEnquiryDate(
+                                                viewingEnquiry.date,
+                                            )}
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         {viewingEnquiry.status ===
                                         EnquireStatus.PENDING ? (
-                                            <Badge className="text-xs">New</Badge>
+                                            <Badge className="text-xs">
+                                                New
+                                            </Badge>
                                         ) : (
                                             <Badge
                                                 variant="secondary"
@@ -184,7 +205,7 @@ export function DashboardEnquiries({ enquiries }: DashboardEnquiriesProps) {
                     </DialogHeader>
                     {viewingEnquiry ? (
                         <div className="max-h-[50vh] overflow-y-auto">
-                            <p className="whitespace-pre-wrap rounded-lg border border-border/40 bg-muted/40 p-4 text-sm leading-relaxed text-foreground">
+                            <p className="rounded-lg border border-border/40 bg-muted/40 p-4 text-sm leading-relaxed whitespace-pre-wrap text-foreground">
                                 {viewingEnquiry.message}
                             </p>
                         </div>

@@ -1,9 +1,7 @@
 import { Head } from '@inertiajs/react';
 import type { VendorCardData } from '@/components/app/VendorCard';
 import VendorCard from '@/components/app/VendorCard';
-import type {
-    PaginatedData,
-} from '@/components/app/VendorPagination';
+import type { PaginatedData } from '@/components/app/VendorPagination';
 import VendorPagination from '@/components/app/VendorPagination';
 
 interface PaginatedVendors extends PaginatedData {
@@ -17,12 +15,19 @@ interface CityProps {
     country?: string;
 }
 
+interface PageMeta {
+    title: string;
+    description: string;
+    canonicalUrl: string;
+}
+
 interface Props {
     city: CityProps;
     vendors: PaginatedVendors;
+    meta: PageMeta;
 }
 
-export default function LocationShow({ city, vendors }: Props) {
+export default function LocationShow({ city, vendors, meta }: Props) {
     const heading = `${city.name} Vendors`;
     const subtitle = city.country
         ? `Browse vendors in ${city.name}, ${city.country}.`
@@ -31,11 +36,16 @@ export default function LocationShow({ city, vendors }: Props) {
     return (
         <>
             <Head>
-                <title>{`${city.name} Vendors — TamilEventPlanner`}</title>
-                <meta
-                    name="description"
-                    content={`Browse ${city.name} vendors on TamilEventPlanner.`}
-                />
+                <title>{meta.title}</title>
+                <meta name="description" content={meta.description} />
+                <link rel="canonical" href={meta.canonicalUrl} />
+                <meta property="og:type" content="website" />
+                <meta property="og:title" content={meta.title} />
+                <meta property="og:description" content={meta.description} />
+                <meta property="og:url" content={meta.canonicalUrl} />
+                <meta name="twitter:card" content="summary" />
+                <meta name="twitter:title" content={meta.title} />
+                <meta name="twitter:description" content={meta.description} />
             </Head>
 
             <section className="border-b border-border bg-secondary/40 py-6">

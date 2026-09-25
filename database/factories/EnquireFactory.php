@@ -26,6 +26,7 @@ class EnquireFactory extends Factory
             'name' => fake()->name(),
             'date' => fake()->dateTimeBetween('now', '+6 months'),
             'email' => fake()->unique()->safeEmail(),
+            'phone' => fake()->optional()->phoneNumber(),
             'message' => fake()->paragraph(),
             'status' => EnquireStatusEnum::PENDING,
         ];
