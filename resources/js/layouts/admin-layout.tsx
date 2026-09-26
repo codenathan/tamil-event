@@ -8,6 +8,7 @@ import {
     FolderOpen,
     MapPin,
     BookOpen,
+    Search,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import Footer from '@/layouts/main/Footer';
@@ -26,6 +27,7 @@ const navItems = [
         icon: ClipboardCheck,
     },
     { href: '/admin/users', label: 'Users', icon: Users },
+    { href: '/admin/search-logs', label: 'Searches', icon: Search },
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
@@ -57,10 +59,11 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                                 <Link
                                     key={href}
                                     href={href}
-                                    className={`inline-flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium transition-colors ${isActive
+                                    className={`inline-flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+                                        isActive
                                             ? 'bg-primary text-primary-foreground'
                                             : 'bg-muted text-muted-foreground hover:bg-accent'
-                                        }`}
+                                    }`}
                                 >
                                     <Icon className="h-4 w-4" />
                                     {label}

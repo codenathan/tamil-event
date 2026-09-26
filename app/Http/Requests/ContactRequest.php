@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use RyanChandler\LaravelCloudflareTurnstile\Rules\Turnstile;
 
 class ContactRequest extends FormRequest
 {
@@ -27,6 +28,17 @@ class ContactRequest extends FormRequest
             'email' => 'required|email|max:255',
             'phone' => 'string|max:255',
             'message' => 'required|string',
+            'cf-turnstile-response' => ['required', 'string', new Turnstile],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'cf-turnstile-response.required' => __('Please complete the security check.'),
         ];
     }
 }

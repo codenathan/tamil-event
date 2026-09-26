@@ -17,6 +17,7 @@ declare module '@inertiajs/core' {
                 measurementId: string | null;
                 enabled: boolean;
             };
+            turnstileSiteKey: string | null;
             [key: string]: unknown;
         };
     }

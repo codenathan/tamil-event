@@ -16,7 +16,7 @@ class ContactController extends Controller
     public function store(ContactRequest $request)
     {
         ContactMessage::create([
-            ...$request->validated(),
+            ...$request->safe()->except('cf-turnstile-response'),
             'date' => now(),
         ]);
 

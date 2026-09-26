@@ -1,7 +1,8 @@
 import { useForm } from '@inertiajs/react';
 import { usePage } from '@inertiajs/react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import InputError from '@/components/input-error';
+import TurnstileWidget from '@/components/turnstile-widget';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,11 +11,14 @@ import { store } from '@/routes/contact';
 
 export default function Contact() {
     const { props } = usePage<{ flash: { success?: string } }>();
+    const { turnstileSiteKey } = props;
+    const [turnstileWidgetKey, setTurnstileWidgetKey] = useState(0);
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         email: '',
         phone: '',
         message: '',
+        'cf-turnstile-response': '',
     });
 
     useEffect(() => {
@@ -25,7 +29,14 @@ export default function Contact() {
 
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
-        post(store.url());
+        post(store.url(), {
+            onSuccess: () => reset(),
+            onFinish: () => {
+                // Turnstile tokens are single-use: remount the widget for a fresh one.
+                setData('cf-turnstile-response', '');
+                setTurnstileWidgetKey((key) => key + 1);
+            },
+        });
     }
 
     return (
@@ -118,10 +129,25 @@ export default function Contact() {
                         />
                         <InputError message={errors.message} />
                     </div>
+                    {turnstileSiteKey && (
+                        <div className="space-y-2">
+                            <TurnstileWidget
+                                key={turnstileWidgetKey}
+                                siteKey={turnstileSiteKey}
+                                onTokenChange={(token) =>
+                                    setData('cf-turnstile-response', token ?? '')
+                                }
+                            />
+                            <InputError message={errors['cf-turnstile-response']} />
+                        </div>
+                    )}
                     <Button
                         type="submit"
                         className="w-full"
-                        disabled={processing}
+                        disabled={
+                            processing ||
+                            (!!turnstileSiteKey && !data['cf-turnstile-response'])
+                        }
                     >
                         Send Message
                     </Button>

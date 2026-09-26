@@ -45,6 +45,7 @@ class VendorNewEnquiryNotification extends Notification implements ShouldQueue
             ->line('—')
             ->line('**'.__('Name').'** '.$this->enquire->name)
             ->line('**'.__('Email').'** '.$this->enquire->email)
+            ->when(filled($this->enquire->phone), fn (MailMessage $mail) => $mail->line('**'.__('Phone').'** '.$this->enquire->phone))
             ->line('**'.__('Date').'** '.$dateFormatted)
             ->line('**'.__('Message').'**');
 

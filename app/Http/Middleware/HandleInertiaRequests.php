@@ -51,6 +51,8 @@ class HandleInertiaRequests extends Middleware
             'locationsByCountry' => $this->sharedLocationsByCountry(),
 
             'analytics' => $this->sharedAnalytics($request),
+
+            'turnstileSiteKey' => config('services.turnstile.key'),
         ];
     }
 

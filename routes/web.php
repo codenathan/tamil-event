@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\DisableUserController;
 use App\Http\Controllers\Admin\EnableUserController;
 use App\Http\Controllers\Admin\InboxController;
 use App\Http\Controllers\Admin\LocationsController;
+use App\Http\Controllers\Admin\SearchLogsController;
 use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\Admin\VendorApplicationsController;
 use App\Http\Controllers\Admin\VendorsController;
@@ -93,6 +94,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('blogs', BlogController::class)->except(['show']);
 
         Route::get('/users', [UsersController::class, 'index'])->name('users');
+
+        Route::get('/search-logs', [SearchLogsController::class, 'index'])->name('search-logs');
     });
 });
 

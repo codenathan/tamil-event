@@ -2,13 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SearchLog;
 use App\Models\Vendor;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Throwable;
 
 class SearchController extends Controller
 {
+    private const LAST_SEARCH_SESSION_KEY = 'search_log.last_search';
+
+    private const REPEAT_SEARCH_WINDOW_SECONDS = 60;
+
     public function index(Request $request)
     {
         $query = $request->string('q')->trim()->value();
@@ -54,6 +60,8 @@ class SearchController extends Controller
             ->paginate(12)
             ->withQueryString();
 
+        $this->logSearch($request, $query, $city, $country, $category, $vendors->total());
+
         return Inertia::render('search', [
             'vendors' => $vendors,
             'filters' => [
@@ -64,6 +72,98 @@ class SearchController extends Controller
             ],
             'meta' => $this->searchIndexMeta($request, $query, $city, $country, $category),
         ]);
+    }
+
+    /**
+     * Record the search so admins can see what visitors look for.
+     */
+    private function logSearch(Request $request, string $query, string $city, string $country, string $category, int $resultsCount): void
+    {
+        if (! $this->shouldLogSearch($request, $query, $city, $country, $category)) {
+            return;
+        }
+
+        if ($this->isRepeatedSearch($request, $query, $city, $country, $category)) {
+            return;
+        }
+
+        try {
+            SearchLog::create([
+                'user_id' => $request->user()?->id,
+                'query' => $query !== '' ? $query : null,
+                'category' => $category !== '' ? $category : null,
+                'city' => $city !== '' ? $city : null,
+                'country' => $country !== '' ? $country : null,
+                'results_count' => $resultsCount,
+                'source' => $this->searchSource($request),
+            ]);
+        } catch (Throwable $e) {
+            report($e);
+        }
+    }
+
+    /**
+     * Decide whether this request counts as a new search worth logging.
+     *
+     * Every visit to /search passes through here: typed searches, but also
+     * pagination clicks (?page=2), page refreshes, and bare visits with no filters.
+     */
+    private function shouldLogSearch(Request $request, string $query, string $city, string $country, string $category): bool
+    {
+        if ($query === '' && $city === '' && $country === '' && $category === '') {
+            return false;
+        }
+
+        if ((int) $request->input('page', 1) > 1) {
+            return false;
+        }
+
+        return ! preg_match('/bot|crawl|spider|slurp|facebookexternalhit|preview/i', (string) $request->userAgent());
+    }
+
+    /**
+     * Detect refreshes and back-button visits: the same search from the same
+     * session within the dedupe window. The window slides, so each repeat
+     * pushes it forward.
+     */
+    private function isRepeatedSearch(Request $request, string $query, string $city, string $country, string $category): bool
+    {
+        if (! $request->hasSession()) {
+            return false;
+        }
+
+        $session = $request->session();
+        $fingerprint = sha1(json_encode([mb_strtolower($query), $category, $city, $country]));
+        $now = now()->getTimestamp();
+
+        /** @var array{fingerprint?: string, seen_at?: int} $lastSearch */
+        $lastSearch = $session->get(self::LAST_SEARCH_SESSION_KEY, []);
+
+        $session->put(self::LAST_SEARCH_SESSION_KEY, [
+            'fingerprint' => $fingerprint,
+            'seen_at' => $now,
+        ]);
+
+        return ($lastSearch['fingerprint'] ?? null) === $fingerprint
+            && $now - ($lastSearch['seen_at'] ?? 0) < self::REPEAT_SEARCH_WINDOW_SECONDS;
+    }
+
+    /**
+     * Work out which page the search was submitted from using the Referer path.
+     */
+    private function searchSource(Request $request): string
+    {
+        $referer = $request->headers->get('referer');
+
+        if ($referer === null) {
+            return SearchLog::SOURCE_OTHER;
+        }
+
+        return match (rtrim((string) parse_url($referer, PHP_URL_PATH), '/')) {
+            '' => SearchLog::SOURCE_HOME,
+            '/search' => SearchLog::SOURCE_SEARCH,
+            default => SearchLog::SOURCE_OTHER,
+        };
     }
 
     /**

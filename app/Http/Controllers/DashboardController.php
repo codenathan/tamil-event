@@ -44,7 +44,7 @@ class DashboardController extends Controller
                 ->where('vendor_id', $vendor->id)
                 ->latest();
             $this->applySearch($query, $request, [
-                'columns' => ['name', 'email', 'message'],
+                'columns' => ['name', 'email', 'phone', 'message'],
             ]);
             $enquiries = $query->paginate($perPage)->withQueryString();
         }

@@ -16,6 +16,7 @@
         "laravel/tinker": "^3.0",
         "laravel/wayfinder": "^0.1.14",
         "opcodesio/log-viewer": "^3.24",
+        "ryangjchandler/laravel-cloudflare-turnstile": "^3.0",
         "spatie/laravel-medialibrary": "^11",
         "spatie/laravel-permission": "^7.3",
         "spatie/laravel-sitemap": "^8.1",
