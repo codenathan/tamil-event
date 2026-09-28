@@ -11,6 +11,7 @@ import {
     Search,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
+import ImpersonationBanner from '@/components/impersonation-banner';
 import Footer from '@/layouts/main/Footer';
 import Header from '@/layouts/main/Header';
 
@@ -35,6 +36,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
     return (
         <div className="flex min-h-screen flex-col">
+            <ImpersonationBanner />
             <Header />
 
             <main className="flex-1">

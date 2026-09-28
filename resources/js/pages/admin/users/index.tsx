@@ -1,5 +1,10 @@
 import { Head, router, usePage } from '@inertiajs/react';
-import { UserCheck, UserX, Users as UsersIcon } from 'lucide-react';
+import {
+    UserCheck,
+    UserRoundSearch,
+    UserX,
+    Users as UsersIcon,
+} from 'lucide-react';
 import type { ReactNode } from 'react';
 import DataTableWithSearch from '@/components/data-table-with-search';
 import {
@@ -18,7 +23,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AdminLayout from '@/layouts/admin-layout';
 import { users as usersRoute } from '@/routes/admin';
-import { disable, enable } from '@/routes/admin/users';
+import { disable, enable, impersonate } from '@/routes/admin/users';
 import type { Auth } from '@/types/auth';
 
 type Role = {
@@ -66,6 +71,10 @@ export default function Index({ users }: Props) {
         router.post(enable.url(u.id), {}, { preserveScroll: true });
     };
 
+    const handleImpersonate = (u: ListedUser) => {
+        router.post(impersonate.url(u.id));
+    };
+
     return (
         <>
             <Head title="Users" />
@@ -104,7 +113,9 @@ export default function Index({ users }: Props) {
                                             Disabled
                                         </Badge>
                                     ) : (
-                                        <Badge variant="secondary">Active</Badge>
+                                        <Badge variant="secondary">
+                                            Active
+                                        </Badge>
                                     ),
                             },
                             {
@@ -153,43 +164,55 @@ export default function Index({ users }: Props) {
                             }
 
                             return (
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            size="sm"
-                                            className="gap-1"
-                                        >
-                                            <UserX className="h-4 w-4" />
-                                            Disable
-                                        </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                            <AlertDialogTitle>
-                                                Disable this user?
-                                            </AlertDialogTitle>
-                                            <AlertDialogDescription>
-                                                {u.name} will no longer be able to
-                                                sign in until their account is
-                                                enabled again.
-                                            </AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel>
-                                                Cancel
-                                            </AlertDialogCancel>
-                                            <AlertDialogAction
-                                                onClick={() =>
-                                                    handleDisable(u)
-                                                }
+                                <div className="flex items-center justify-end gap-2">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        className="gap-1"
+                                        onClick={() => handleImpersonate(u)}
+                                    >
+                                        <UserRoundSearch className="h-4 w-4" />
+                                        Impersonate
+                                    </Button>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                className="gap-1"
                                             >
-                                                Disable account
-                                            </AlertDialogAction>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
+                                                <UserX className="h-4 w-4" />
+                                                Disable
+                                            </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>
+                                                    Disable this user?
+                                                </AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    {u.name} will no longer be
+                                                    able to sign in until their
+                                                    account is enabled again.
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>
+                                                    Cancel
+                                                </AlertDialogCancel>
+                                                <AlertDialogAction
+                                                    onClick={() =>
+                                                        handleDisable(u)
+                                                    }
+                                                >
+                                                    Disable account
+                                                </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                </div>
                             );
                         }}
                     />

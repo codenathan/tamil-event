@@ -7,6 +7,7 @@ use App\Models\Country;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Middleware;
+use Lab404\Impersonate\Services\ImpersonateManager;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -45,6 +46,7 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
                 'roles' => $request->user()?->getRoleNames() ?? [],
             ],
+            'impersonating' => $this->sharedImpersonation(),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
 
             'categories' => $this->sharedCategories(),
@@ -53,6 +55,22 @@ class HandleInertiaRequests extends Middleware
             'analytics' => $this->sharedAnalytics($request),
 
             'turnstileSiteKey' => config('services.turnstile.key'),
+        ];
+    }
+
+    /**
+     * @return array{impersonator_name: string}|null
+     */
+    protected function sharedImpersonation(): ?array
+    {
+        $impersonateManager = app(ImpersonateManager::class);
+
+        if (! $impersonateManager->isImpersonating()) {
+            return null;
+        }
+
+        return [
+            'impersonator_name' => $impersonateManager->getImpersonator()->name,
         ];
     }
 
