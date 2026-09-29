@@ -17,6 +17,7 @@ use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
+use Lab404\Impersonate\Models\Impersonate;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -68,6 +69,7 @@ final class User extends Authenticatable
     use HasFactory, Notifiable, TwoFactorAuthenticatable;
 
     use HasRoles;
+    use Impersonate;
 
     /**
      * @return array<string, string>
@@ -80,6 +82,22 @@ final class User extends Authenticatable
             'disabled_at' => 'datetime',
             'two_factor_confirmed_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Determine whether this user may impersonate other users.
+     */
+    public function canImpersonate(): bool
+    {
+        return $this->hasRole('admin');
+    }
+
+    /**
+     * Determine whether this user may be impersonated by an admin.
+     */
+    public function canBeImpersonated(): bool
+    {
+        return ! $this->hasRole('admin') && $this->disabled_at === null;
     }
 
     public function vendor(): HasOne

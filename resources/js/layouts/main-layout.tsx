@@ -1,5 +1,6 @@
 import { usePage } from '@inertiajs/react';
 import CookieBanner from '@/components/app/CookieBanner';
+import ImpersonationBanner from '@/components/impersonation-banner';
 import Footer from '@/layouts/main/Footer';
 import Header from '@/layouts/main/Header';
 // import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
@@ -13,6 +14,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
     return (
         <>
             <div className="flex min-h-screen flex-col">
+                <ImpersonationBanner />
                 <Header />
                 {success && (
                     <div className="bg-green-50 border-b border-green-200 text-green-800 px-4 py-3 text-sm text-center">

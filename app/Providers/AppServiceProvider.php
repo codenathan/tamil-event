@@ -10,8 +10,12 @@ use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Lab404\Impersonate\Events\LeaveImpersonation;
+use Lab404\Impersonate\Events\TakeImpersonation;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,6 +34,29 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
         $this->configureCacheInvalidation();
+        $this->configureImpersonationLogging();
+    }
+
+    /**
+     * Write an audit trail entry whenever an admin starts or stops impersonating.
+     */
+    protected function configureImpersonationLogging(): void
+    {
+        Event::listen(TakeImpersonation::class, function (TakeImpersonation $event): void {
+            Log::info('Impersonation started', [
+                'impersonator_id' => $event->impersonator->getAuthIdentifier(),
+                'impersonated_id' => $event->impersonated->getAuthIdentifier(),
+                'ip' => request()->ip(),
+            ]);
+        });
+
+        Event::listen(LeaveImpersonation::class, function (LeaveImpersonation $event): void {
+            Log::info('Impersonation ended', [
+                'impersonator_id' => $event->impersonator->getAuthIdentifier(),
+                'impersonated_id' => $event->impersonated?->getAuthIdentifier(),
+                'ip' => request()->ip(),
+            ]);
+        });
     }
 
     /**

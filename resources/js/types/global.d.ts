@@ -12,6 +12,9 @@ declare module '@inertiajs/core' {
         sharedPageProps: {
             name: string;
             auth: Auth;
+            impersonating: {
+                impersonator_name: string;
+            } | null;
             sidebarOpen: boolean;
             analytics: {
                 measurementId: string | null;

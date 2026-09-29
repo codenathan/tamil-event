@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\EnableUserController;
 use App\Http\Controllers\Admin\InboxController;
 use App\Http\Controllers\Admin\LocationsController;
 use App\Http\Controllers\Admin\SearchLogsController;
+use App\Http\Controllers\Admin\StartImpersonationController;
 use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\Admin\VendorApplicationsController;
 use App\Http\Controllers\Admin\VendorsController;
@@ -23,6 +24,7 @@ use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MarkVendorEnquiryReadController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\StopImpersonationController;
 use App\Http\Controllers\UpdateVendorListingController;
 use Illuminate\Support\Facades\Route;
 
@@ -58,11 +60,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('dashboard/enquiries/{enquire}/mark-as-read', MarkVendorEnquiryReadController::class)
         ->name('dashboard.enquiries.mark-as-read');
 
+    Route::post('impersonate/stop', StopImpersonationController::class)->name('impersonate.stop');
+
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
         Route::post('users/{user}/disable', DisableUserController::class)->name('users.disable');
         Route::post('users/{user}/enable', EnableUserController::class)->name('users.enable');
+        Route::post('users/{user}/impersonate', StartImpersonationController::class)->name('users.impersonate');
 
         Route::get('/inbox', [InboxController::class, 'index'])->name('inbox');
         Route::post('/inbox/{message}/mark-as-read', [InboxController::class, 'markAsRead'])
