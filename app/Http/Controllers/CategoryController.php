@@ -29,8 +29,8 @@ class CategoryController extends Controller
                 'slug' => $category->slug,
             ],
             'meta' => [
-                'title' => 'Tamil '.$category->name.' - TamilEventPlanner',
-                'description' => 'Find Tamil '.$category->name.' around the world',
+                'title' => 'Tamil '.$category->name,
+                'description' => 'Find Tamil '.$category->name.' around the world.'.' '.$category->description,
                 'canonicalUrl' => route('category.show', $category),
             ],
         ]);
