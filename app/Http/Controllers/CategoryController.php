@@ -31,7 +31,9 @@ class CategoryController extends Controller
             'meta' => [
                 'title' => 'Tamil '.$category->name,
                 'description' => 'Find Tamil '.$category->name.' around the world.'.' '.$category->description,
-                'canonicalUrl' => route('category.show', $category),
+                'canonicalUrl' => $vendors->currentPage() > 1
+                    ? route('category.show', [$category, 'page' => $vendors->currentPage()])
+                    : route('category.show', $category),
             ],
         ]);
     }

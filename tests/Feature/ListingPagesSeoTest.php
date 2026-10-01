@@ -29,6 +29,29 @@ class ListingPagesSeoTest extends TestCase
             );
     }
 
+    public function test_category_page_canonical_url_points_at_current_paginated_page(): void
+    {
+        $category = Category::factory()->create(['name' => 'Photographers', 'slug' => 'photographers']);
+
+        $this->get(route('category.show', [$category, 'page' => 2, 'utm_source' => 'newsletter']))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('search')
+                ->where('meta.canonicalUrl', route('category.show', [$category, 'page' => 2]))
+            );
+    }
+
+    public function test_category_page_canonical_url_omits_page_one_query(): void
+    {
+        $category = Category::factory()->create(['name' => 'Photographers', 'slug' => 'photographers']);
+
+        $this->get(route('category.show', [$category, 'page' => 1]))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('meta.canonicalUrl', route('category.show', $category))
+            );
+    }
+
     public function test_location_page_uses_tamil_vendors_in_city_seo_meta(): void
     {
         $city = $this->harrow();
@@ -39,6 +62,29 @@ class ListingPagesSeoTest extends TestCase
                 ->component('locations/show')
                 ->where('meta.title', 'Tamil Vendors in Harrow - TamilEventPlanner')
                 ->where('meta.description', 'Find Tamil Vendors in Harrow')
+                ->where('meta.canonicalUrl', route('location.show', $city))
+            );
+    }
+
+    public function test_location_page_canonical_url_points_at_current_paginated_page(): void
+    {
+        $city = $this->harrow();
+
+        $this->get(route('location.show', [$city, 'page' => 2, 'utm_source' => 'newsletter']))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('locations/show')
+                ->where('meta.canonicalUrl', route('location.show', [$city, 'page' => 2]))
+            );
+    }
+
+    public function test_location_page_canonical_url_omits_page_one_query(): void
+    {
+        $city = $this->harrow();
+
+        $this->get(route('location.show', [$city, 'page' => 1]))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
                 ->where('meta.canonicalUrl', route('location.show', $city))
             );
     }
@@ -54,6 +100,31 @@ class ListingPagesSeoTest extends TestCase
                 ->component('search')
                 ->where('meta.title', 'Tamil Photographers in Harrow - TamilEventPlanner')
                 ->where('meta.description', 'Find Tamil Photographers in Harrow')
+                ->where('meta.canonicalUrl', route('location.category.show', [$city, $category]))
+            );
+    }
+
+    public function test_location_category_page_canonical_url_points_at_current_paginated_page(): void
+    {
+        $city = $this->harrow();
+        $category = Category::factory()->create(['name' => 'Photographers', 'slug' => 'photographers']);
+
+        $this->get(route('location.category.show', [$city, $category, 'page' => 2, 'utm_source' => 'newsletter']))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('search')
+                ->where('meta.canonicalUrl', route('location.category.show', [$city, $category, 'page' => 2]))
+            );
+    }
+
+    public function test_location_category_page_canonical_url_omits_page_one_query(): void
+    {
+        $city = $this->harrow();
+        $category = Category::factory()->create(['name' => 'Photographers', 'slug' => 'photographers']);
+
+        $this->get(route('location.category.show', [$city, $category, 'page' => 1]))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
                 ->where('meta.canonicalUrl', route('location.category.show', [$city, $category]))
             );
     }

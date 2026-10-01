@@ -38,7 +38,9 @@ class LocationCategoryController extends Controller
             'meta' => [
                 'title' => 'Tamil '.$category->name.' in '.$city->name.' - TamilEventPlanner',
                 'description' => 'Find Tamil '.$category->name.' in '.$city->name,
-                'canonicalUrl' => route('location.category.show', [$city, $category]),
+                'canonicalUrl' => $vendors->currentPage() > 1
+                    ? route('location.category.show', [$city, $category, 'page' => $vendors->currentPage()])
+                    : route('location.category.show', [$city, $category]),
             ],
         ]);
     }
