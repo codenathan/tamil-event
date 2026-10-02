@@ -32,6 +32,7 @@ class LocationController extends Controller
                 'canonicalUrl' => $vendors->currentPage() > 1
                     ? route('location.show', [$city, 'page' => $vendors->currentPage()])
                     : route('location.show', $city),
+                'noindex' => $vendors->total() === 0,
             ],
         ]);
     }

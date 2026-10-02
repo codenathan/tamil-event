@@ -28,6 +28,7 @@ interface PageMeta {
     title: string;
     description: string;
     canonicalUrl: string;
+    noindex?: boolean;
 }
 
 interface Props {
@@ -68,6 +69,7 @@ export default function Search({ vendors, filters, category, meta }: Props) {
                 <title>{meta.title}</title>
                 <meta name="description" content={meta.description} />
                 <link rel="canonical" href={meta.canonicalUrl} />
+                {meta.noindex && <meta name="robots" content="noindex,follow" />}
                 <meta property="og:type" content="website" />
                 <meta property="og:title" content={meta.title} />
                 <meta property="og:description" content={meta.description} />

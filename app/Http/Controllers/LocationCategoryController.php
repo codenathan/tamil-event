@@ -41,6 +41,7 @@ class LocationCategoryController extends Controller
                 'canonicalUrl' => $vendors->currentPage() > 1
                     ? route('location.category.show', [$city, $category, 'page' => $vendors->currentPage()])
                     : route('location.category.show', [$city, $category]),
+                'noindex' => $vendors->total() === 0,
             ],
         ]);
     }

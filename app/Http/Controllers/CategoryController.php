@@ -34,6 +34,7 @@ class CategoryController extends Controller
                 'canonicalUrl' => $vendors->currentPage() > 1
                     ? route('category.show', [$category, 'page' => $vendors->currentPage()])
                     : route('category.show', $category),
+                'noindex' => $vendors->total() === 0,
             ],
         ]);
     }
