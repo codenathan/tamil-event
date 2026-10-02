@@ -24,8 +24,8 @@ class ListingPagesSeoTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('search')
-                ->where('meta.title', 'Tamil Photographers - TamilEventPlanner')
-                ->where('meta.description', 'Find Tamil Photographers around the world')
+                ->where('meta.title', 'Tamil Photographers')
+                ->where('meta.description', 'Find Tamil Photographers around the world.')
                 ->where('meta.canonicalUrl', route('category.show', $category))
             );
     }
@@ -61,8 +61,8 @@ class ListingPagesSeoTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('locations/show')
-                ->where('meta.title', 'Tamil Vendors in Harrow - TamilEventPlanner')
-                ->where('meta.description', 'Find Tamil Vendors in Harrow')
+                ->where('meta.title', 'Tamil Vendors in Harrow')
+                ->where('meta.description', 'Find Tamil wedding and event vendors in Harrow, United Kingdom. Compare profiles and contact vendors directly on TamilEventPlanner.')
                 ->where('meta.canonicalUrl', route('location.show', $city))
             );
     }
@@ -99,8 +99,8 @@ class ListingPagesSeoTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('search')
-                ->where('meta.title', 'Tamil Photographers in Harrow - TamilEventPlanner')
-                ->where('meta.description', 'Find Tamil Photographers in Harrow')
+                ->where('meta.title', 'Tamil Photographers in Harrow')
+                ->where('meta.description', 'Find Tamil Photographers vendors in Harrow, United Kingdom for weddings, birthdays and cultural events. Compare profiles, services and contact details in one place.')
                 ->where('meta.canonicalUrl', route('location.category.show', [$city, $category]))
             );
     }
@@ -148,6 +148,61 @@ class ListingPagesSeoTest extends TestCase
         $this->get(route('category.show', $category))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page->where('meta.noindex', false));
+    }
+
+    public function test_location_page_description_includes_vendor_count_and_top_categories(): void
+    {
+        $city = $this->harrow();
+        $catering = Category::factory()->create(['name' => 'Catering', 'slug' => 'catering']);
+        $dj = Category::factory()->create(['name' => 'DJ', 'slug' => 'dj']);
+        $decor = Category::factory()->create(['name' => 'Decor', 'slug' => 'decor']);
+        $florist = Category::factory()->create(['name' => 'Florist', 'slug' => 'florist']);
+
+        $this->vendor($city, $dj);
+        $this->vendor($city, $dj);
+        $this->vendor($city, $dj);
+        $this->vendor($city, $catering);
+        $this->vendor($city, $catering);
+        $this->vendor($city, $decor);
+        $this->vendor($city, $florist);
+        $this->vendor($city, $florist, isActive: false);
+        $this->vendor($city, $florist, isActive: false);
+        $toronto = $this->otherCity();
+        $this->vendor($toronto, $florist);
+        $this->vendor($toronto, $florist);
+
+        $this->get(route('location.show', $city))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('meta.description', 'Discover 7 Tamil wedding and event vendors in Harrow, United Kingdom. Browse DJ, Catering, Decor and more, compare profiles and contact vendors directly.')
+            );
+    }
+
+    public function test_location_page_description_uses_singular_for_one_vendor(): void
+    {
+        $city = $this->harrow();
+        $this->vendor($city, Category::factory()->create(['name' => 'Catering', 'slug' => 'catering']));
+
+        $this->get(route('location.show', $city))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('meta.description', 'Discover 1 Tamil wedding and event vendor in Harrow, United Kingdom. Browse Catering and more, compare profiles and contact vendors directly.')
+            );
+    }
+
+    public function test_location_category_page_description_includes_active_vendor_count(): void
+    {
+        $city = $this->harrow();
+        $category = Category::factory()->create(['name' => 'Photographer', 'slug' => 'photographer']);
+        $this->vendor($city, $category);
+        $this->vendor($city, $category);
+        $this->vendor($city, $category, isActive: false);
+
+        $this->get(route('location.category.show', [$city, $category]))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('meta.description', 'Find 2 Tamil Photographer vendors in Harrow, United Kingdom for weddings, birthdays and cultural events. Compare profiles, services and contact details in one place.')
+            );
     }
 
     public function test_location_page_is_noindex_without_active_vendors(): void
@@ -373,5 +428,12 @@ class ListingPagesSeoTest extends TestCase
             'name' => 'Harrow',
             'slug' => 'harrow',
         ]);
+    }
+
+    private function otherCity(): City
+    {
+        $country = Country::factory()->create(['name' => 'Canada', 'slug' => 'canada']);
+
+        return City::factory()->create(['country_id' => $country->id, 'name' => 'Toronto', 'slug' => 'toronto']);
     }
 }

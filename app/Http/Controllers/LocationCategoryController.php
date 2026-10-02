@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\City;
 use App\Models\Vendor;
 use App\Services\ListingStructuredData;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -38,7 +39,7 @@ class LocationCategoryController extends Controller
             ],
             'meta' => [
                 'title' => 'Tamil '.$category->name.' in '.$city->name,
-                'description' => 'Find Tamil '.$category->name.' in '.$city->name,
+                'description' => $this->metaDescription($city, $category, $vendors->total()),
                 'canonicalUrl' => $vendors->currentPage() > 1
                     ? route('location.category.show', [$city, $category, 'page' => $vendors->currentPage()])
                     : route('location.category.show', [$city, $category]),
@@ -49,5 +50,18 @@ class LocationCategoryController extends Controller
                 ['name' => $category->name, 'url' => route('location.category.show', [$city, $category])],
             ]),
         ]);
+    }
+
+    /**
+     * Build a search-snippet description naming the vendor count, category and full location.
+     */
+    private function metaDescription(City $city, Category $category, int $vendorCount): string
+    {
+        $place = collect([$city->name, $city->country?->name])->filter()->implode(', ');
+        $vendorPhrase = $vendorCount > 0
+            ? $vendorCount.' Tamil '.$category->name.' '.Str::plural('vendor', $vendorCount)
+            : 'Tamil '.$category->name.' vendors';
+
+        return 'Find '.$vendorPhrase.' in '.$place.' for weddings, birthdays and cultural events. Compare profiles, services and contact details in one place.';
     }
 }
