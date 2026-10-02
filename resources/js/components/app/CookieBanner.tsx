@@ -1,17 +1,27 @@
 import { Link } from '@inertiajs/react';
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/button";
 
-const CookieBanner = () => {
-  const [visible, setVisible] = useState(() => !localStorage.getItem("cookie-consent"));
+const subscribe = () => () => {};
 
-  if (!visible) {
+const hasConsent = () => localStorage.getItem("cookie-consent") !== null;
+
+/**
+ * Hide the banner during SSR so the server never touches localStorage.
+ */
+const getServerSnapshot = () => true;
+
+const CookieBanner = () => {
+  const consented = useSyncExternalStore(subscribe, hasConsent, getServerSnapshot);
+  const [accepted, setAccepted] = useState(false);
+
+  if (consented || accepted) {
       return null;
   }
 
   const handleAccept = () => {
     localStorage.setItem("cookie-consent", "accepted");
-    setVisible(false);
+    setAccepted(true);
   };
 
   const handleDecline = () => {
