@@ -134,4 +134,12 @@ class SitemapTest extends TestCase
             );
         }
     }
+
+    public function test_robots_txt_references_sitemap(): void
+    {
+        $this->assertStringContainsString(
+            'Sitemap: https://tamileventplanner.com/sitemap.xml',
+            file_get_contents(public_path('robots.txt')),
+        );
+    }
 }
