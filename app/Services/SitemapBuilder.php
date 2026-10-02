@@ -26,7 +26,7 @@ final class SitemapBuilder
             );
         }
 
-        Category::query()
+        $categories = Category::query()
             ->whereHas('vendors', fn ($query) => $query->where('is_active', true))
             ->orderBy('name')
             ->get(['id', 'slug', 'updated_at'])
@@ -46,6 +46,14 @@ final class SitemapBuilder
                     Url::create(route('location.show', $city))
                         ->setLastModificationDate($this->lastModified($city->updated_at)),
                 );
+            })
+            ->each(function (City $city) use ($categories, $sitemap): void {
+                $categories->each(function (Category $category) use ($city, $sitemap): void {
+                    $sitemap->add(
+                        Url::create(route('location.category.show', [$city, $category]))
+                            ->setLastModificationDate($this->lastModified($city->updated_at)),
+                    );
+                });
             });
 
         Vendor::active()
