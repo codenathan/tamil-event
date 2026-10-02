@@ -19,6 +19,22 @@ class AuthenticationTest extends TestCase
         $response->assertOk();
     }
 
+    public function test_login_screen_is_not_indexed_by_search_engines(): void
+    {
+        $this->get(route('login'))
+            ->assertOk()
+            ->assertHeader('X-Robots-Tag', 'noindex, nofollow');
+    }
+
+    public function test_password_reset_request_screen_is_not_indexed_by_search_engines(): void
+    {
+        $this->skipUnlessFortifyHas(Features::resetPasswords());
+
+        $this->get(route('password.request'))
+            ->assertOk()
+            ->assertHeader('X-Robots-Tag', 'noindex, nofollow');
+    }
+
     public function test_users_can_authenticate_using_the_login_screen()
     {
         $user = User::factory()->create();

@@ -316,6 +316,43 @@ class ListingPagesSeoTest extends TestCase
             );
     }
 
+    public function test_unfiltered_search_page_is_indexable(): void
+    {
+        $this->get(route('search'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('search')
+                ->where('meta.noindex', false)
+            );
+    }
+
+    public function test_search_results_with_query_are_noindexed(): void
+    {
+        $this->get(route('search', ['q' => 'dj']))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('search')
+                ->where('meta.noindex', true)
+            );
+    }
+
+    public function test_search_results_with_location_or_category_filters_are_noindexed(): void
+    {
+        $this->get(route('search', ['category' => 'Photography', 'city' => 'London']))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('search')
+                ->where('meta.noindex', true)
+            );
+    }
+
+    public function test_search_results_are_not_header_noindexed(): void
+    {
+        $this->get(route('search', ['q' => 'dj']))
+            ->assertOk()
+            ->assertHeaderMissing('X-Robots-Tag');
+    }
+
     private function vendor(City $city, Category $category, bool $isActive = true, ?string $name = null): Vendor
     {
         return Vendor::factory()->create([

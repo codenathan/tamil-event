@@ -167,7 +167,9 @@ class SearchController extends Controller
     }
 
     /**
-     * @return array{title: string, description: string, canonicalUrl: string}
+     * Filtered result pages are noindexed so arbitrary queries don't get indexed.
+     *
+     * @return array{title: string, description: string, canonicalUrl: string, noindex: bool}
      */
     private function searchIndexMeta(Request $request, string $query, string $city, string $country, string $category): array
     {
@@ -194,6 +196,7 @@ class SearchController extends Controller
             'title' => $heading,
             'description' => $description,
             'canonicalUrl' => $request->fullUrl(),
+            'noindex' => $hasFilters,
         ];
     }
 
