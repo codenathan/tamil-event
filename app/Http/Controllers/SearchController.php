@@ -172,7 +172,6 @@ class SearchController extends Controller
     private function searchIndexMeta(Request $request, string $query, string $city, string $country, string $category): array
     {
         $hasFilters = $query !== '' || $city !== '' || $country !== '' || $category !== '';
-        $site = 'TamilEventPlanner';
 
         if ($hasFilters) {
             $parts = array_values(array_filter([
@@ -192,7 +191,7 @@ class SearchController extends Controller
         }
 
         return [
-            'title' => $heading.' — '.$site,
+            'title' => $heading,
             'description' => $description,
             'canonicalUrl' => $request->fullUrl(),
         ];

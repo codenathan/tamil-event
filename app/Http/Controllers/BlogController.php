@@ -22,7 +22,7 @@ class BlogController extends Controller
         return Inertia::render('blogs/index', [
             'blogs' => $blogs,
             'meta' => [
-                'title' => 'Blog — TamilEventPlanner',
+                'title' => 'Blog',
                 'description' => 'Read the latest articles, tips, and inspiration for Tamil events and weddings.',
                 'canonicalUrl' => $request->fullUrl(),
             ],
