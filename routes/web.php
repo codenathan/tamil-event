@@ -17,6 +17,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EnquireController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LinksController;
 use App\Http\Controllers\ListYourBusinessController;
 use App\Http\Controllers\LocationCategoryController;
@@ -30,7 +31,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('sitemap.xml', SitemapController::class)->name('sitemap');
 
-Route::inertia('/', 'welcome')->name('home');
+Route::get('/', HomeController::class)->name('home');
 Route::inertia('privacy-policy', 'privacy-policy')->name('privacy-policy');
 Route::inertia('terms-and-conditions', 'terms-and-conditions')->name('terms-and-conditions');
 

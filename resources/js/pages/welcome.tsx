@@ -5,22 +5,66 @@ import type { Category } from '@/data/categories';
 
 interface PageProps {
     categories: Category[];
+    meta: {
+        title: string;
+        description: string;
+        canonicalUrl: string;
+    };
+    logoUrl: string;
+    searchUrlTemplate: string;
     [key: string]: unknown;
 }
 
 export default function Welcome() {
-    const { categories } = usePage<PageProps>().props;
+    const { categories, meta, logoUrl, searchUrlTemplate } =
+        usePage<PageProps>().props;
+
+    const organizationId = `${meta.canonicalUrl}#organization`;
+
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@graph': [
+            {
+                '@type': 'Organization',
+                '@id': organizationId,
+                name: 'TamilEventPlanner',
+                url: meta.canonicalUrl,
+                logo: logoUrl,
+            },
+            {
+                '@type': 'WebSite',
+                '@id': `${meta.canonicalUrl}#website`,
+                name: 'TamilEventPlanner',
+                url: meta.canonicalUrl,
+                description: meta.description,
+                publisher: { '@id': organizationId },
+                potentialAction: {
+                    '@type': 'SearchAction',
+                    target: {
+                        '@type': 'EntryPoint',
+                        urlTemplate: searchUrlTemplate,
+                    },
+                    'query-input': 'required name=search_term_string',
+                },
+            },
+        ],
+    };
 
     return (
         <>
             <Head>
-                <title>
-                    TamilEventPlanner — Discover Tamil Event Services Worldwide
-                </title>
-                <meta
-                    name="description"
-                    content="Find and book the best Tamil event service providers worldwide. Photographers, caterers, DJs, venues, makeup artists and more for weddings and cultural events."
-                />
+                <title>{meta.title}</title>
+                <meta name="description" content={meta.description} />
+                <link rel="canonical" href={meta.canonicalUrl} />
+                <meta property="og:type" content="website" />
+                <meta property="og:site_name" content="TamilEventPlanner" />
+                <meta property="og:title" content={meta.title} />
+                <meta property="og:description" content={meta.description} />
+                <meta property="og:url" content={meta.canonicalUrl} />
+                <meta property="og:image" content={logoUrl} />
+                <script type="application/ld+json">
+                    {JSON.stringify(jsonLd)}
+                </script>
             </Head>
 
             {/* Hero */}
