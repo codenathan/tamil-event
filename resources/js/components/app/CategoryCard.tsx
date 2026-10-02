@@ -16,6 +16,7 @@ import {
     Component,
     Shirt,
     Cake,
+    Gem,
 } from 'lucide-react';
 import type { Category } from '@/data/categories';
 
@@ -35,7 +36,8 @@ const iconMap: Record<string, React.ElementType> = {
     Laugh,
     Component,
     Shirt,
-    Cake
+    Cake,
+    Gem,
 };
 
 const CategoryCard = ({ category }: { category: Category }) => {
