@@ -64,4 +64,46 @@ class SitemapTest extends TestCase
         $this->assertStringNotContainsString(route('category.show', $inactiveCategory), $content);
         $this->assertStringNotContainsString(route('location.show', $inactiveCity), $content);
     }
+
+    public function test_sitemap_only_includes_location_category_combinations_with_active_vendors(): void
+    {
+        $country = Country::factory()->create(['name' => 'United Kingdom']);
+        $catering = Category::factory()->create(['name' => 'Catering', 'slug' => 'catering']);
+        $dj = Category::factory()->create(['name' => 'DJ', 'slug' => 'dj']);
+        $florist = Category::factory()->create(['name' => 'Florist', 'slug' => 'florist']);
+        $london = City::factory()->create(['country_id' => $country->id, 'name' => 'London', 'slug' => 'london']);
+        $birmingham = City::factory()->create(['country_id' => $country->id, 'name' => 'Birmingham', 'slug' => 'birmingham']);
+
+        Vendor::factory()->create([
+            'category_id' => $catering->id,
+            'city_id' => $london->id,
+            'country_id' => $country->id,
+            'is_active' => true,
+        ]);
+        Vendor::factory()->create([
+            'category_id' => $dj->id,
+            'city_id' => $birmingham->id,
+            'country_id' => $country->id,
+            'is_active' => true,
+        ]);
+        Vendor::factory()->create([
+            'category_id' => $florist->id,
+            'city_id' => $london->id,
+            'country_id' => $country->id,
+            'is_active' => false,
+        ]);
+
+        $response = $this->get(route('sitemap'));
+
+        $response->assertOk();
+
+        $content = $response->getContent();
+
+        $this->assertIsString($content);
+        $this->assertStringContainsString('<loc>'.route('location.category.show', [$london, $catering]).'</loc>', $content);
+        $this->assertStringContainsString('<loc>'.route('location.category.show', [$birmingham, $dj]).'</loc>', $content);
+        $this->assertStringNotContainsString('<loc>'.route('location.category.show', [$london, $dj]).'</loc>', $content);
+        $this->assertStringNotContainsString('<loc>'.route('location.category.show', [$birmingham, $catering]).'</loc>', $content);
+        $this->assertStringNotContainsString(route('location.category.show', [$london, $florist]), $content);
+    }
 }
