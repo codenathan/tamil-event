@@ -83,14 +83,21 @@ final class SitemapBuilder
      */
     private function staticPages(): array
     {
-        $now = Carbon::now();
-
         return [
-            ['url' => route('home'), 'lastModified' => $now],
-            ['url' => route('list-your-business'), 'lastModified' => $now],
-            ['url' => route('contact'), 'lastModified' => $now],
-            ['url' => route('links'), 'lastModified' => $now],
+            ['url' => route('home'), 'lastModified' => $this->pageModified('welcome')],
+            ['url' => route('list-your-business'), 'lastModified' => $this->pageModified('list-your-business')],
+            ['url' => route('contact'), 'lastModified' => $this->pageModified('contact')],
+            ['url' => route('links'), 'lastModified' => $this->pageModified('links')],
         ];
+    }
+
+    private function pageModified(string $component): Carbon
+    {
+        $modifiedAt = @filemtime(resource_path("js/pages/{$component}.tsx"));
+
+        return $modifiedAt !== false
+            ? Carbon::createFromTimestamp($modifiedAt)
+            : Carbon::now();
     }
 
     private function lastModified(?DateTimeInterface $updatedAt): CarbonInterface

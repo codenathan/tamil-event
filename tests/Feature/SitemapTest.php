@@ -9,6 +9,7 @@ use App\Models\City;
 use App\Models\Country;
 use App\Models\Vendor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 class SitemapTest extends TestCase
@@ -105,5 +106,32 @@ class SitemapTest extends TestCase
         $this->assertStringNotContainsString('<loc>'.route('location.category.show', [$london, $dj]).'</loc>', $content);
         $this->assertStringNotContainsString('<loc>'.route('location.category.show', [$birmingham, $catering]).'</loc>', $content);
         $this->assertStringNotContainsString(route('location.category.show', [$london, $florist]), $content);
+    }
+
+    public function test_sitemap_uses_page_file_modified_time_for_static_pages(): void
+    {
+        $this->travelTo(now()->addYear());
+
+        $response = $this->get(route('sitemap'));
+
+        $response->assertOk();
+
+        $content = $response->getContent();
+
+        $this->assertIsString($content);
+
+        foreach ([
+            'home' => 'welcome',
+            'list-your-business' => 'list-your-business',
+            'contact' => 'contact',
+            'links' => 'links',
+        ] as $routeName => $component) {
+            $expected = Carbon::createFromTimestamp(filemtime(resource_path("js/pages/{$component}.tsx")))->toAtomString();
+
+            $this->assertStringContainsString(
+                '<loc>'.route($routeName).'</loc>'."\n".'    <lastmod>'.$expected.'</lastmod>',
+                $content,
+            );
+        }
     }
 }
