@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\City;
 use App\Models\Vendor;
+use App\Services\ListingStructuredData;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class LocationController extends Controller
 {
-    public function show(City $city): Response
+    public function show(City $city, ListingStructuredData $structuredData): Response
     {
         $city->load('country');
 
@@ -34,6 +35,9 @@ class LocationController extends Controller
                     : route('location.show', $city),
                 'noindex' => $vendors->total() === 0,
             ],
+            'structuredData' => $structuredData->build('Tamil Vendors in '.$city->name, $vendors, [
+                ['name' => $city->name, 'url' => route('location.show', $city)],
+            ]),
         ]);
     }
 }

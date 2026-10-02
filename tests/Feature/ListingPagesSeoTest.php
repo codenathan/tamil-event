@@ -193,9 +193,133 @@ class ListingPagesSeoTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page->where('meta.noindex', false));
     }
 
-    private function vendor(City $city, Category $category, bool $isActive = true): Vendor
+    public function test_category_page_has_item_list_and_breadcrumb_structured_data(): void
+    {
+        $category = Category::factory()->create(['name' => 'Photographers', 'slug' => 'photographers']);
+        $city = $this->harrow();
+        $alpha = $this->vendor($city, $category, name: 'Alpha Studio');
+        $beta = $this->vendor($city, $category, name: 'Beta Studio');
+        $this->vendor($city, $category, isActive: false, name: 'Aardvark Inactive');
+
+        $this->get(route('category.show', $category))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('structuredData.@context', 'https://schema.org')
+                ->where('structuredData.@graph.0', [
+                    '@type' => 'ItemList',
+                    'name' => 'Tamil Photographers',
+                    'numberOfItems' => 2,
+                    'itemListElement' => [
+                        ['@type' => 'ListItem', 'position' => 1, 'name' => 'Alpha Studio', 'url' => route('vendors.show', $alpha)],
+                        ['@type' => 'ListItem', 'position' => 2, 'name' => 'Beta Studio', 'url' => route('vendors.show', $beta)],
+                    ],
+                ])
+                ->where('structuredData.@graph.1', [
+                    '@type' => 'BreadcrumbList',
+                    'itemListElement' => [
+                        ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => route('home')],
+                        ['@type' => 'ListItem', 'position' => 2, 'name' => 'Photographers', 'item' => route('category.show', $category)],
+                    ],
+                ])
+            );
+    }
+
+    public function test_category_page_item_list_positions_continue_across_pages(): void
+    {
+        $category = Category::factory()->create(['name' => 'Photographers', 'slug' => 'photographers']);
+        $city = $this->harrow();
+
+        foreach (range(1, 13) as $number) {
+            $this->vendor($city, $category, name: sprintf('Vendor %02d', $number));
+        }
+
+        $this->get(route('category.show', [$category, 'page' => 2]))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('structuredData.@graph.0.numberOfItems', 13)
+                ->has('structuredData.@graph.0.itemListElement', 1)
+                ->where('structuredData.@graph.0.itemListElement.0.position', 13)
+                ->where('structuredData.@graph.0.itemListElement.0.name', 'Vendor 13')
+                ->where('structuredData.@graph.1.itemListElement.1.item', route('category.show', $category))
+            );
+    }
+
+    public function test_category_page_without_vendors_has_empty_item_list(): void
+    {
+        $category = Category::factory()->create(['name' => 'Photographers', 'slug' => 'photographers']);
+
+        $this->get(route('category.show', $category))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('structuredData.@graph.0.numberOfItems', 0)
+                ->where('structuredData.@graph.0.itemListElement', [])
+            );
+    }
+
+    public function test_location_page_has_item_list_and_breadcrumb_structured_data(): void
+    {
+        $city = $this->harrow();
+        $vendor = $this->vendor($city, Category::factory()->create(['name' => 'Catering', 'slug' => 'catering']), name: 'Spice Kitchen');
+
+        $this->get(route('location.show', $city))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('locations/show')
+                ->where('structuredData.@graph.0', [
+                    '@type' => 'ItemList',
+                    'name' => 'Tamil Vendors in Harrow',
+                    'numberOfItems' => 1,
+                    'itemListElement' => [
+                        ['@type' => 'ListItem', 'position' => 1, 'name' => 'Spice Kitchen', 'url' => route('vendors.show', $vendor)],
+                    ],
+                ])
+                ->where('structuredData.@graph.1.itemListElement', [
+                    ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => route('home')],
+                    ['@type' => 'ListItem', 'position' => 2, 'name' => 'Harrow', 'item' => route('location.show', $city)],
+                ])
+            );
+    }
+
+    public function test_location_category_page_has_item_list_and_breadcrumb_structured_data(): void
+    {
+        $city = $this->harrow();
+        $category = Category::factory()->create(['name' => 'Photographers', 'slug' => 'photographers']);
+        $vendor = $this->vendor($city, $category, name: 'Alpha Studio');
+        $this->vendor($city, Category::factory()->create(['name' => 'Catering', 'slug' => 'catering']), name: 'Spice Kitchen');
+
+        $this->get(route('location.category.show', [$city, $category]))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('structuredData.@graph.0', [
+                    '@type' => 'ItemList',
+                    'name' => 'Tamil Photographers in Harrow',
+                    'numberOfItems' => 1,
+                    'itemListElement' => [
+                        ['@type' => 'ListItem', 'position' => 1, 'name' => 'Alpha Studio', 'url' => route('vendors.show', $vendor)],
+                    ],
+                ])
+                ->where('structuredData.@graph.1.itemListElement', [
+                    ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => route('home')],
+                    ['@type' => 'ListItem', 'position' => 2, 'name' => 'Harrow', 'item' => route('location.show', $city)],
+                    ['@type' => 'ListItem', 'position' => 3, 'name' => 'Photographers', 'item' => route('location.category.show', [$city, $category])],
+                ])
+            );
+    }
+
+    public function test_search_page_has_no_listing_structured_data(): void
+    {
+        $this->get(route('search'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('search')
+                ->missing('structuredData')
+            );
+    }
+
+    private function vendor(City $city, Category $category, bool $isActive = true, ?string $name = null): Vendor
     {
         return Vendor::factory()->create([
+            ...($name !== null ? ['name' => $name] : []),
             'category_id' => $category->id,
             'city_id' => $city->id,
             'country_id' => $city->country_id,

@@ -26,9 +26,15 @@ interface Props {
     city: CityProps;
     vendors: PaginatedVendors;
     meta: PageMeta;
+    structuredData?: Record<string, unknown>;
 }
 
-export default function LocationShow({ city, vendors, meta }: Props) {
+export default function LocationShow({
+    city,
+    vendors,
+    meta,
+    structuredData,
+}: Props) {
     const heading = `${city.name} Vendors`;
     const subtitle = city.country
         ? `Browse vendors in ${city.name}, ${city.country}.`
@@ -40,7 +46,9 @@ export default function LocationShow({ city, vendors, meta }: Props) {
                 <title>{meta.title}</title>
                 <meta name="description" content={meta.description} />
                 <link rel="canonical" href={meta.canonicalUrl} />
-                {meta.noindex && <meta name="robots" content="noindex,follow" />}
+                {meta.noindex && (
+                    <meta name="robots" content="noindex,follow" />
+                )}
                 <meta property="og:type" content="website" />
                 <meta property="og:title" content={meta.title} />
                 <meta property="og:description" content={meta.description} />
@@ -48,6 +56,11 @@ export default function LocationShow({ city, vendors, meta }: Props) {
                 <meta name="twitter:card" content="summary" />
                 <meta name="twitter:title" content={meta.title} />
                 <meta name="twitter:description" content={meta.description} />
+                {structuredData && (
+                    <script type="application/ld+json">
+                        {JSON.stringify(structuredData)}
+                    </script>
+                )}
             </Head>
 
             <section className="border-b border-border bg-secondary/40 py-6">

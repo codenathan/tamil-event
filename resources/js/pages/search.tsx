@@ -2,9 +2,7 @@ import { Head } from '@inertiajs/react';
 import SearchBar from '@/components/app/SearchBar';
 import type { VendorCardData } from '@/components/app/VendorCard';
 import VendorCard from '@/components/app/VendorCard';
-import type {
-    PaginatedData,
-} from '@/components/app/VendorPagination';
+import type { PaginatedData } from '@/components/app/VendorPagination';
 import VendorPagination from '@/components/app/VendorPagination';
 
 interface PaginatedVendors extends PaginatedData {
@@ -36,21 +34,28 @@ interface Props {
     filters: Filters;
     category?: CategoryProps;
     meta: PageMeta;
+    structuredData?: Record<string, unknown>;
 }
 
 function buildInitialLocation(city: string, country: string): string {
     if (city && country) {
-return `${city}, ${country}`;
-}
+        return `${city}, ${country}`;
+    }
 
     if (country) {
-return country;
-}
+        return country;
+    }
 
     return '';
 }
 
-export default function Search({ vendors, filters, category, meta }: Props) {
+export default function Search({
+    vendors,
+    filters,
+    category,
+    meta,
+    structuredData,
+}: Props) {
     const initialLocation = buildInitialLocation(filters.city, filters.country);
 
     const heading = category
@@ -69,7 +74,9 @@ export default function Search({ vendors, filters, category, meta }: Props) {
                 <title>{meta.title}</title>
                 <meta name="description" content={meta.description} />
                 <link rel="canonical" href={meta.canonicalUrl} />
-                {meta.noindex && <meta name="robots" content="noindex,follow" />}
+                {meta.noindex && (
+                    <meta name="robots" content="noindex,follow" />
+                )}
                 <meta property="og:type" content="website" />
                 <meta property="og:title" content={meta.title} />
                 <meta property="og:description" content={meta.description} />
@@ -77,6 +84,11 @@ export default function Search({ vendors, filters, category, meta }: Props) {
                 <meta name="twitter:card" content="summary" />
                 <meta name="twitter:title" content={meta.title} />
                 <meta name="twitter:description" content={meta.description} />
+                {structuredData && (
+                    <script type="application/ld+json">
+                        {JSON.stringify(structuredData)}
+                    </script>
+                )}
             </Head>
 
             <section className="border-b border-border bg-secondary/40 py-6">

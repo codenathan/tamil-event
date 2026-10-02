@@ -7,12 +7,13 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\City;
 use App\Models\Vendor;
+use App\Services\ListingStructuredData;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class LocationCategoryController extends Controller
 {
-    public function show(City $city, Category $category): Response
+    public function show(City $city, Category $category, ListingStructuredData $structuredData): Response
     {
         $city->load('country');
 
@@ -43,6 +44,10 @@ class LocationCategoryController extends Controller
                     : route('location.category.show', [$city, $category]),
                 'noindex' => $vendors->total() === 0,
             ],
+            'structuredData' => $structuredData->build('Tamil '.$category->name.' in '.$city->name, $vendors, [
+                ['name' => $city->name, 'url' => route('location.show', $city)],
+                ['name' => $category->name, 'url' => route('location.category.show', [$city, $category])],
+            ]),
         ]);
     }
 }
