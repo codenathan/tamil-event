@@ -27,7 +27,7 @@ class LocationController extends Controller
             ],
             'vendors' => $vendors,
             'meta' => [
-                'title' => 'Tamil Vendors in '.$city->name.' - TamilEventPlanner',
+                'title' => 'Tamil Vendors in '.$city->name,
                 'description' => 'Find Tamil Vendors in '.$city->name,
                 'canonicalUrl' => $vendors->currentPage() > 1
                     ? route('location.show', [$city, 'page' => $vendors->currentPage()])
