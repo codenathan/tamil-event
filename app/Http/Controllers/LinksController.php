@@ -43,7 +43,7 @@ class LinksController extends Controller
             ->get();
 
         $meta = [
-            'title' => 'Tamil Wedding and Event Vendors Links',
+            'title' => 'Browse Tamil Wedding & Event Vendors by City and Category',
             'description' => 'Find Tamil Wedding and Event Vendors in your city, country, and category.',
             'canonicalUrl' => route('links'),
         ];
