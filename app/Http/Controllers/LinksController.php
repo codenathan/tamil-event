@@ -15,6 +15,7 @@ class LinksController extends Controller
     {
         $categories = Category::orderBy('name')->get();
         $cities = City::with('country')
+            ->whereHas('vendors', fn ($query) => $query->active())
             ->join('countries', 'cities.country_id', '=', 'countries.id')
             ->orderBy('countries.name')
             ->orderBy('cities.name')

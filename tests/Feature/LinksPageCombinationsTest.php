@@ -76,6 +76,54 @@ class LinksPageCombinationsTest extends TestCase
         );
     }
 
+    public function test_cities_only_include_those_with_active_vendors(): void
+    {
+        $photography = Category::factory()->create([
+            'name' => 'Photography',
+            'slug' => 'photography',
+        ]);
+        $country = Country::factory()->create([
+            'name' => 'Sri Lanka',
+            'slug' => 'sri-lanka',
+        ]);
+
+        $colombo = City::factory()->create([
+            'country_id' => $country->id,
+            'name' => 'Colombo',
+            'slug' => 'colombo',
+        ]);
+        $jaffna = City::factory()->create([
+            'country_id' => $country->id,
+            'name' => 'Jaffna',
+            'slug' => 'jaffna',
+        ]);
+        City::factory()->create([
+            'country_id' => $country->id,
+            'name' => 'Kandy',
+            'slug' => 'kandy',
+        ]);
+
+        Vendor::factory()->create([
+            'category_id' => $photography->id,
+            'city_id' => $colombo->id,
+            'country_id' => $country->id,
+            'is_active' => true,
+        ]);
+        Vendor::factory()->create([
+            'category_id' => $photography->id,
+            'city_id' => $jaffna->id,
+            'country_id' => $country->id,
+            'is_active' => false,
+        ]);
+
+        $response = $this->get(route('links'));
+
+        $response->assertInertia(fn ($page) => $page
+            ->has('cities', 1)
+            ->where('cities.0.slug', 'colombo')
+        );
+    }
+
     public function test_inactive_vendors_are_excluded_from_combinations(): void
     {
         $photography = Category::factory()->create([
