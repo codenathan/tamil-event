@@ -188,7 +188,7 @@ class SearchController extends Controller
                 ? 'Find Tamil event vendors for '.$label.'. Browse photographers, caterers, decorators, and more on TamilEventPlanner.'
                 : 'Find Tamil event vendors on TamilEventPlanner. Browse photographers, caterers, decorators, and more.';
         } else {
-            $heading = 'All Vendors';
+            $heading = 'Tamil Wedding and Event Vendors';
             $description = 'Search Tamil event vendors worldwide. Browse photographers, caterers, decorators, and more.';
         }
 
