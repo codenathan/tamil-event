@@ -35,7 +35,7 @@ export default function LocationShow({
     meta,
     structuredData,
 }: Props) {
-    const heading = `${city.name} Vendors`;
+    const heading = `Tamil Wedding and Event Vendors in ${city.name}`;
     const subtitle = city.country
         ? `Browse vendors in ${city.name}, ${city.country}.`
         : `Browse vendors in ${city.name}.`;

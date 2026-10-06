@@ -42,6 +42,15 @@ class LinksController extends Controller
             ->orderBy('categories.name')
             ->get();
 
-        return Inertia::render('links', compact('categories', 'cities', 'combinations'));
+        $meta = [
+            'title' => 'Tamil Wedding and Event Vendors Links',
+            'description' => 'Find Tamil Wedding and Event Vendors in your city, country, and category.',
+            'canonicalUrl' => route('links'),
+        ];
+
+        return Inertia::render(
+            'links',
+            compact('categories', 'cities', 'combinations','meta')
+        );
     }
 }

@@ -59,13 +59,13 @@ export default function Search({
     const initialLocation = buildInitialLocation(filters.city, filters.country);
 
     const heading = category
-        ? `${category.name} Vendors`
+        ? filters.city ? `Tamil ${category.name} in ${filters.city}` : `Tamil ${category.name}`
         : filters.q || filters.city || filters.country || filters.category
           ? `Results for "${[filters.q, filters.category, filters.city || filters.country].filter(Boolean).join(' in ')}"`
           : 'All Vendors';
 
     const subtitle = category
-        ? `Browse vendors in the ${category.name} category.`
+        ? `Browse Tamil vendors in the ${category.name} category.`
         : undefined;
 
     return (

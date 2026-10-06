@@ -1,4 +1,4 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import category from '@/routes/category';
 import location from '@/routes/location';
 import locationCategory from '@/routes/location/category';
@@ -37,70 +37,90 @@ interface Props {
     categories: Category[];
     cities: City[];
     combinations: Combination[];
+    meta:{
+        title: string;
+        description: string;
+        canonicalUrl: string;
+        noindex?: boolean;
+    }
     [key: string]: unknown;
 }
 
 export default function Links() {
-    const { categories, cities, combinations } = usePage<Props>().props;
+    const { categories, cities, combinations, meta } = usePage<Props>().props;
 
     return (
-        <div className="container space-y-12 py-12">
-            {/* Categories */}
-            <section>
-                <h2 className="mb-6 font-display text-2xl font-bold">
-                    Browse by Category
-                </h2>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                    {categories.map((cat) => (
-                        <Link
-                            key={cat.id}
-                            href={category.show({ category: cat.slug })}
-                            className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm font-medium transition-colors hover:bg-muted hover:text-foreground"
-                        >
-                            {cat.name}
-                        </Link>
-                    ))}
-                </div>
-            </section>
+        <>
+            <Head>
+                <title>{meta.title}</title>
+                <meta name="description" content={meta.description} />
+                <link rel="canonical" href={meta.canonicalUrl} />
+                <meta property="og:type" content="website" />
+                <meta property="og:title" content={meta.title} />
+                <meta property="og:description" content={meta.description} />
+                <meta property="og:url" content={meta.canonicalUrl} />
+                <meta name="twitter:card" content="summary" />
+                <meta name="twitter:title" content={meta.title} />
+                <meta name="twitter:description" content={meta.description} />
+            </Head>
+            <div className="container space-y-12 py-12">
+                {/* Categories */}
+                <section>
+                    <h2 className="mb-6 font-display text-2xl font-bold">
+                        Browse by Category
+                    </h2>
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                        {categories.map((cat) => (
+                            <Link
+                                key={cat.id}
+                                href={category.show({ category: cat.slug })}
+                                className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm font-medium transition-colors hover:bg-muted hover:text-foreground"
+                            >
+                                {cat.name}
+                            </Link>
+                        ))}
+                    </div>
+                </section>
 
-            {/* Cities / Locations */}
-            <section>
-                <h2 className="mb-6 font-display text-2xl font-bold">
-                    Browse by Location
-                </h2>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                    {cities.map((city) => (
-                        <Link
-                            key={city.id}
-                            href={location.show({ city: city.slug })}
-                            className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm font-medium transition-colors hover:bg-muted hover:text-foreground"
-                        >
-                            {city.country.name} - {city.name}
-                        </Link>
-                    ))}
-                </div>
-            </section>
+                {/* Cities / Locations */}
+                <section>
+                    <h2 className="mb-6 font-display text-2xl font-bold">
+                        Browse by Location
+                    </h2>
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                        {cities.map((city) => (
+                            <Link
+                                key={city.id}
+                                href={location.show({ city: city.slug })}
+                                className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm font-medium transition-colors hover:bg-muted hover:text-foreground"
+                            >
+                                {city.country.name} - {city.name}
+                            </Link>
+                        ))}
+                    </div>
+                </section>
 
-            {/* Location + Category combos */}
-            <section>
-                <h2 className="mb-6 font-display text-2xl font-bold">
-                    Browse by Location & Category
-                </h2>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                    {combinations.map((combo) => (
-                        <Link
-                            key={`${combo.city_id}-${combo.category_id}`}
-                            href={locationCategory.show({
-                                city: combo.city_slug,
-                                category: combo.category_slug,
-                            })}
-                            className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm font-medium transition-colors hover:bg-muted hover:text-foreground"
-                        >
-                            {combo.city_name} - {combo.category_name}
-                        </Link>
-                    ))}
-                </div>
-            </section>
-        </div>
+                {/* Location + Category combos */}
+                <section>
+                    <h2 className="mb-6 font-display text-2xl font-bold">
+                        Browse by Location & Category
+                    </h2>
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                        {combinations.map((combo) => (
+                            <Link
+                                key={`${combo.city_id}-${combo.category_id}`}
+                                href={locationCategory.show({
+                                    city: combo.city_slug,
+                                    category: combo.category_slug,
+                                })}
+                                className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm font-medium transition-colors hover:bg-muted hover:text-foreground"
+                            >
+                                {combo.city_name} - {combo.category_name}
+                            </Link>
+                        ))}
+                    </div>
+                </section>
+            </div>
+        </>
     );
 }

@@ -23,6 +23,7 @@ class CategoryController extends Controller
                 'q' => '',
                 'city' => '',
                 'country' => '',
+                'category' => $category->name,
             ],
             'category' => [
                 'id' => $category->id,

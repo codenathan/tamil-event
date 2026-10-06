@@ -31,6 +31,7 @@ class LocationCategoryController extends Controller
                 'q' => '',
                 'city' => $city->name,
                 'country' => $city->country?->name ?? '',
+                'category' => $category->name,
             ],
             'category' => [
                 'id' => $category->id,
