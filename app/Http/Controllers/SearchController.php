@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\SearchLog;
 use App\Models\Vendor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Throwable;
@@ -241,6 +242,9 @@ class SearchController extends Controller
 
         $defaultDescription = trim((string) ($vendor->description ?? ''));
 
+        $locationCategoryUrl = route('location.category.show', [$vendor->city, $vendor->category]);
+        $locationCategoryTitle = 'See More '.Str::plural($categoryName).' in '.$vendor->city->name;
+
         return Inertia::render('vendors/show', [
             'vendor' => $vendor,
             'meta' => [
@@ -252,6 +256,8 @@ class SearchController extends Controller
             'ogImageHeight' => $ogImageHeight,
             'ogImageType' => $ogImageType,
             'canonicalUrl' => route('vendors.show', $vendor),
+            'locationCategoryUrl' => $locationCategoryUrl,
+            'locationCategoryTitle' => $locationCategoryTitle,
         ]);
     }
 }

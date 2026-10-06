@@ -37,6 +37,8 @@ interface Props {
     ogImageHeight: string | null;
     ogImageType: string | null;
     canonicalUrl: string;
+    locationCategoryUrl: string;
+    locationCategoryTitle: string;
 }
 
 function descriptionParagraphs(text: string): string[] {
@@ -54,6 +56,8 @@ export default function VendorShow({
     ogImageHeight,
     ogImageType,
     canonicalUrl,
+    locationCategoryUrl,
+    locationCategoryTitle,
 }: Props) {
     const [showEnquiry, setShowEnquiry] = useState(false);
     const { turnstileSiteKey } = usePage().props;
@@ -158,10 +162,10 @@ export default function VendorShow({
 
             <div className="container py-8">
                 <Link
-                    href="/search"
+                    href={locationCategoryUrl}
                     className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
                 >
-                    <ArrowLeft size={16} /> Back
+                    <ArrowLeft size={16} /> {locationCategoryTitle}
                 </Link>
 
                 <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
