@@ -7,6 +7,7 @@ namespace App\Http\Requests\Admin;
 use App\Models\City;
 use App\Models\Vendor;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -42,9 +43,9 @@ class SaveVendorRequest extends FormRequest
             'phone' => ['nullable', 'string', 'max:50'],
             'services' => ['nullable', 'array', 'max:20'],
             'services.*' => ['string', 'max:80'],
-            'featured_image' => ['nullable', 'image', 'max:2048'],
-            'new_images' => ['nullable', 'array'],
-            'new_images.*' => ['image', 'max:2048'],
+            'featured_image' => ['nullable', 'image', 'max:'.Vendor::MAX_IMAGE_KILOBYTES],
+            'new_images' => ['nullable', 'array', 'max:'.Vendor::MAX_GALLERY_IMAGES],
+            'new_images.*' => ['image', 'max:'.Vendor::MAX_IMAGE_KILOBYTES],
         ];
 
         if ($vendor instanceof Vendor) {
@@ -62,6 +63,29 @@ class SaveVendorRequest extends FormRequest
         }
 
         return $rules;
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            $newImages = $this->file('new_images', []);
+            $newImageCount = is_array($newImages) ? count($newImages) : 1;
+
+            if ($newImageCount === 0 || $validator->errors()->has('new_images')) {
+                return;
+            }
+
+            $vendor = $this->route('vendor');
+            $existingImageCount = $vendor instanceof Vendor
+                ? $vendor->galleryCountExcluding((array) $this->input('delete_gallery_ids', []))
+                : 0;
+
+            if ($existingImageCount + $newImageCount > Vendor::MAX_GALLERY_IMAGES) {
+                $validator->errors()->add('new_images', __('A listing can have a maximum of :max gallery images.', [
+                    'max' => Vendor::MAX_GALLERY_IMAGES,
+                ]));
+            }
+        });
     }
 
     protected function prepareForValidation(): void

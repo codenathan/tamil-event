@@ -3,6 +3,12 @@ import { useEffect, useId, useState } from 'react';
 import InputError from '@/components/input-error';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import {
+    ACCEPTED_IMAGE_TYPES,
+    MAX_GALLERY_IMAGES,
+    acceptableGalleryImages,
+    isValidFeaturedImage,
+} from '@/lib/image-upload';
 import { cn } from '@/lib/utils';
 import type { Vendor } from '@/types';
 
@@ -55,12 +61,20 @@ export function DashboardListingFeaturedImage({
 
             <input
                 type="file"
-                accept="image/*"
+                accept={ACCEPTED_IMAGE_TYPES}
                 className="hidden"
                 id="dashboard-featured-image"
                 onChange={(e) => {
                     const file = e.target.files?.[0] ?? null;
+
+                    if (file && !isValidFeaturedImage(file)) {
+                        e.target.value = '';
+
+                        return;
+                    }
+
                     setFeaturedFile(file);
+
                     if (file) {
                         setRemoveFeatured(false);
                     }
@@ -74,16 +88,22 @@ export function DashboardListingFeaturedImage({
                     size="sm"
                     className="h-8 gap-1 px-2 text-xs"
                     onClick={() =>
-                        document.getElementById('dashboard-featured-image')?.click()
+                        document
+                            .getElementById('dashboard-featured-image')
+                            ?.click()
                     }
                 >
                     <Upload className="size-3.5 shrink-0" />
-                    {vendor.featured_image_url && !removeFeatured && !featuredFile
+                    {vendor.featured_image_url &&
+                    !removeFeatured &&
+                    !featuredFile
                         ? 'Replace'
                         : 'Upload'}
                 </Button>
 
-                {vendor.featured_image_url && !featuredFile && !removeFeatured ? (
+                {vendor.featured_image_url &&
+                !featuredFile &&
+                !removeFeatured ? (
                     <Button
                         type="button"
                         variant="outline"
@@ -105,6 +125,7 @@ export function DashboardListingFeaturedImage({
                             const el = document.getElementById(
                                 'dashboard-featured-image',
                             ) as HTMLInputElement | null;
+
                             if (el) {
                                 el.value = '';
                             }
@@ -147,8 +168,8 @@ export function DashboardListingGallery({
     const [newGalleryFiles, setNewGalleryFiles] = useState<File[]>([]);
     const inputId = useId();
     const galleryInputDomId = `${galleryInputId}-${inputId}`;
-    const imageCount =
-        visibleGalleryImages.length + newGalleryFiles.length;
+    const imageCount = visibleGalleryImages.length + newGalleryFiles.length;
+    const isGalleryFull = imageCount >= MAX_GALLERY_IMAGES;
 
     useEffect(() => {
         onNewGalleryFilesChange(newGalleryFiles);
@@ -164,14 +185,16 @@ export function DashboardListingGallery({
                 <p className="text-sm font-semibold">
                     Gallery
                     <span className="ml-1 font-normal text-muted-foreground">
-                        ({imageCount})
+                        ({imageCount}/{MAX_GALLERY_IMAGES})
                     </span>
                 </p>
                 <label
                     htmlFor={galleryInputDomId}
+                    aria-disabled={isGalleryFull}
                     className={cn(
                         buttonVariants({ variant: 'outline', size: 'sm' }),
                         'h-7 cursor-pointer gap-1 px-2 text-xs',
+                        isGalleryFull && 'pointer-events-none opacity-50',
                     )}
                 >
                     <Plus className="size-3" />
@@ -182,15 +205,22 @@ export function DashboardListingGallery({
             <input
                 id={galleryInputDomId}
                 type="file"
-                accept="image/*"
+                accept={ACCEPTED_IMAGE_TYPES}
                 multiple
+                disabled={isGalleryFull}
                 className="sr-only"
                 onChange={(e) => {
                     const files = e.target.files;
+
                     if (!files?.length) {
                         return;
                     }
-                    setNewGalleryFiles((prev) => [...prev, ...Array.from(files)]);
+
+                    const accepted = acceptableGalleryImages(
+                        Array.from(files),
+                        imageCount,
+                    );
+                    setNewGalleryFiles((prev) => [...prev, ...accepted]);
                     e.target.value = '';
                 }}
             />
@@ -244,6 +274,7 @@ export function DashboardListingGallery({
                                     setNewGalleryFiles((prev) => {
                                         const next = [...prev];
                                         next.splice(i, 1);
+
                                         return next;
                                     });
                                 }}

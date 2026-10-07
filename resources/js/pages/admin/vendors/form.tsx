@@ -25,12 +25,16 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import AdminLayout from '@/layouts/admin-layout';
+import {
+    ACCEPTED_IMAGE_TYPES,
+    MAX_GALLERY_IMAGES,
+    acceptableGalleryImages,
+    isValidFeaturedImage,
+} from '@/lib/image-upload';
 import { index } from '@/routes/admin/vendors';
 import type { Vendor, Category, City } from '@/types';
 
-AdminVendorForm.layout = (page: ReactNode) => (
-    <AdminLayout>{page}</AdminLayout>
-);
+AdminVendorForm.layout = (page: ReactNode) => <AdminLayout>{page}</AdminLayout>;
 
 export default function AdminVendorForm({
     vendor,
@@ -100,6 +104,8 @@ export default function AdminVendorForm({
     const visibleGalleryImages =
         vendor?.images?.filter((img) => !removedGalleryIds.includes(img.id)) ??
         [];
+    const galleryImageCount =
+        visibleGalleryImages.length + newGalleryFiles.length;
 
     const onServiceKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter' || e.key === ',') {
@@ -134,7 +140,9 @@ export default function AdminVendorForm({
                     }}
                     transform={(data) => ({
                         ...data,
-                        ...(featuredFile ? { featured_image: featuredFile } : {}),
+                        ...(featuredFile
+                            ? { featured_image: featuredFile }
+                            : {}),
                         ...(newGalleryFiles.length
                             ? { new_images: newGalleryFiles }
                             : {}),
@@ -294,7 +302,9 @@ export default function AdminVendorForm({
                                             Optional. Leave blank to use the
                                             auto-generated vendor page title.
                                         </p>
-                                        <InputError message={errors.seo_title} />
+                                        <InputError
+                                            message={errors.seo_title}
+                                        />
                                     </div>
 
                                     <div className="space-y-1.5">
@@ -364,10 +374,10 @@ export default function AdminVendorForm({
                                                 onKeyDown={onServiceKeyDown}
                                                 onBlur={() => {
                                                     if (serviceInput.trim()) {
-addServiceTag(
+                                                        addServiceTag(
                                                             serviceInput,
                                                         );
-}
+                                                    }
                                                 }}
                                                 placeholder={
                                                     services.length >= 20
@@ -478,9 +488,7 @@ addServiceTag(
                                                 placeholder="Page name or profile URL"
                                             />
                                             <InputError
-                                                message={
-                                                    errors.social_facebook
-                                                }
+                                                message={errors.social_facebook}
                                             />
                                         </div>
                                     </div>
@@ -524,11 +532,21 @@ addServiceTag(
 
                                     <input
                                         type="file"
-                                        accept="image/*"
+                                        accept={ACCEPTED_IMAGE_TYPES}
                                         className="hidden"
                                         id="featured-image"
                                         onChange={(e) => {
-                                            const file = e.target.files?.[0] ?? null;
+                                            const file =
+                                                e.target.files?.[0] ?? null;
+
+                                            if (
+                                                file &&
+                                                !isValidFeaturedImage(file)
+                                            ) {
+                                                e.target.value = '';
+
+                                                return;
+                                            }
 
                                             setFeaturedFile(file);
 
@@ -592,9 +610,7 @@ addServiceTag(
                                                         const el =
                                                             document.getElementById(
                                                                 'featured-image',
-                                                            ) as
-                                                                | HTMLInputElement
-                                                                | null;
+                                                            ) as HTMLInputElement | null;
 
                                                         if (el) {
                                                             el.value = '';
@@ -619,17 +635,15 @@ addServiceTag(
                             <Card className="lg:col-span-3">
                                 <CardHeader className="flex flex-row items-center justify-between">
                                     <CardTitle className="text-base">
-                                        Gallery (
-                                        {visibleGalleryImages.length +
-                                            newGalleryFiles.length}{' '}
-                                        images)
+                                        Gallery ({galleryImageCount}/
+                                        {MAX_GALLERY_IMAGES} images)
                                     </CardTitle>
 
                                     <div>
                                         <input
                                             ref={galleryInputRef}
                                             type="file"
-                                            accept="image/*"
+                                            accept={ACCEPTED_IMAGE_TYPES}
                                             multiple
                                             className="hidden"
                                             onChange={(e) => {
@@ -639,9 +653,15 @@ addServiceTag(
                                                     return;
                                                 }
 
+                                                const accepted =
+                                                    acceptableGalleryImages(
+                                                        Array.from(files),
+                                                        galleryImageCount,
+                                                    );
+
                                                 setNewGalleryFiles((prev) => [
                                                     ...prev,
-                                                    ...Array.from(files),
+                                                    ...accepted,
                                                 ]);
 
                                                 if (galleryInputRef.current) {
@@ -656,6 +676,10 @@ addServiceTag(
                                             size="sm"
                                             className="gap-1.5"
                                             type="button"
+                                            disabled={
+                                                galleryImageCount >=
+                                                MAX_GALLERY_IMAGES
+                                            }
                                             onClick={() =>
                                                 galleryInputRef.current?.click()
                                             }
@@ -752,9 +776,7 @@ addServiceTag(
                                 <Button
                                     type="button"
                                     variant="outline"
-                                    onClick={() =>
-                                        router.visit(index.url())
-                                    }
+                                    onClick={() => router.visit(index.url())}
                                 >
                                     Cancel
                                 </Button>
@@ -764,9 +786,7 @@ addServiceTag(
                                     className="gap-1.5"
                                 >
                                     <Save className="h-4 w-4" />
-                                    {isEdit
-                                        ? 'Save Changes'
-                                        : 'Create Vendor'}
+                                    {isEdit ? 'Save Changes' : 'Create Vendor'}
                                 </Button>
                             </div>
                         </>

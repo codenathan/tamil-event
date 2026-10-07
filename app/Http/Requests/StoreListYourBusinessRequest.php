@@ -6,6 +6,7 @@ namespace App\Http\Requests;
 
 use App\Models\City;
 use App\Models\Country;
+use App\Models\Vendor;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -37,9 +38,9 @@ class StoreListYourBusinessRequest extends FormRequest
             'facebook' => ['nullable', 'string', 'max:100'],
             'services' => ['nullable', 'array', 'max:20'],
             'services.*' => ['string', 'max:80'],
-            'featuredImage' => ['nullable', 'image', 'max:5120'],
-            'images' => ['nullable', 'array', 'max:6'],
-            'images.*' => ['image', 'max:5120'],
+            'featuredImage' => ['nullable', 'image', 'max:'.Vendor::MAX_IMAGE_KILOBYTES],
+            'images' => ['nullable', 'array', 'max:'.Vendor::MAX_GALLERY_IMAGES],
+            'images.*' => ['image', 'max:'.Vendor::MAX_IMAGE_KILOBYTES],
             'agreeTerms' => ['accepted'],
         ];
     }

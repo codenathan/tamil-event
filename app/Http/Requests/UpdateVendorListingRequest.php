@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use App\Models\Vendor;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -34,9 +36,9 @@ class UpdateVendorListingRequest extends FormRequest
             'website' => ['nullable', 'string', 'max:255'],
             'social_instagram' => ['nullable', 'string', 'max:255'],
             'social_facebook' => ['nullable', 'string', 'max:255'],
-            'featured_image' => ['nullable', 'image', 'max:2048'],
-            'new_images' => ['nullable', 'array'],
-            'new_images.*' => ['image', 'max:2048'],
+            'featured_image' => ['nullable', 'image', 'max:'.Vendor::MAX_IMAGE_KILOBYTES],
+            'new_images' => ['nullable', 'array', 'max:'.Vendor::MAX_GALLERY_IMAGES],
+            'new_images.*' => ['image', 'max:'.Vendor::MAX_IMAGE_KILOBYTES],
             'delete_featured' => ['sometimes', 'boolean'],
             'delete_gallery_ids' => ['nullable', 'array'],
             'delete_gallery_ids.*' => [
@@ -49,6 +51,29 @@ class UpdateVendorListingRequest extends FormRequest
                 ),
             ],
         ];
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            $newImages = $this->file('new_images', []);
+            $newImageCount = is_array($newImages) ? count($newImages) : 1;
+
+            if ($newImageCount === 0 || $validator->errors()->has('new_images')) {
+                return;
+            }
+
+            $vendor = $this->user()->vendor;
+            $existingImageCount = $vendor instanceof Vendor
+                ? $vendor->galleryCountExcluding((array) $this->input('delete_gallery_ids', []))
+                : 0;
+
+            if ($existingImageCount + $newImageCount > Vendor::MAX_GALLERY_IMAGES) {
+                $validator->errors()->add('new_images', __('A listing can have a maximum of :max gallery images.', [
+                    'max' => Vendor::MAX_GALLERY_IMAGES,
+                ]));
+            }
+        });
     }
 
     protected function prepareForValidation(): void

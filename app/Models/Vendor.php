@@ -74,6 +74,10 @@ final class Vendor extends Model implements HasMedia
     /** @use HasFactory<VendorFactory> */
     use HasFactory, HasSlug, InteractsWithMedia;
 
+    public const int MAX_GALLERY_IMAGES = 6;
+
+    public const int MAX_IMAGE_KILOBYTES = 5120;
+
     /**
      * @var list<string>
      */
@@ -100,6 +104,20 @@ final class Vendor extends Model implements HasMedia
     {
         $this->addMediaCollection('featured')->singleFile();
         $this->addMediaCollection('gallery');
+    }
+
+    /**
+     * Count gallery images that will remain once the given media IDs are removed.
+     *
+     * @param  array<int, int|string>  $deletingMediaIds
+     */
+    public function galleryCountExcluding(array $deletingMediaIds): int
+    {
+        $deletingMediaIds = array_map('intval', $deletingMediaIds);
+
+        return $this->getMedia('gallery')
+            ->reject(fn (Media $media): bool => in_array($media->id, $deletingMediaIds, true))
+            ->count();
     }
 
     /**
