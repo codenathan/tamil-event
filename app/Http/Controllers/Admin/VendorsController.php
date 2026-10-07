@@ -45,8 +45,13 @@ class VendorsController extends Controller
     {
         return Inertia::render('admin/vendors/form', [
             'vendor' => null,
-            'categories' => Category::select('id', 'name')->get(),
-            'cities' => City::with('country:id,name')->select('id', 'name', 'country_id')->get(),
+            'categories' => Category::select('id', 'name')->orderBy('name')->get(),
+            'cities' => City::with('country:id,name')
+                ->select('cities.id', 'cities.name', 'cities.country_id')
+                ->join('countries', 'countries.id', '=', 'cities.country_id')
+                ->orderBy('countries.name')
+                ->orderBy('cities.name')
+                ->get(),
         ]);
     }
 

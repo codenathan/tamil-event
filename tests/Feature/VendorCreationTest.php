@@ -16,6 +16,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Facades\Notification;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class VendorCreationTest extends TestCase
@@ -211,5 +212,35 @@ class VendorCreationTest extends TestCase
         $linkedUser = User::query()->where('email', 'catering@example.com')->first();
         $this->assertNotNull($linkedUser);
         $this->assertTrue($linkedUser->hasRole('vendor'));
+    }
+
+    public function test_admin_vendor_create_page_orders_cities_by_country_then_city_name(): void
+    {
+        $this->seed(RolesAndPermissionsSeeder::class);
+
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+
+        $sriLanka = Country::factory()->create(['name' => 'Sri Lanka', 'slug' => 'sri-lanka']);
+        $canada = Country::factory()->create(['name' => 'Canada', 'slug' => 'canada']);
+
+        City::factory()->create(['country_id' => $sriLanka->id, 'name' => 'Jaffna', 'slug' => 'jaffna']);
+        City::factory()->create(['country_id' => $canada->id, 'name' => 'Toronto', 'slug' => 'toronto']);
+        City::factory()->create(['country_id' => $sriLanka->id, 'name' => 'Colombo', 'slug' => 'colombo']);
+        City::factory()->create(['country_id' => $canada->id, 'name' => 'Montreal', 'slug' => 'montreal']);
+
+        $this->actingAs($admin)
+            ->get(route('admin.vendors.create'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('admin/vendors/form')
+                ->has('cities', 4)
+                ->where('cities.0.name', 'Montreal')
+                ->where('cities.0.country.name', 'Canada')
+                ->where('cities.1.name', 'Toronto')
+                ->where('cities.2.name', 'Colombo')
+                ->where('cities.2.country.name', 'Sri Lanka')
+                ->where('cities.3.name', 'Jaffna')
+            );
     }
 }
