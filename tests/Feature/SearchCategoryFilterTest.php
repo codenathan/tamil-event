@@ -52,14 +52,15 @@ class SearchCategoryFilterTest extends TestCase
             'is_active' => true,
         ]);
 
-        $response = $this->get('/search?category=Photography');
+        $this->get('/search?category=Photography')
+            ->assertRedirect(route('category.show', 'photography'));
 
-        $response->assertOk();
-        $response->assertInertia(fn ($page) => $page
-            ->has('vendors.data', 1)
-            ->where('vendors.data.0.name', 'Photo Pro')
-            ->where('filters.category', 'Photography')
-        );
+        $this->get(route('category.show', 'photography'))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->has('vendors.data', 1)
+                ->where('vendors.data.0.name', 'Photo Pro')
+            );
     }
 
     public function test_search_with_category_and_location(): void
@@ -100,12 +101,42 @@ class SearchCategoryFilterTest extends TestCase
             'is_active' => true,
         ]);
 
-        $response = $this->get('/search?category=Photography&city=Colombo&country=Sri+Lanka');
+        $this->get('/search?category=Photography&city=Colombo&country=Sri+Lanka')
+            ->assertRedirect(route('location.category.show', ['colombo', 'photography']));
 
-        $response->assertOk();
-        $response->assertInertia(fn ($page) => $page
-            ->has('vendors.data', 1)
-            ->where('vendors.data.0.name', 'Colombo Photo')
-        );
+        $this->get(route('location.category.show', ['colombo', 'photography']))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->has('vendors.data', 1)
+                ->where('vendors.data.0.name', 'Colombo Photo')
+            );
+    }
+
+    public function test_search_redirects_multi_word_names_to_slugged_pages(): void
+    {
+        $category = Category::factory()->create(['name' => 'Wedding Decor']);
+        $country = Country::factory()->create(['name' => 'United Kingdom']);
+        $city = City::factory()->create([
+            'country_id' => $country->id,
+            'name' => 'Milton Keynes',
+        ]);
+
+        $this->assertSame('wedding-decor', $category->slug);
+        $this->assertSame('milton-keynes', $city->slug);
+
+        $this->get('/search?category=Wedding+Decor')
+            ->assertRedirect(route('category.show', $category));
+
+        $this->get('/search?city=Milton+Keynes')
+            ->assertRedirect(route('location.show', $city));
+
+        $this->get('/search?category=Wedding+Decor&city=Milton+Keynes&country=United+Kingdom')
+            ->assertRedirect(route('location.category.show', [$city, $category]));
+
+        $this->followingRedirects()->get('/search?category=Wedding+Decor')->assertOk();
+        $this->followingRedirects()->get('/search?city=Milton+Keynes')->assertOk();
+        $this->followingRedirects()
+            ->get('/search?category=Wedding+Decor&city=Milton+Keynes&country=United+Kingdom')
+            ->assertOk();
     }
 }

@@ -61,7 +61,7 @@ class ListingPagesSeoTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('locations/show')
-                ->where('meta.title', 'Tamil Vendors in Harrow')
+                ->where('meta.title', 'Tamil Wedding and Event Vendors in Harrow')
                 ->where('meta.description', 'Find Tamil wedding and event vendors in Harrow, United Kingdom. Compare profiles and contact vendors directly on TamilEventPlanner.')
                 ->where('meta.canonicalUrl', route('location.show', $city))
             );
@@ -393,7 +393,7 @@ class ListingPagesSeoTest extends TestCase
 
     public function test_search_results_with_location_or_category_filters_are_noindexed(): void
     {
-        $this->get(route('search', ['category' => 'Photography', 'city' => 'London']))
+        $this->get(route('search', ['category' => 'Photography', 'country' => 'United Kingdom']))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('search')

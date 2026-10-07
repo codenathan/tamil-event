@@ -28,16 +28,16 @@ class SearchController extends Controller
                 return redirect()
                     ->route(
                         'location.category.show',
-                        [Str::lower($city), Str::lower($category)]
+                        [Str::slug($city), Str::slug($category)]
                     );
             }
 
             if ($city === '' && $country === '' && $category !== '') {
-                return redirect()->route('category.show', Str::lower($category));
+                return redirect()->route('category.show', Str::slug($category));
             }
 
             if ($city !== '' && $category === '') {
-                return redirect()->route('location.show', Str::lower($city));
+                return redirect()->route('location.show', Str::slug($city));
             }
         }
 

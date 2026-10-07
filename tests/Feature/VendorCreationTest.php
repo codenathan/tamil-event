@@ -102,10 +102,10 @@ class VendorCreationTest extends TestCase
             'country',
             'city',
             'description',
-            'phone',
             'email',
             'agreeTerms',
         ]);
+        $response->assertSessionDoesntHaveErrors('phone');
     }
 
     public function test_guest_can_submit_list_your_business_with_featured_and_gallery_images(): void

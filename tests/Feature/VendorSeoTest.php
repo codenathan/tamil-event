@@ -88,7 +88,7 @@ class VendorSeoTest extends TestCase
             ->assertOk()
             ->assertInertia(fn ($page) => $page
                 ->component('vendors/show')
-                ->where('meta.title', 'Aarya Weddings & Events - Tamil - Weddings Decor in Harrow, United Kingdom')
+                ->where('meta.title', 'Aarya Weddings & Events - Tamil Weddings Decor in Harrow, United Kingdom')
                 ->where('meta.description', 'Weddings, Mehndi, Reception Décor.')
             );
     }
