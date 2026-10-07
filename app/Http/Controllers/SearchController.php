@@ -23,6 +23,24 @@ class SearchController extends Controller
         $country = $request->string('country')->trim()->value();
         $category = $request->string('category')->trim()->value();
 
+        if ($query === '') {
+            if ($city !== '' && $category !== '') {
+                return redirect()
+                    ->route(
+                        'location.category.show',
+                        [Str::lower($city), Str::lower($category)]
+                    );
+            }
+
+            if ($city === '' && $country === '' && $category !== '') {
+                return redirect()->route('category.show', Str::lower($category));
+            }
+
+            if ($city !== '' && $category === '') {
+                return redirect()->route('location.show', Str::lower($city));
+            }
+        }
+
         $vendors = Vendor::active()
             ->with(['category', 'city', 'country', 'media'])
             ->when($query, function ($q) use ($query) {
