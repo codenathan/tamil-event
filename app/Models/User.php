@@ -29,6 +29,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string $email
  * @property Carbon|null $email_verified_at
  * @property string $password
+ * @property Carbon|null $password_set_at
  * @property string|null $remember_token
  * @property Carbon|null $disabled_at
  * @property Carbon|null $created_at
@@ -79,6 +80,7 @@ final class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'password_set_at' => 'datetime',
             'disabled_at' => 'datetime',
             'two_factor_confirmed_at' => 'datetime',
         ];

@@ -7,7 +7,6 @@ namespace App\Listeners;
 use App\Events\VendorApproved;
 use App\Models\User;
 use App\Notifications\VendorWelcomeNotification;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 
 class CreateVendorUser
@@ -40,8 +39,6 @@ class CreateVendorUser
         $vendor->user_id = $user->id;
         $vendor->save();
 
-        $token = Password::createToken($user);
-
-        $user->notify(new VendorWelcomeNotification($token));
+        $user->notify(new VendorWelcomeNotification);
     }
 }

@@ -79,7 +79,7 @@ class VendorMailNotificationsTest extends TestCase
 
         $user = User::factory()->create(['email' => 'vendor@example.com']);
 
-        $mail = (new VendorWelcomeNotification('test-token'))->toMail($user);
+        $mail = (new VendorWelcomeNotification)->toMail($user);
 
         $this->assertSame(
             config('mail.admin.address'),

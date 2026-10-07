@@ -27,6 +27,7 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\StopImpersonationController;
 use App\Http\Controllers\UpdateVendorListingController;
+use App\Http\Controllers\VendorInvitationController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('sitemap.xml', SitemapController::class)->name('sitemap');
@@ -42,6 +43,11 @@ Route::post('contact', [ContactController::class, 'store'])->name('contact.store
 
 Route::get('list-your-business', [ListYourBusinessController::class, 'index'])->name('list-your-business');
 Route::post('list-your-business', [ListYourBusinessController::class, 'store'])->name('list-your-business.store');
+
+Route::get('vendor-invitation/{user}', [VendorInvitationController::class, 'show'])->name('vendor-invitation.show');
+Route::post('vendor-invitation/{user}', [VendorInvitationController::class, 'store'])
+    ->middleware('throttle:6,1')
+    ->name('vendor-invitation.store');
 
 Route::get('search', [SearchController::class, 'index'])->name('search');
 Route::get('blogs', [PublicBlogController::class, 'index'])->name('blogs.index');
