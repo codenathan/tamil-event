@@ -11,6 +11,8 @@ use App\Models\User;
 use App\Models\Vendor;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class VendorSeoTest extends TestCase
@@ -119,5 +121,48 @@ class VendorSeoTest extends TestCase
                 ->where('meta.title', 'Studio Shots | London Photographer')
                 ->where('meta.description', 'Book Studio Shots for Tamil weddings in London.')
             );
+    }
+
+    public function test_vendor_show_page_provides_absolute_featured_image_url(): void
+    {
+        Storage::fake('public');
+
+        $vendor = $this->createActiveVendor();
+        $vendor->addMedia(UploadedFile::fake()->image('featured.jpg', 800, 600))
+            ->toMediaCollection('featured');
+
+        $this->get(route('vendors.show', $vendor))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('vendors/show')
+                ->where('ogImageUrl', fn (string $url) => str_starts_with($url, 'http://') || str_starts_with($url, 'https://'))
+            );
+    }
+
+    public function test_vendor_show_page_has_no_image_url_without_featured_image(): void
+    {
+        $vendor = $this->createActiveVendor();
+
+        $this->get(route('vendors.show', $vendor))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('vendors/show')
+                ->where('ogImageUrl', null)
+            );
+    }
+
+    private function createActiveVendor(): Vendor
+    {
+        $country = Country::factory()->create(['name' => 'United Kingdom']);
+
+        return Vendor::factory()->create([
+            'category_id' => Category::factory()->create(['name' => 'Catering'])->id,
+            'city_id' => City::factory()->create([
+                'country_id' => $country->id,
+                'name' => 'London',
+            ])->id,
+            'country_id' => $country->id,
+            'is_active' => true,
+        ]);
     }
 }

@@ -85,7 +85,7 @@ export default function VendorShow({
         '@type': 'LocalBusiness',
         name: vendor.name,
         description: vendor.description ?? undefined,
-        image: vendor.featured_image_url ?? undefined,
+        image: ogImageUrl ?? undefined,
         telephone: vendor.phone ?? undefined,
         email: vendor.email ?? undefined,
         url: vendor.website ?? undefined,
