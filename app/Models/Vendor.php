@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -39,6 +40,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $is_active
  * @property VendorStatusEnum $status
  * @property-read string|null $featured_image_url
+ * @property-read string|null $featured_thumbnail_url
  * @property-read array<int, array{id: int, url: string}> $images
  * @property-read Collection<int, Media> $media
  *
@@ -90,6 +92,7 @@ final class Vendor extends Model implements HasMedia
      */
     protected $appends = [
         'featured_image_url',
+        'featured_thumbnail_url',
         'images',
     ];
 
@@ -104,6 +107,26 @@ final class Vendor extends Model implements HasMedia
     {
         $this->addMediaCollection('featured')->singleFile();
         $this->addMediaCollection('gallery');
+    }
+
+    /**
+     * Generate resized WebP copies of every upload; originals are kept untouched.
+     */
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('large')
+            ->fit(Fit::Max, 1600, 1600)
+            ->format('webp')
+            ->quality(80)
+            ->performOnCollections('featured', 'gallery')
+            ->nonQueued();
+
+        $this->addMediaConversion('thumb')
+            ->fit(Fit::Max, 800, 800)
+            ->format('webp')
+            ->quality(80)
+            ->performOnCollections('featured', 'gallery')
+            ->nonQueued();
     }
 
     /**
@@ -140,7 +163,18 @@ final class Vendor extends Model implements HasMedia
             return null;
         }
 
-        return $this->resolveMediaUrlForFrontend($media);
+        return $this->resolveMediaUrlForFrontend($media, 'large');
+    }
+
+    public function getFeaturedThumbnailUrlAttribute(): ?string
+    {
+        $media = $this->getFirstMedia('featured');
+
+        if ($media === null) {
+            return null;
+        }
+
+        return $this->resolveMediaUrlForFrontend($media, 'thumb');
     }
 
     /**
@@ -151,15 +185,20 @@ final class Vendor extends Model implements HasMedia
         return $this->getMedia('gallery')
             ->map(fn (Media $media): array => [
                 'id' => $media->id,
-                'url' => $this->resolveMediaUrlForFrontend($media),
+                'url' => $this->resolveMediaUrlForFrontend($media, 'thumb'),
             ])
             ->values()
             ->all();
     }
 
-    private function resolveMediaUrlForFrontend(Media $media): string
+    /**
+     * Prefer the WebP conversion, falling back to the original until it has been generated.
+     */
+    private function resolveMediaUrlForFrontend(Media $media, string $conversionName): string
     {
-        $url = $media->getUrl();
+        $url = $media->hasGeneratedConversion($conversionName)
+            ? $media->getUrl($conversionName)
+            : $media->getUrl();
 
         if ($media->disk !== 'public') {
             return $url;

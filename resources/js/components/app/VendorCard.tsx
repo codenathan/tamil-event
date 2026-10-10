@@ -7,6 +7,7 @@ export interface VendorCardData {
     slug: string;
     description: string | null;
     featured_image_url: string | null;
+    featured_thumbnail_url?: string | null;
     website: string | null;
     social_instagram: string | null;
     social_facebook: string | null;
@@ -21,9 +22,13 @@ export default function VendorCard({ vendor }: { vendor: VendorCardData }) {
             <div className="relative h-48 bg-secondary">
                 {vendor.featured_image_url ? (
                     <img
-                        src={vendor.featured_image_url}
+                        src={
+                            vendor.featured_thumbnail_url ??
+                            vendor.featured_image_url
+                        }
                         alt={vendor.name}
                         className="h-full w-full object-cover"
+                        loading="lazy"
                     />
                 ) : (
                     <div className="flex h-full items-center justify-center text-muted-foreground/30 text-5xl font-display font-bold select-none">

@@ -196,7 +196,7 @@ export default function VendorShow({
                                 }}
                             >
                                 <CarouselContent className="-ml-3">
-                                    {galleryImages.map((image, index) => (
+                                    {galleryImages.map((image) => (
                                         <CarouselItem
                                             key={image.id}
                                             className="basis-1/3 pl-3"
@@ -206,11 +206,7 @@ export default function VendorShow({
                                                     src={image.url}
                                                     alt={`${vendor.name} gallery`}
                                                     className="h-full w-full object-cover"
-                                                    loading={
-                                                        index < 3
-                                                            ? 'eager'
-                                                            : 'lazy'
-                                                    }
+                                                    loading="lazy"
                                                 />
                                             </div>
                                         </CarouselItem>
