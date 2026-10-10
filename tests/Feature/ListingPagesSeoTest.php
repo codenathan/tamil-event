@@ -33,6 +33,7 @@ class ListingPagesSeoTest extends TestCase
     public function test_category_page_canonical_url_points_at_current_paginated_page(): void
     {
         $category = Category::factory()->create(['name' => 'Photographers', 'slug' => 'photographers']);
+        $this->vendors($this->harrow(), $category, 13);
 
         $this->get(route('category.show', [$category, 'page' => 2, 'utm_source' => 'newsletter']))
             ->assertOk()
@@ -70,6 +71,7 @@ class ListingPagesSeoTest extends TestCase
     public function test_location_page_canonical_url_points_at_current_paginated_page(): void
     {
         $city = $this->harrow();
+        $this->vendors($city, Category::factory()->create(['name' => 'Photographers', 'slug' => 'photographers']), 13);
 
         $this->get(route('location.show', [$city, 'page' => 2, 'utm_source' => 'newsletter']))
             ->assertOk()
@@ -109,6 +111,7 @@ class ListingPagesSeoTest extends TestCase
     {
         $city = $this->harrow();
         $category = Category::factory()->create(['name' => 'Photographers', 'slug' => 'photographers']);
+        $this->vendors($city, $category, 13);
 
         $this->get(route('location.category.show', [$city, $category, 'page' => 2, 'utm_source' => 'newsletter']))
             ->assertOk()
@@ -128,6 +131,38 @@ class ListingPagesSeoTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->where('meta.canonicalUrl', route('location.category.show', [$city, $category]))
             );
+    }
+
+    public function test_category_page_beyond_last_page_returns_not_found(): void
+    {
+        $category = Category::factory()->create(['name' => 'Photographers', 'slug' => 'photographers']);
+        $this->vendors($this->harrow(), $category, 13);
+
+        $this->get(route('category.show', [$category, 'page' => 3]))->assertNotFound();
+    }
+
+    public function test_category_page_without_vendors_beyond_first_page_returns_not_found(): void
+    {
+        $category = Category::factory()->create(['name' => 'Photographers', 'slug' => 'photographers']);
+
+        $this->get(route('category.show', [$category, 'page' => 2]))->assertNotFound();
+    }
+
+    public function test_location_page_beyond_last_page_returns_not_found(): void
+    {
+        $city = $this->harrow();
+        $this->vendors($city, Category::factory()->create(['name' => 'Photographers', 'slug' => 'photographers']), 13);
+
+        $this->get(route('location.show', [$city, 'page' => 3]))->assertNotFound();
+    }
+
+    public function test_location_category_page_beyond_last_page_returns_not_found(): void
+    {
+        $city = $this->harrow();
+        $category = Category::factory()->create(['name' => 'Photographers', 'slug' => 'photographers']);
+        $this->vendors($city, $category, 13);
+
+        $this->get(route('location.category.show', [$city, $category, 'page' => 3]))->assertNotFound();
     }
 
     public function test_category_page_is_noindex_without_active_vendors(): void
@@ -417,6 +452,13 @@ class ListingPagesSeoTest extends TestCase
             'country_id' => $city->country_id,
             'is_active' => $isActive,
         ]);
+    }
+
+    private function vendors(City $city, Category $category, int $count): void
+    {
+        foreach (range(1, $count) as $number) {
+            $this->vendor($city, $category, name: sprintf('Vendor %02d', $number));
+        }
     }
 
     private function harrow(): City

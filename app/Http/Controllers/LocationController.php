@@ -21,6 +21,8 @@ class LocationController extends Controller
             ->orderBy('name')
             ->paginate(12);
 
+        abort_if($vendors->currentPage() > $vendors->lastPage(), 404);
+
         return Inertia::render('locations/show', [
             'city' => [
                 'id' => $city->id,

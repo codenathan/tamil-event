@@ -25,6 +25,8 @@ class LocationCategoryController extends Controller
             ->orderBy('name')
             ->paginate(12);
 
+        abort_if($vendors->currentPage() > $vendors->lastPage(), 404);
+
         return Inertia::render('search', [
             'vendors' => $vendors,
             'filters' => [
